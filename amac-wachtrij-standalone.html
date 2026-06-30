@@ -253,6 +253,16 @@ background-attachment: fixed;
       font-size: 11px;
       color: var(--muted);
     }
+
+    /* ── Attentie-animatie: pulseert badge bij nieuwe klant in wachtrij ── */
+    @keyframes badge-pulse {
+      0%   { box-shadow: 0 0 0 0 rgba(26,61,124,0.55); transform: scale(1); }
+      55%  { box-shadow: 0 0 0 8px rgba(26,61,124,0);  transform: scale(1.15); }
+      100% { box-shadow: 0 0 0 0 rgba(26,61,124,0);    transform: scale(1); }
+    }
+    .badge-blue.badge-attention {
+      animation: badge-pulse 1.3s ease-out infinite;
+    }
   </style>
 </head>
 <body>
@@ -547,7 +557,8 @@ background-attachment: fixed;
     // Banner
     document.getElementById('banner-count').textContent =
       n + (n === 1 ? ' klant in wachtrij' : ' klanten in wachtrij');
-    const totaal = n * 15;
+    // ── Wachttijd: "ophalen" = 5 min · alle overige types = 15 min ──
+    const totaal = queue.reduce((som, e) => som + (e.type === 'ophalen' ? 5 : 15), 0);
     document.getElementById('banner-tijd').innerHTML =
       'Geschatte totale wachttijd: <strong>' + (totaal === 0 ? 'geen wachttijd' : totaal + ' min') + '</strong>';
 
@@ -598,6 +609,32 @@ background-attachment: fixed;
     }).join('');
   }
 
+  // ── Attentie-animatie ──
+  // prevQueueLength begint op -1: zorgt dat de eerste laad (pagina openen)
+  // géén animatie triggert — alleen echte nieuwe toevoegingen daarna wel.
+  let prevQueueLength = -1;
+
+  function startAttentieAnimatie() {
+    // ★ HIER START DE ANIMATIE: klasse toevoegen aan de blauwe badge
+    const badge = document.getElementById('banner-count').closest('.badge-stat');
+    badge.classList.remove('badge-attention'); // reset eerst (voor herstart)
+    void badge.offsetWidth;                    // forceer reflow → animatie herstart
+    badge.classList.add('badge-attention');
+  }
+
+  function stopAttentieAnimatie() {
+    // ★ HIER STOPT DE ANIMATIE: klasse verwijderen (lokaal, per apparaat)
+    document.getElementById('banner-count')
+      .closest('.badge-stat')
+      .classList.remove('badge-attention');
+  }
+
+  // Stopt animatie zodra gebruiker op dit apparaat interageert
+  // passive:true = geen performance-impact op scroll/touch
+  ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(evt =>
+    window.addEventListener(evt, stopAttentieAnimatie, { passive: true })
+  );
+
   // ── Live synchronisatie ──
   // Dit stukje zorgt dat ALLE geopende apparaten automatisch bijwerken
   // zodra er ergens een klant wordt toegevoegd of verwijderd.
@@ -607,6 +644,13 @@ background-attachment: fixed;
       .map(key => ({ key, ...data[key] }))
       .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
     queue.forEach((e, i) => e.positie = i + 1);
+
+    // Animatie starten als wachtrij gegroeid is (niet bij eerste laad, niet bij verwijdering)
+    if (prevQueueLength !== -1 && queue.length > prevQueueLength) {
+      startAttentieAnimatie();
+    }
+    prevQueueLength = queue.length;
+
     renderQueue();
   });
 </script>
