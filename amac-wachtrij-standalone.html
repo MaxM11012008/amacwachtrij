@@ -584,5 +584,195 @@ background-attachment: fixed;
 
   renderQueue();
 </script>
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const supabase = createClient(
+  "https://ighcwrsfwiobuwdftatk.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlnaGN3cnNmd2lvYnV3ZGZ0YXRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MTQ0MDksImV4cCI6MjA5ODM5MDQwOX0.PybX2lAfrCh1ZzFQojDozmFi89CGkyqmVW8OiyBHkhY"
+);
+
+
+function updateClock() {
+  document.getElementById('clock').textContent =
+    new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+}
+updateClock();
+setInterval(updateClock, 10000);
+
+function selectType(type) {
+  selectedType = type;
+  document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
+  document.getElementById('opt-' + type).classList.add('selected');
+  document.getElementById('field-repnr').style.display = type === 'ophalen' ? '' : 'none';
+  clearError('field-type');
+}
+window.selectType = selectType;
+
+function selectZoek(val) {
+  selectedZoek = val;
+  document.querySelectorAll('.zoek-option').forEach(el => el.classList.remove('selected'));
+  document.getElementById('zoek-' + val).classList.add('selected');
+  clearError('field-zoek');
+}
+window.selectZoek = selectZoek;
+
+function showError(fieldId) {
+  document.getElementById(fieldId).classList.add('has-error');
+}
+function clearError(fieldId) {
+  document.getElementById(fieldId).classList.remove('has-error');
+}
+
+async function laadQueue() {
+  const { data, error } = await supabase
+    .from('wachtrij')
+    .select('*')
+    .order('id', { ascending: true });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  queue = (data || []).map((e, i) => ({ ...e, positie: i + 1 }));
+  renderQueue();
+}
+
+async function voegKlantToe(entry) {
+  const { error } = await supabase.from('wachtrij').insert([entry]);
+  if (error) console.error(error);
+  await laadQueue();
+}
+
+async function verwijder(id) {
+  const { error } = await supabase.from('wachtrij').delete().eq('id', id);
+  if (error) console.error(error);
+  await laadQueue();
+}
+window.verwijder = verwijder;
+
+function resetForm() {
+  document.getElementById('naam').value = '';
+  document.getElementById('medewerker').value = '';
+  document.getElementById('repnr').value = '';
+  document.getElementById('probleem').value = '';
+  document.getElementById('icare').checked = false;
+  document.getElementById('geen-nl').checked = false;
+  document.getElementById('field-repnr').style.display = 'none';
+  document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('input[name="type"]').forEach(el => el.checked = false);
+  document.querySelectorAll('.zoek-option').forEach(el => el.classList.remove('selected'));
+  document.querySelectorAll('input[name="zoek"]').forEach(el => el.checked = false);
+  selectedType = null;
+  selectedZoek = null;
+}
+
+function zoekLabel(z) {
+  if (z === 'uitgeschakeld') return { cls: 'tag-zoek-uit', text: 'Zoek Mijn: Uitgeschakeld' };
+  if (z === 'niet_mogelijk') return { cls: 'tag-zoek-niet', text: 'Zoek Mijn: Niet mogelijk' };
+  return { cls: 'tag-zoek-nvt', text: 'Zoek Mijn: N.v.t.' };
+}
+
+function renderQueue() {
+  const container = document.getElementById('queue-container');
+  const n = queue.length;
+
+  document.getElementById('banner-count').textContent =
+    n + (n === 1 ? ' klant in wachtrij' : ' klanten in wachtrij');
+
+  const totaal = n * 15;
+  document.getElementById('banner-tijd').innerHTML =
+    'Geschatte totale wachttijd: <strong>' + (totaal === 0 ? 'geen wachttijd' : totaal + ' min') + '</strong>';
+
+  document.getElementById('queue-title').innerHTML = `
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+    Actuele wachtrij${n > 0 ? ' <span style="font-weight:400;color:var(--muted);font-size:12px">— ' + n + (n===1?' klant':' klanten') + ' · geschatte wachttijd ' + totaal + ' min</span>' : ''}
+  `;
+
+  if (n === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <p><strong>Geen klanten in de wachtrij</strong></p>
+        <p>Gebruik het formulier hierboven om een klant aan te melden.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = queue.map(e => {
+    const z = zoekLabel(e.zoek);
+    const typeTag = e.type === 'ophalen'
+      ? '<span class="tag tag-type-ophalen">📦 Reparatie ophalen</span>'
+      : '<span class="tag tag-type-ongepland">🔧 Ongepland — ter reparatie/service</span>';
+    const repTag = e.repnr ? `<span class="tag tag-repnr">Rep.nr: ${e.repnr}</span>` : '';
+    const icareTag = e.icare ? '<span class="tag tag-icare">✓ iCare / AppleCare</span>' : '';
+    const nlTag = e.geenNl ? '<span class="tag tag-nl">⚠ Spreekt geen Nederlands</span>' : '';
+    const zoekTag = `<span class="tag ${z.cls}">${z.text}</span>`;
+
+    return `
+      <div class="queue-item">
+        <div class="queue-header">
+          <div style="display:flex;align-items:center;gap:10px;min-width:0">
+            <div class="queue-number">${e.positie}</div>
+            <div>
+              <div class="queue-name">${e.naam}</div>
+              <div class="queue-meta">Aangemeld om ${e.tijd} · door ${e.medewerker}</div>
+            </div>
+          </div>
+          <button class="btn-remove" onclick="verwijder(${e.id})">Geholpen</button>
+        </div>
+        <div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}</div>
+        <div class="queue-desc">${e.probleem}</div>
+        <div class="tag-row">${icareTag}${nlTag}${zoekTag}</div>
+      </div>`;
+  }).join('');
+}
+
+document.getElementById('aanmeld-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  let ok = true;
+  const naam = document.getElementById('naam').value.trim();
+  const medewerker = document.getElementById('medewerker').value.trim();
+  const probleem = document.getElementById('probleem').value.trim();
+
+  if (!naam) { showError('field-naam'); ok = false; } else clearError('field-naam');
+  if (!medewerker) { showError('field-medewerker'); ok = false; } else clearError('field-medewerker');
+  if (!selectedType) { showError('field-type'); ok = false; } else clearError('field-type');
+  if (!probleem) { showError('field-probleem'); ok = false; } else clearError('field-probleem');
+  if (!selectedZoek) { showError('field-zoek'); ok = false; } else clearError('field-zoek');
+
+  if (!ok) return;
+
+  const entry = {
+    naam,
+    medewerker,
+    type: selectedType,
+    repnr: selectedType === 'ophalen' ? document.getElementById('repnr').value.trim() : '',
+    probleem,
+    zoek: selectedZoek,
+    icare: document.getElementById('icare').checked,
+    geenNl: document.getElementById('geen-nl').checked,
+    tijd: new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' })
+  };
+
+  await voegKlantToe(entry);
+  resetForm();
+});
+
+supabase
+  .channel('wachtrij-live')
+  .on('postgres_changes', { event: '*', schema: 'public', table: 'wachtrij' }, () => {
+    laadQueue();
+  })
+  .subscribe();
+
+laadQueue();
+</script>
 </body>
 </html>
