@@ -4,6 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Amac Service Wachtrij</title>
+  <!-- Preconnect: start DNS-verbinding met Firebase vóór de scripts laden -->
+  <link rel="preconnect" href="https://www.gstatic.com">
+  <link rel="preconnect" href="https://amac-wachtrij-default-rtdb.europe-west1.firebasedatabase.app">
+  <!-- Preload: laad achtergrond + logo alvast zodat login-scherm direct scherp is -->
+  <link rel="preload" href="Amac-B2C_Achtergrond.png" as="image">
+  <link rel="preload" href="Amac_Logo.svg" as="image" type="image/svg+xml">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -31,14 +37,37 @@
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       font-size: 14px;
-      background-image: url(Amac-B2C_Achtergrond.png);
-background-repeat: no-repeat;
-background-position: center;
-background-size: cover;
-background-attachment: fixed;
+      /*
+       * ── PERFORMANCE FIX ──────────────────────────────────────────────────────
+       * background-attachment: fixed is verwijderd van body.
+       *
+       * Waarom het traag maakte:
+       *   Met background-attachment:fixed kan de browser de achtergrond NIET op
+       *   een eigen GPU-compositor-laag zetten. Elke repaint door een toetsaanslag
+       *   (cursorblink, teken renderen, focus glow) dwong de browser om de volledige
+       *   viewport-achtergrond opnieuw te schilderen. Dat blokkeerde input-rendering.
+       *
+       * De fix:
+       *   body::before hieronder is position:fixed + z-index:-1. De browser
+       *   promoveert dit automatisch naar een eigen GPU-laag. Typeringen in de
+       *   login-overlay veroorzaken geen repaint meer van de achtergrond.
+       * ─────────────────────────────────────────────────────────────────────────
+       */
       color: var(--text);
       min-height: 100vh;
       -webkit-font-smoothing: antialiased;
+    }
+    /* Vervangt background-attachment:fixed — GPU-laag, repaint-vrij tijdens typing */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      background-image: url(Amac-B2C_Achtergrond.png);
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: cover;
+      /* position:fixed zorgt automatisch voor GPU-compositie — geen will-change nodig */
     }
   
     .header-inner {
@@ -104,7 +133,8 @@ background-attachment: fixed;
     .field.full { grid-column: 1 / -1; }
     label { font-size: 12px; font-weight: 600; color: var(--text); }
     label .req { color: var(--danger); margin-left: 2px; }
-    input[type="text"], textarea, select {
+    /* ── Bug fix: type="email" en type="password" kregen eerder geen styling ── */
+    input[type="text"], input[type="email"], input[type="password"], textarea, select {
       width: 100%;
       padding: 8px 11px;
       border: 1px solid var(--border);
@@ -116,7 +146,7 @@ background-attachment: fixed;
       transition: border-color 0.15s;
       outline: none;
     }
-    input[type="text"]:focus, textarea:focus, select:focus {
+    input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
       border-color: var(--primary);
       box-shadow: 0 0 0 3px rgba(26,61,124,0.1);
     }
@@ -254,12 +284,31 @@ background-attachment: fixed;
       color: var(--muted);
     }
 
+    /* ── Loading overlay: zichtbaar tijdens Firebase auth-check ── */
+    #loading-overlay {
+      position: fixed; inset: 0; z-index: 1001;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px;
+      /* Geen eigen background-image: body::before (GPU-laag) is zichtbaar eronder */
+    }
+    .loading-spinner {
+      width: 36px; height: 36px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-logo { width: 60px; height: 60px; opacity: 0.92; }
+
     /* ── Login overlay ── */
     #login-overlay {
       position: fixed; inset: 0; z-index: 1000;
       display: flex; align-items: center; justify-content: center;
-      background-image: url(Amac-B2C_Achtergrond.png);
-      background-size: cover; background-position: center;
+      /* Geen eigen background-image: body::before (GPU-laag) toont eronder.
+         will-change:transform promoveert dit element naar zijn eigen compositor-laag:
+         typeringen in de inputs veroorzaken alleen een repaint binnen deze laag. */
+      will-change: transform;
     }
     .login-card {
       background: var(--card);
@@ -269,12 +318,19 @@ background-attachment: fixed;
       box-shadow: 0 8px 32px rgba(0,0,0,0.18);
       width: 100%; max-width: 360px;
       display: flex; flex-direction: column; align-items: center; gap: 6px;
+      /* contain:layout → reflows door typing blijven binnen de card;
+         geen cascade naar buiten (overlay, body). Geen contain:paint want
+         dat zou de box-shadow afkappen. */
+      contain: layout;
     }
     .login-logo { width: 72px; height: 72px; margin-bottom: 4px; }
     .login-card h2 { font-size: 17px; font-weight: 700; color: var(--text); margin-top: 4px; }
     .login-card p  { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
     .login-card .field { width: 100%; }
     .login-card label { color: var(--text); }
+    /* touch-action:manipulation → browser wacht niet op double-tap detectie (300ms delay).
+       Elke toetsaanslag op mobiel reageert direct, zonder vertraging. */
+    .login-card input { touch-action: manipulation; }
     .login-error {
       width: 100%;
       background: #fef2f2; border: 1px solid #fecaca;
@@ -311,8 +367,15 @@ background-attachment: fixed;
 </head>
 <body>
 
-<!-- ── Login overlay: zichtbaar zolang niet ingelogd ── -->
-<div id="login-overlay">
+<!-- ── Loading overlay: zichtbaar terwijl Firebase de sessiestatus controleert ── -->
+<!-- Hierdoor zien al-ingelogde gebruikers direct de app, zonder loginscherm-flits -->
+<div id="loading-overlay">
+  <img src="Amac_Logo.svg" alt="Amac logo" class="loading-logo">
+  <div class="loading-spinner"></div>
+</div>
+
+<!-- ── Login overlay: standaard verborgen — JS toont dit als er géén sessie is ── -->
+<div id="login-overlay" style="display:none">
   <div class="login-card">
     <img src="Amac_Logo.svg" alt="Amac logo" class="login-logo">
     <h2>Service Wachtrij</h2>
@@ -320,7 +383,7 @@ background-attachment: fixed;
     <form id="login-form" novalidate style="width:100%;display:flex;flex-direction:column;gap:12px">
       <div class="field" id="field-login-email">
         <label>E-mailadres</label>
-        <input type="email" id="login-email" placeholder="naam@amac.nl" autocomplete="email" />
+        <input type="email" id="login-email" placeholder="naam@amac.nl" autocomplete="email" autofocus />
         <span class="error-msg">Vul een geldig e-mailadres in</span>
       </div>
       <div class="field" id="field-login-ww">
@@ -529,6 +592,18 @@ background-attachment: fixed;
   firebase.initializeApp(firebaseConfig);
   const dbRef = firebase.database().ref('wachtrij');
 
+  // ── Gecachete DOM-referenties ──
+  // getElementById eenmalig uitvoeren is ~10× sneller dan elke render opnieuw
+  const elLoginOverlay   = document.getElementById('login-overlay');
+  const elLoadingOverlay = document.getElementById('loading-overlay');
+  const elAppContent     = document.getElementById('app-content');
+  const elBannerCount    = document.getElementById('banner-count');
+  const elBannerTijd     = document.getElementById('banner-tijd');
+  const elQueueTitle     = document.getElementById('queue-title');
+  const elQueueContainer = document.getElementById('queue-container');
+  // Badge voor attentie-animatie (closest() maar één keer uitvoeren)
+  const elBannerBadge    = elBannerCount.closest('.badge-stat');
+
   // ── State ──
   let queue = [];
   let selectedType = null;
@@ -630,25 +705,22 @@ background-attachment: fixed;
   }
 
   function renderQueue() {
-    const container = document.getElementById('queue-container');
     const n = queue.length;
 
-    // Banner
-    document.getElementById('banner-count').textContent =
-      n + (n === 1 ? ' klant in wachtrij' : ' klanten in wachtrij');
-    // ── Wachttijd: "ophalen" = 5 min · alle overige types = 15 min ──
+    // Banner — gecachete refs, geen getElementById meer
+    elBannerCount.textContent = n + (n === 1 ? ' klant in wachtrij' : ' klanten in wachtrij');
     const totaal = queue.reduce((som, e) => som + (e.type === 'ophalen' ? 5 : 15), 0);
-    document.getElementById('banner-tijd').innerHTML =
+    elBannerTijd.innerHTML =
       'Geschatte totale wachttijd: <strong>' + (totaal === 0 ? 'geen wachttijd' : totaal + ' min') + '</strong>';
 
     // Titel
-    document.getElementById('queue-title').innerHTML = `
+    elQueueTitle.innerHTML = `
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Actuele wachtrij${n > 0 ? ' <span style="font-weight:400;color:var(--muted);font-size:12px">— ' + n + (n===1?' klant':' klanten') + ' · geschatte wachttijd ' + totaal + ' min</span>' : ''}
     `;
 
     if (n === 0) {
-      container.innerHTML = `
+      elQueueContainer.innerHTML = `
         <div class="empty-state">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           <p><strong>Geen klanten in de wachtrij</strong></p>
@@ -657,15 +729,15 @@ background-attachment: fixed;
       return;
     }
 
-    container.innerHTML = queue.map(e => {
+    elQueueContainer.innerHTML = queue.map(e => {
       const z = zoekLabel(e.zoek);
       const typeTag = e.type === 'ophalen'
         ? '<span class="tag tag-type-ophalen">📦 Reparatie ophalen</span>'
         : '<span class="tag tag-type-ongepland">🔧 Ongepland — ter reparatie/service</span>';
-      const repTag = e.repnr ? `<span class="tag tag-repnr">Rep.nr: ${e.repnr}</span>` : '';
-      const icareTag = e.icare ? '<span class="tag tag-icare">✓ iCare / AppleCare</span>' : '';
-      const nlTag = e.geenNl ? '<span class="tag tag-nl">⚠ Spreekt geen Nederlands</span>' : '';
-      const zoekTag = `<span class="tag ${z.cls}">${z.text}</span>`;
+      const repTag   = e.repnr   ? `<span class="tag tag-repnr">Rep.nr: ${e.repnr}</span>` : '';
+      const icareTag = e.icare   ? '<span class="tag tag-icare">✓ iCare / AppleCare</span>' : '';
+      const nlTag    = e.geenNl  ? '<span class="tag tag-nl">⚠ Spreekt geen Nederlands</span>' : '';
+      const zoekTag  = `<span class="tag ${z.cls}">${z.text}</span>`;
       return `
         <div class="queue-item">
           <div class="queue-header">
@@ -694,40 +766,82 @@ background-attachment: fixed;
   let prevQueueLength = -1;
 
   function startAttentieAnimatie() {
-    // ★ HIER START DE ANIMATIE: klasse toevoegen aan de blauwe badge
-    const badge = document.getElementById('banner-count').closest('.badge-stat');
-    badge.classList.remove('badge-attention'); // reset eerst (voor herstart)
-    void badge.offsetWidth;                    // forceer reflow → animatie herstart
-    badge.classList.add('badge-attention');
+    elBannerBadge.classList.remove('badge-attention');
+    void elBannerBadge.offsetWidth;
+    elBannerBadge.classList.add('badge-attention');
   }
 
   function stopAttentieAnimatie() {
-    // ★ HIER STOPT DE ANIMATIE: klasse verwijderen (lokaal, per apparaat)
-    document.getElementById('banner-count')
-      .closest('.badge-stat')
-      .classList.remove('badge-attention');
+    elBannerBadge.classList.remove('badge-attention');
   }
 
-  // Stopt animatie zodra gebruiker op dit apparaat interageert
-  // passive:true = geen performance-impact op scroll/touch
-  ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'].forEach(evt =>
+  // Stopt animatie zodra gebruiker interageert — keydown verwijderd:
+  // die runde synchroon op ELKE toets (ook tijdens inloggen), midden in de
+  // input-renderflow. mousedown + touchstart stoppen de animatie al afdoende.
+  ['mousemove', 'mousedown', 'touchstart', 'scroll'].forEach(evt =>
     window.addEventListener(evt, stopAttentieAnimatie, { passive: true })
   );
 
   // ── Authenticatie ──
-  // Sessie-persistentie: SESSION = ingelogd zolang tabblad open is.
-  // Sluit je de browser, dan moet je opnieuw inloggen. Veilig op gedeeld apparaat.
-  firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION).catch(() => {});
+  // SESSION = ingelogd zolang tabblad open is; sluit je de browser → opnieuw inloggen.
+  // .finally() zorgt dat onAuthStateChanged pas wordt gestart NADAT de persistentie
+  // is ingesteld — dit voorkomt race conditions bij de eerste sessie-check.
+  let dbListenerActief = false;
+
+  firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+    .catch(() => {}) // fallback: ga door ook als persistence mislukt
+    .finally(() => {
+
+      firebase.auth().onAuthStateChanged((user) => {
+        // Altijd: verberg de loading spinner (auth-check is klaar)
+        elLoadingOverlay.style.display = 'none';
+
+        if (user) {
+          // ✅ Ingelogd: toon app, verberg login
+          elLoginOverlay.style.display = 'none';
+          elAppContent.style.display   = '';
+
+          // DB-listener maar één keer koppelen
+          if (!dbListenerActief) {
+            dbListenerActief = true;
+            dbRef.on('value', (snapshot) => {
+              const data = snapshot.val() || {};
+              queue = Object.keys(data)
+                .map(key => ({ key, ...data[key] }))
+                .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+              queue.forEach((e, i) => e.positie = i + 1);
+
+              if (prevQueueLength !== -1 && queue.length > prevQueueLength) {
+                startAttentieAnimatie();
+              }
+              prevQueueLength = queue.length;
+              renderQueue();
+            });
+          }
+        } else {
+          // 🔒 Uitgelogd: toon login, verberg app, verwijder DB-listener
+          elLoginOverlay.style.display = 'flex';
+          elAppContent.style.display   = 'none';
+
+          if (dbListenerActief) {
+            dbRef.off();
+            dbListenerActief = false;
+          }
+          queue = [];
+          prevQueueLength = -1;
+        }
+      });
+
+    });
 
   // ── Login-formulier ──
   document.getElementById('login-form').addEventListener('submit', async function(e) {
     e.preventDefault();
-    const email    = document.getElementById('login-email').value.trim();
-    const ww       = document.getElementById('login-ww').value;
-    const errEl    = document.getElementById('login-error');
-    const btn      = document.getElementById('login-btn');
+    const email = document.getElementById('login-email').value.trim();
+    const ww    = document.getElementById('login-ww').value;
+    const errEl = document.getElementById('login-error');
+    const btn   = document.getElementById('login-btn');
 
-    // Basisvalidatie
     let ok = true;
     if (!email) { document.getElementById('field-login-email').classList.add('has-error'); ok = false; }
     else          document.getElementById('field-login-email').classList.remove('has-error');
@@ -735,73 +849,25 @@ background-attachment: fixed;
     else          document.getElementById('field-login-ww').classList.remove('has-error');
     if (!ok) return;
 
-    btn.disabled = true;
-    btn.innerHTML = 'Bezig…';
+    btn.disabled   = true;
+    btn.textContent = 'Bezig…';
     errEl.style.display = 'none';
 
     try {
       await firebase.auth().signInWithEmailAndPassword(email, ww);
-      // onAuthStateChanged handelt de rest af (overlay verbergen, app tonen)
-    } catch (err) {
-      errEl.textContent  = 'Onjuist e-mailadres of wachtwoord.';
+      // onAuthStateChanged handelt het tonen van de app af
+    } catch {
+      errEl.textContent   = 'Onjuist e-mailadres of wachtwoord.';
       errEl.style.display = 'block';
-      btn.disabled = false;
-      btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Inloggen';
+      btn.disabled        = false;
+      btn.innerHTML       = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Inloggen';
     }
   });
 
   // ── Uitloggen ──
   function uitloggen() {
     firebase.auth().signOut();
-    // onAuthStateChanged detecteert dit en toont automatisch de login-overlay terug
   }
-
-  // ── Auth state bewaker + DB-listener ──
-  // Dit is de centrale poortwachter: de wachtrij-data wordt pas geladen
-  // nadat Firebase heeft bevestigd dat de gebruiker echt ingelogd is.
-  let dbListenerActief = false;
-
-  firebase.auth().onAuthStateChanged((user) => {
-    if (user) {
-      // ✅ Ingelogd: toon app, verberg login
-      document.getElementById('login-overlay').style.display = 'none';
-      document.getElementById('app-content').style.display   = '';
-
-      // Koppel de DB-listener maar één keer aan (niet opnieuw bij tab-focus e.d.)
-      if (!dbListenerActief) {
-        dbListenerActief = true;
-
-        // ── Live synchronisatie ──
-        dbRef.on('value', (snapshot) => {
-          const data = snapshot.val() || {};
-          queue = Object.keys(data)
-            .map(key => ({ key, ...data[key] }))
-            .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-          queue.forEach((e, i) => e.positie = i + 1);
-
-          if (prevQueueLength !== -1 && queue.length > prevQueueLength) {
-            startAttentieAnimatie();
-          }
-          prevQueueLength = queue.length;
-
-          renderQueue();
-        });
-      }
-    } else {
-      // 🔒 Uitgelogd: verberg app, toon login, verwijder DB-listener
-      document.getElementById('login-overlay').style.display = 'flex';
-      document.getElementById('app-content').style.display   = 'none';
-
-      if (dbListenerActief) {
-        dbRef.off(); // Verwijder alle listeners → geen data meer ophalen
-        dbListenerActief = false;
-      }
-
-      // Wachtrij leegmaken zodat na herlogin geen stale data zichtbaar is
-      queue = [];
-      prevQueueLength = -1;
-    }
-  });
 </script>
 </body>
 </html>
