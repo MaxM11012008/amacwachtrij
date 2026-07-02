@@ -615,7 +615,7 @@
           <!-- Reparatienummer (conditioneel) -->
           <div class="field full" id="field-repnr" style="display:none;">
             <label>Reparatienummer <span style="color:var(--muted);font-weight:400">(optioneel)</span></label>
-            <input type="text" id="repnr" placeholder="bijv. 20197584" />
+            <input type="text" id="repnr" placeholder="bijv. 2019-7438" inputmode="numeric" maxlength="9" />
           </div>
 
           <!-- Probleemomschrijving -->
@@ -714,36 +714,36 @@
   const elToggleBtn      = document.getElementById('btn-toggle-closed');
   const elToggleBtnLabel = document.getElementById('btn-toggle-closed-label');
 
-  // ── State: "wachtrij gesloten" (persistent, los van de nieuwe-klant-animatie) ──
+  // ── State: "wachtrij gesloten" (gesynchroniseerd via Firebase) ──
   // Deze status heeft NIETS te maken met de nieuwe-klant badge-animatie hieronder.
   // Twee volledig gescheiden state-variabelen, gescheiden CSS-klassen
-  // (.banner-attention hier vs. .badge-attention verderop), en geen gedeelde
-  // listener meer die ze allebei tegelijk beïnvloedt.
+  // (.banner-attention hier vs. .badge-attention verderop), geen gedeelde listener.
   //
-  // queueClosed wordt uit localStorage gelezen zodat de status een pagina-
-  // herlaad overleeft. Bij page load wordt de opgeslagen waarde direct
-  // toegepast (banner + knop), nog vóór de gebruiker iets doet.
-  const GESLOTEN_KEY = 'amacWachtrijGesloten';
-  let queueClosed = localStorage.getItem(GESLOTEN_KEY) === 'true';
+  // GEWIJZIGD: stond eerder in localStorage (alleen lokaal, per apparaat/browser).
+  // Dat hield sync tussen apparaten tegen — vervangen door een Firebase-pad
+  // ('status/gesloten'), net als de wachtrij zelf al synchroniseert. Firebase is
+  // nu de ENIGE bron van waarheid: alle apparaten lezen en schrijven dezelfde
+  // waarde, dus de melding verschijnt overal tegelijk.
+  const statusRef = firebase.database().ref('status/gesloten');
+  let queueClosed = false; // wordt direct overschreven zodra Firebase de echte waarde stuurt
 
   function toepassenGeslotenStatus() {
     elClosedBanner.style.display = queueClosed ? 'flex' : 'none';
     // De glow/shake-animatie loopt gewoon door (infinite) zolang de banner
-    // zichtbaar is — hij wordt NIET meer gestopt door interactie, alleen door
-    // het expliciet heropenen van de wachtrij (zie toggleWachtrijGesloten).
+    // zichtbaar is — hij wordt NIET gestopt door interactie, alleen door het
+    // expliciet heropenen/sluiten van de wachtrij (op eender welk apparaat).
     elClosedBanner.classList.toggle('banner-attention', queueClosed);
     elToggleBtn.classList.toggle('is-closed', queueClosed);
     elToggleBtnLabel.textContent = queueClosed ? 'Wachtrij heropenen' : 'Wachtrij sluiten';
   }
-  toepassenGeslotenStatus(); // direct toepassen bij het laden van de pagina
 
   function toggleWachtrijGesloten() {
-    // De ENIGE plek die queueClosed mag wijzigen — dit is de "expliciete actie"
-    // die de melding volgens de eisen mag tonen/verbergen. Interacties elders
-    // op de pagina raken deze functie nooit aan.
-    queueClosed = !queueClosed;
-    localStorage.setItem(GESLOTEN_KEY, queueClosed ? 'true' : 'false');
-    toepassenGeslotenStatus();
+    // Schrijft de nieuwe status naar Firebase. De UI wordt HIER niet zelf
+    // aangepast — dat gebeurt uitsluitend via de statusRef.on('value')-listener
+    // verderop, zodra Firebase de wijziging bevestigt. Zo is er precies één
+    // plek die de daadwerkelijke schermstatus bepaalt, ongeacht van welk
+    // apparaat de wijziging kwam — en werkt de animatie identiek overal.
+    statusRef.set(!queueClosed);
   }
 
   // ── State ──
@@ -767,6 +767,24 @@
     document.getElementById('field-repnr').style.display = type === 'ophalen' ? '' : 'none';
     clearError('field-type');
   }
+
+  // ── Reparatienummer: automatische opmaak dddd-dddd ──
+  // Haalt alle niet-cijfers weg, knipt af op 8 cijfers, en zet na de eerste
+  // 4 cijfers automatisch een streepje. Idempotent: opnieuw formatteren van
+  // een al-opgemaakte waarde (of een oud, ongeformatteerd nummer) geeft
+  // hetzelfde correcte resultaat — daardoor werkt dit ook voor bestaande
+  // reparatienummers die nog zonder streepje zijn opgeslagen.
+  function formatRepnr(raw) {
+    const digits = String(raw || '').replace(/\D/g, '').slice(0, 8);
+    if (digits.length <= 4) return digits;
+    return digits.slice(0, 4) + '-' + digits.slice(4);
+  }
+
+  // Live formatteren tijdens het typen — medewerker hoeft het streepje nooit
+  // zelf in te typen, die verschijnt vanzelf na het 4e cijfer.
+  document.getElementById('repnr').addEventListener('input', function () {
+    this.value = formatRepnr(this.value);
+  });
 
   // ── Zoek Mijn selectie ──
   function selectZoek(val) {
@@ -805,7 +823,7 @@
       naam,
       medewerker,
       type: selectedType,
-      repnr: selectedType === 'ophalen' ? document.getElementById('repnr').value.trim() : '',
+      repnr: selectedType === 'ophalen' ? formatRepnr(document.getElementById('repnr').value.trim()) : '',
       probleem,
       zoek: selectedZoek,
       icare: document.getElementById('icare').checked,
@@ -876,7 +894,7 @@
       const typeTag = e.type === 'ophalen'
         ? '<span class="tag tag-type-ophalen">📦 Reparatie ophalen</span>'
         : '<span class="tag tag-type-ongepland">🔧 Ongepland — ter reparatie/service</span>';
-      const repTag   = e.repnr   ? `<span class="tag tag-repnr">Rep.nr: ${e.repnr}</span>` : '';
+      const repTag   = e.repnr   ? `<span class="tag tag-repnr">Rep.nr: ${formatRepnr(e.repnr)}</span>` : '';
       const icareTag = e.icare   ? '<span class="tag tag-icare">✓ iCare / AppleCare</span>' : '';
       const nlTag    = e.geenNl  ? '<span class="tag tag-nl">⚠ Spreekt geen Nederlands</span>' : '';
       const zoekTag  = `<span class="tag ${z.cls}">${z.text}</span>`;
@@ -902,8 +920,8 @@
     }).join('');
   }
 
-  // (queueClosed en toggleWachtrijGesloten staan nu bovenaan het script,
-  // direct bij de gecachete DOM-refs — zie GESLOTEN_KEY hierboven)
+  // (queueClosed, statusRef en toggleWachtrijGesloten staan nu bovenaan het
+  // script, direct bij de gecachete DOM-refs — gesynchroniseerd via Firebase)
 
   // ── Attentie-animatie ──
   // prevQueueLength begint op -1: zorgt dat de eerste laad (pagina openen)
@@ -949,7 +967,7 @@
           elLoginOverlay.style.display = 'none';
           elAppContent.style.display   = '';
 
-          // DB-listener maar één keer koppelen
+          // DB-listeners maar één keer koppelen (wachtrij + gesloten-status)
           if (!dbListenerActief) {
             dbListenerActief = true;
             dbRef.on('value', (snapshot) => {
@@ -965,6 +983,14 @@
               prevQueueLength = queue.length;
               renderQueue();
             });
+
+            // Gesloten-status: elk apparaat abonneert zich op hetzelfde Firebase-pad.
+            // Zodra ÉÉN apparaat de wachtrij sluit/heropent, ontvangen ALLE andere
+            // apparaten deze update direct en passen ze dezelfde UI + animatie toe.
+            statusRef.on('value', (snapshot) => {
+              queueClosed = snapshot.val() === true;
+              toepassenGeslotenStatus();
+            });
           }
         } else {
           // 🔒 Uitgelogd: toon login, verberg app, verwijder DB-listener
@@ -973,6 +999,7 @@
 
           if (dbListenerActief) {
             dbRef.off();
+            statusRef.off();
             dbListenerActief = false;
           }
           queue = [];
