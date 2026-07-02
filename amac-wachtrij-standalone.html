@@ -263,12 +263,8 @@
     }
     .behandel-status.wachtend { background: #f8fafc; color: var(--muted); border: 1px solid var(--border); }
     .behandel-status.in-behandeling { background: var(--success-light); color: var(--success); border: 1px solid #bbf7d0; }
-    .behandel-select {
-      font-size: 12px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px;
-      max-width: 160px;
-    }
-    /* ── NIEUW: vrije tekstinvoer i.p.v. dropdown zodra een klant wordt opgepakt ──
-       Geen 'list' attribuut en autocomplete="off" zodat geen suggesties/datalist
+    /* ── Vrije tekstinvoer i.p.v. dropdown zodra een klant wordt opgepakt ──
+       Geen 'list'-attribuut en autocomplete="off" zodat geen suggesties/datalist
        verschijnen — de medewerker typt zijn/haar naam volledig handmatig. */
     .behandel-input {
       font-size: 12px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px;
@@ -302,6 +298,14 @@
       white-space: nowrap;
     }
     .btn-vrijgeven:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
+
+    /* ── Subtiele inline foutmelding bij "Neem in behandeling" ──
+       Zelfde patroon/klasse (.error-msg) als de rest van het formulier:
+       verborgen tekst die verschijnt zodra .has-error actief is, plus een
+       rode rand op het invoerveld. Geen alert()/browserpopup meer. */
+    .behandel-field { display: flex; flex-direction: column; gap: 3px; }
+    .behandel-field.has-error .behandel-input { border-color: var(--danger); }
+    .behandel-field.has-error .error-msg { display: block; }
 
     .empty-state {
       background: var(--card);
@@ -598,7 +602,10 @@
 
           <!-- Zoek Mijn -->
           <div class="field full" id="field-zoek">
-            <label>Zoek Mijn status <span class="req">*</span></label>
+            <label>Zoek Mijn status
+              <span class="req" id="zoek-req">*</span>
+              <span id="zoek-optioneel" style="display:none;color:var(--muted);font-weight:400">(optioneel)</span>
+            </label>
             <div class="zoek-group">
               <label class="zoek-option" id="zoek-uitgeschakeld" onclick="selectZoek('uitgeschakeld')">
                 <input type="radio" name="zoek" value="uitgeschakeld" /> Uitgeschakeld
@@ -700,6 +707,8 @@
   const elProbleemReq       = document.getElementById('probleem-req');
   const elProbleemOptioneel = document.getElementById('probleem-optioneel');
   const elFieldRepnr        = document.getElementById('field-repnr');
+  const elZoekReq           = document.getElementById('zoek-req');
+  const elZoekOptioneel     = document.getElementById('zoek-optioneel');
 
   // ── NIEUW: datalist vullen vanuit de centrale MEDEWERKERS-array ──
   // Herstelt de volledige, selecteerbare namenlijst in het aanmeldformulier.
@@ -740,10 +749,14 @@
     document.getElementById('opt-' + type).classList.add('selected');
     elFieldRepnr.style.display = type === 'ophalen' ? '' : 'none';
 
-    const problemVerplicht = type !== 'ophalen';
-    elProbleemReq.style.display       = problemVerplicht ? '' : 'none';
-    elProbleemOptioneel.style.display = problemVerplicht ? 'none' : '';
-    if (!problemVerplicht) clearError('field-probleem');
+    // "Reparatie ophalen" maakt zowel Probleemomschrijving als Zoek Mijn optioneel —
+    // label en verplichtings-asterisk schakelen direct mee zodra het type wijzigt.
+    const isOphalen = type === 'ophalen';
+    elProbleemReq.style.display       = isOphalen ? 'none' : '';
+    elProbleemOptioneel.style.display = isOphalen ? '' : 'none';
+    elZoekReq.style.display           = isOphalen ? 'none' : '';
+    elZoekOptioneel.style.display     = isOphalen ? '' : 'none';
+    if (isOphalen) { clearError('field-probleem'); clearError('field-zoek'); }
 
     clearError('field-type');
   }
@@ -788,10 +801,10 @@
     if (!naam) { showError('field-naam'); ok = false; } else clearError('field-naam');
     if (!medewerker) { showError('field-medewerker'); ok = false; } else clearError('field-medewerker');
     if (!selectedType) { showError('field-type'); ok = false; } else clearError('field-type');
-    const probleemVerplicht = selectedType !== 'ophalen';
-    if (probleemVerplicht && !probleem) { showError('field-probleem'); ok = false; } else clearError('field-probleem');
-    const zoekVerplicht = selectedType !== 'ophalen';
-    if (zoekVerplicht && !selectedZoek) { showError('field-zoek'); ok = false; } else clearError('field-zoek');
+    // "Reparatie ophalen" maakt zowel Probleemomschrijving als Zoek Mijn optioneel
+    const isOphalen = selectedType === 'ophalen';
+    if (!isOphalen && !probleem)    { showError('field-probleem'); ok = false; } else clearError('field-probleem');
+    if (!isOphalen && !selectedZoek) { showError('field-zoek'); ok = false; } else clearError('field-zoek');
 
     if (!ok) return;
 
@@ -827,6 +840,8 @@
     elFieldRepnr.style.display = 'none';
     elProbleemReq.style.display = '';
     elProbleemOptioneel.style.display = 'none';
+    elZoekReq.style.display = '';
+    elZoekOptioneel.style.display = 'none';
     document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
     document.querySelectorAll('input[name="type"]').forEach(el => el.checked = false);
     document.querySelectorAll('.zoek-option').forEach(el => el.classList.remove('selected'));
@@ -839,16 +854,21 @@
     dbRef.child(key).remove();
   }
 
-  // ── NIEUW: toewijzingslogica ──
+  // ── Toewijzingslogica ──
   // Gebruikt altijd .child(key).update(...) i.p.v. de hele queue te herschrijven,
   // zodat gelijktijdige acties van meerdere medewerkers elkaar niet overschrijven.
   function neemInBehandeling(key, medewerkerNaam) {
-    if (!medewerkerNaam) {
-      alert('Kies eerst een medewerker uit de lijst.');
+    const veldId = 'behandel-field-' + key;
+    if (!medewerkerNaam.trim()) {
+      // Subtiele inline melding i.p.v. alert() — zelfde showError/clearError-
+      // mechanisme als de rest van het formulier, dus consistente stijl.
+      showError(veldId);
+      document.getElementById('pick-' + key).focus();
       return;
     }
+    clearError(veldId);
     dbRef.child(key).update({
-      behandelaar: medewerkerNaam,
+      behandelaar: medewerkerNaam.trim(),
       status: 'in-behandeling'
     });
   }
@@ -906,8 +926,11 @@
            </div>
            <button type="button" class="btn-vrijgeven" onclick="laatVrij('${e.key}')">Vrijgeven</button>`
         : `<div class="behandel-status wachtend">⏳ Wachtend</div>
-           <input type="text" class="behandel-input" id="pick-${e.key}"
-                  placeholder="Jouw naam…" autocomplete="off" list="" />
+           <div class="behandel-field" id="behandel-field-${e.key}">
+             <input type="text" class="behandel-input" id="pick-${e.key}"
+                    placeholder="Jouw naam…" autocomplete="off" />
+             <span class="error-msg">Vul je naam in</span>
+           </div>
            <button type="button" class="btn-behandel"
                    onclick="neemInBehandeling('${e.key}', document.getElementById('pick-${e.key}').value)">
              Neem in behandeling
