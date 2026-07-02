@@ -354,14 +354,106 @@
     }
     .btn-logout:hover { background: rgba(255,255,255,0.28); }
 
-    /* ── Attentie-animatie: pulseert badge bij nieuwe klant in wachtrij ── */
+    /* ── Wachtrij "gesloten" markering ── */
+    .btn-toggle-closed {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--radius);
+      font-size: 12px; font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .btn-toggle-closed:hover { border-color: var(--warning); background: var(--warning-light); }
+    /* Actieve staat: knop toont duidelijk dat de wachtrij nu gesloten is */
+    .btn-toggle-closed.is-closed {
+      background: var(--warning-light);
+      border-color: var(--warning);
+      color: var(--warning);
+    }
+    /* De waarschuwingsbanner zelf — opvallend, maar geen blokkade van de pagina */
+    .closed-banner {
+      display: flex; align-items: flex-start; gap: 10px;
+      background: var(--warning-light);
+      border: 1px solid #fde68a;
+      border-left: 4px solid var(--warning);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #7c4a03;
+      /* contain: layout voorkomt dat reflows in dit blok naar de rest van de
+         pagina lekken. Bewust GEEN 'paint' hier: dat zou de glow-ring van de
+         animatie (box-shadow buiten de randen) afsnijden. */
+      contain: layout;
+    }
+    .closed-banner svg { flex-shrink: 0; margin-top: 1px; color: var(--warning); }
+    .closed-banner strong { display: block; margin-bottom: 2px; font-size: 13px; }
+    .closed-banner p { font-size: 12px; color: #8a5a0c; }
+    .closed-banner .btn-heropen {
+      margin-left: auto; flex-shrink: 0;
+      background: white;
+      border: 1px solid var(--warning);
+      color: var(--warning);
+      border-radius: 6px;
+      padding: 6px 11px;
+      font-size: 11px; font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .closed-banner .btn-heropen:hover { background: var(--warning-light); }
+
+    /* ── Attentie-animatie: opvallende pulse + glow bij nieuwe klant in wachtrij ──
+       Heftiger dan voorheen: grotere schaalsprong, sterkere glow-ring, en een
+       kleurflits op de achtergrond zodat het echt opvalt tussen andere content. */
     @keyframes badge-pulse {
-      0%   { box-shadow: 0 0 0 0 rgba(26,61,124,0.55); transform: scale(1); }
-      55%  { box-shadow: 0 0 0 8px rgba(26,61,124,0);  transform: scale(1.15); }
-      100% { box-shadow: 0 0 0 0 rgba(26,61,124,0);    transform: scale(1); }
+      0%   { box-shadow: 0 0 0 0 rgba(26,61,124,0.6); transform: scale(1);    background: var(--primary-light); }
+      30%  { box-shadow: 0 0 0 10px rgba(26,61,124,0.25); transform: scale(1.12); background: #cfe0ff; }
+      60%  { box-shadow: 0 0 0 4px rgba(26,61,124,0.15); transform: scale(1.04); background: var(--primary-light); }
+      100% { box-shadow: 0 0 0 0 rgba(26,61,124,0);    transform: scale(1);    background: var(--primary-light); }
     }
     .badge-blue.badge-attention {
-      animation: badge-pulse 1.3s ease-out infinite;
+      animation: badge-pulse 0.9s ease-in-out infinite;
+    }
+
+    /* ── Animatie voor "wachtrij gesloten"-melding: glow + bounce + shake ──
+       Duidelijk krachtiger dan de klanten-badge — dit is een statuswaarschuwing
+       die niet over het hoofd gezien mag worden. Combinatie van drie effecten:
+       1. Brede kleurglow rondom (box-shadow)          → trekt de blik van veraf
+       2. Lichte schaal-bounce (transform: scale)       → voelt "levend" aan
+       3. Icoon-shake (transform: rotate op het icoon)  → focuspunt links
+
+       PERFORMANCE: uitsluitend transform/opacity/box-shadow gebruikt.
+       Vorige versie animeerde border-left-width, wat bij ELK animatieframe een
+       volledige layout-reflow van de pagina veroorzaakte — dat is hier verwijderd.
+       transform + opacity + box-shadow zijn compositor-only: de GPU tekent deze
+       zonder de rest van de pagina opnieuw te hoeven layouten. */
+    @keyframes closed-banner-glow {
+      0%   { box-shadow: 0 0 0 0 rgba(217,119,6,0.55), 0 2px 6px rgba(0,0,0,0.06); transform: scale(1); }
+      25%  { box-shadow: 0 0 0 12px rgba(217,119,6,0.18), 0 4px 16px rgba(217,119,6,0.3); transform: scale(1.015); }
+      50%  { box-shadow: 0 0 0 4px rgba(217,119,6,0.1), 0 2px 8px rgba(217,119,6,0.15); transform: scale(1); }
+      75%  { box-shadow: 0 0 0 12px rgba(217,119,6,0.18), 0 4px 16px rgba(217,119,6,0.3); transform: scale(1.015); }
+      100% { box-shadow: 0 0 0 0 rgba(217,119,6,0), 0 2px 6px rgba(0,0,0,0.06); transform: scale(1); }
+    }
+    .closed-banner.banner-attention {
+      animation: closed-banner-glow 1.8s ease-in-out infinite;
+      /* will-change ALLEEN op deze klasse (niet standaard op .closed-banner) —
+         de GPU-laag bestaat dus uitsluitend zolang er echt geanimeerd wordt. */
+      will-change: transform, box-shadow;
+    }
+    .closed-banner.banner-attention svg {
+      animation: closed-icon-shake 1.8s ease-in-out infinite;
+      transform-origin: center;
+    }
+    @keyframes closed-icon-shake {
+      0%, 60%, 100% { transform: rotate(0deg) scale(1); }
+      10%           { transform: rotate(-12deg) scale(1.1); }
+      20%           { transform: rotate(10deg) scale(1.1); }
+      30%           { transform: rotate(-8deg) scale(1.05); }
+      40%           { transform: rotate(6deg) scale(1.05); }
+      50%           { transform: rotate(0deg) scale(1); }
     }
   </style>
 </head>
@@ -426,6 +518,21 @@
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span id="banner-tijd">Geschatte totale wachttijd: <strong>geen wachttijd</strong></span>
     </div>
+    <!-- Knop om de wachtrij als "gesloten" te markeren (puur visuele status, blokkeert niets) -->
+    <button class="btn-toggle-closed" id="btn-toggle-closed" onclick="toggleWachtrijGesloten()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      <span id="btn-toggle-closed-label">Wachtrij sluiten</span>
+    </button>
+  </div>
+
+  <!-- Waarschuwingsbanner: verborgen totdat queueClosed = true -->
+  <div class="closed-banner" id="closed-banner" style="display:none">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <div>
+      <strong>Wachtrij is gesloten</strong>
+      <p>Nieuwe klanten worden voorlopig niet standaard aangenomen. Uitzonderingen blijven mogelijk — het formulier hieronder werkt gewoon door.</p>
+    </div>
+    <button class="btn-heropen" onclick="toggleWachtrijGesloten()">Heropenen</button>
   </div>
 
   <!-- Formulier -->
@@ -603,6 +710,41 @@
   const elQueueContainer = document.getElementById('queue-container');
   // Badge voor attentie-animatie (closest() maar één keer uitvoeren)
   const elBannerBadge    = elBannerCount.closest('.badge-stat');
+  const elClosedBanner   = document.getElementById('closed-banner');
+  const elToggleBtn      = document.getElementById('btn-toggle-closed');
+  const elToggleBtnLabel = document.getElementById('btn-toggle-closed-label');
+
+  // ── State: "wachtrij gesloten" (persistent, los van de nieuwe-klant-animatie) ──
+  // Deze status heeft NIETS te maken met de nieuwe-klant badge-animatie hieronder.
+  // Twee volledig gescheiden state-variabelen, gescheiden CSS-klassen
+  // (.banner-attention hier vs. .badge-attention verderop), en geen gedeelde
+  // listener meer die ze allebei tegelijk beïnvloedt.
+  //
+  // queueClosed wordt uit localStorage gelezen zodat de status een pagina-
+  // herlaad overleeft. Bij page load wordt de opgeslagen waarde direct
+  // toegepast (banner + knop), nog vóór de gebruiker iets doet.
+  const GESLOTEN_KEY = 'amacWachtrijGesloten';
+  let queueClosed = localStorage.getItem(GESLOTEN_KEY) === 'true';
+
+  function toepassenGeslotenStatus() {
+    elClosedBanner.style.display = queueClosed ? 'flex' : 'none';
+    // De glow/shake-animatie loopt gewoon door (infinite) zolang de banner
+    // zichtbaar is — hij wordt NIET meer gestopt door interactie, alleen door
+    // het expliciet heropenen van de wachtrij (zie toggleWachtrijGesloten).
+    elClosedBanner.classList.toggle('banner-attention', queueClosed);
+    elToggleBtn.classList.toggle('is-closed', queueClosed);
+    elToggleBtnLabel.textContent = queueClosed ? 'Wachtrij heropenen' : 'Wachtrij sluiten';
+  }
+  toepassenGeslotenStatus(); // direct toepassen bij het laden van de pagina
+
+  function toggleWachtrijGesloten() {
+    // De ENIGE plek die queueClosed mag wijzigen — dit is de "expliciete actie"
+    // die de melding volgens de eisen mag tonen/verbergen. Interacties elders
+    // op de pagina raken deze functie nooit aan.
+    queueClosed = !queueClosed;
+    localStorage.setItem(GESLOTEN_KEY, queueClosed ? 'true' : 'false');
+    toepassenGeslotenStatus();
+  }
 
   // ── State ──
   let queue = [];
@@ -760,6 +902,9 @@
     }).join('');
   }
 
+  // (queueClosed en toggleWachtrijGesloten staan nu bovenaan het script,
+  // direct bij de gecachete DOM-refs — zie GESLOTEN_KEY hierboven)
+
   // ── Attentie-animatie ──
   // prevQueueLength begint op -1: zorgt dat de eerste laad (pagina openen)
   // géén animatie triggert — alleen echte nieuwe toevoegingen daarna wel.
@@ -775,10 +920,13 @@
     elBannerBadge.classList.remove('badge-attention');
   }
 
-  // Stopt animatie zodra gebruiker interageert — keydown verwijderd:
-  // die runde synchroon op ELKE toets (ook tijdens inloggen), midden in de
-  // input-renderflow. mousedown + touchstart stoppen de animatie al afdoende.
-  ['mousemove', 'mousedown', 'touchstart', 'scroll'].forEach(evt =>
+  // Interactie (klik, scroll, toetsenbord, touch) stopt UITSLUITEND de
+  // nieuwe-klant badge-animatie — dit raakt de "wachtrij gesloten"-melding
+  // op geen enkele manier meer aan. Die melding stopt/verdwijnt alleen via
+  // de expliciete actie in toggleWachtrijGesloten() hierboven.
+  // Bewust GEEN 'mousemove' of 'mousedown' — muisbeweging/hover telt niet als
+  // bewuste interactie.
+  ['click', 'scroll', 'keydown', 'touchstart'].forEach(evt =>
     window.addEventListener(evt, stopAttentieAnimatie, { passive: true })
   );
 
