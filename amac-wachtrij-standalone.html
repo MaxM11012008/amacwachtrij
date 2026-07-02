@@ -7,6 +7,11 @@
   <!-- Preconnect: start DNS-verbinding met Firebase vóór de scripts laden -->
   <link rel="preconnect" href="https://www.gstatic.com">
   <link rel="preconnect" href="https://amac-wachtrij-default-rtdb.europe-west1.firebasedatabase.app">
+  <!-- Preconnect: Firebase Auth gebruikt deze aparte endpoints bij het inloggen —
+       zonder deze hints moet de browser pas bij de eerste inlogpoging de DNS-
+       lookup + TLS-handshake starten, wat het inloggen merkbaar vertraagt. -->
+  <link rel="preconnect" href="https://identitytoolkit.googleapis.com">
+  <link rel="preconnect" href="https://securetoken.googleapis.com">
   <!-- Preload: laad achtergrond + logo alvast zodat login-scherm direct scherp is -->
   <link rel="preload" href="Amac-B2C_Achtergrond.png" as="image">
   <link rel="preload" href="Amac_Logo.svg" as="image" type="image/svg+xml">
@@ -92,6 +97,20 @@
       flex-shrink: 0;
       margin-top: 10px;
     }
+    /* Logo als vernieuwknop: reset button-styling, subtiele hover/klik-feedback */
+    .logo-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+      display: flex;
+      flex-shrink: 0;
+      border-radius: 7px;
+      transition: opacity 0.15s, transform 0.1s;
+    }
+    .logo-btn:hover  { opacity: 0.85; }
+    .logo-btn:active { transform: scale(0.95); }
+    .logo-btn:focus-visible { outline: 2px solid white; outline-offset: 2px; }
     .header-title { font-size: 13px; font-weight: 700; }
     .header-sub { font-size: 11px; color: var(--muted); }
     .header-time { margin-left: auto; font-size: 12px; color: white; }
@@ -497,7 +516,9 @@
 
 <header>
   <div class="header-inner">
-    <img src="Amac_Logo.svg" alt="Amac logo" class="logo">
+    <button class="logo-btn" onclick="verversPagina()" title="Klik om de wachtrij te vernieuwen" aria-label="Pagina vernieuwen">
+      <img src="Amac_Logo.svg" alt="Amac logo" class="logo">
+    </button>
     <div></div>
     <div class="header-time" id="clock"></div>
     <button class="btn-logout" onclick="uitloggen()">
@@ -620,7 +641,10 @@
 
           <!-- Probleemomschrijving -->
           <div class="field full" id="field-probleem">
-            <label>Probleemomschrijving <span class="req">*</span></label>
+            <label>Probleemomschrijving
+              <span class="req" id="probleem-req">*</span>
+              <span id="probleem-optioneel" style="display:none;color:var(--muted);font-weight:400">(optioneel)</span>
+            </label>
             <textarea id="probleem" placeholder="Beschrijf kort het probleem of de reden van het bezoek…"></textarea>
             <span class="error-msg">Probleemomschrijving is verplicht</span>
           </div>
@@ -713,6 +737,18 @@
   const elClosedBanner   = document.getElementById('closed-banner');
   const elToggleBtn      = document.getElementById('btn-toggle-closed');
   const elToggleBtnLabel = document.getElementById('btn-toggle-closed-label');
+  // ── Formuliervelden gecacht: eerder werden deze bij ELKE submit/reset
+  // opnieuw via getElementById opgezocht (2 keer per aanmelding: submit +
+  // resetForm). Nu eenmalig bij page load, hergebruikt bij elke actie. ──
+  const elNaam              = document.getElementById('naam');
+  const elMedewerker        = document.getElementById('medewerker');
+  const elProbleem          = document.getElementById('probleem');
+  const elRepnr             = document.getElementById('repnr');
+  const elIcare             = document.getElementById('icare');
+  const elGeenNl            = document.getElementById('geen-nl');
+  const elProbleemReq       = document.getElementById('probleem-req');
+  const elProbleemOptioneel = document.getElementById('probleem-optioneel');
+  const elFieldRepnr        = document.getElementById('field-repnr');
 
   // ── State: "wachtrij gesloten" (gesynchroniseerd via Firebase) ──
   // Deze status heeft NIETS te maken met de nieuwe-klant badge-animatie hieronder.
@@ -764,7 +800,15 @@
     selectedType = type;
     document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
     document.getElementById('opt-' + type).classList.add('selected');
-    document.getElementById('field-repnr').style.display = type === 'ophalen' ? '' : 'none';
+    elFieldRepnr.style.display = type === 'ophalen' ? '' : 'none';
+
+    // Probleemomschrijving is bij "Reparatie ophalen" niet verplicht — label
+    // en verplichtings-asterisk schakelen direct mee zodra het type wijzigt.
+    const problemVerplicht = type !== 'ophalen';
+    elProbleemReq.style.display       = problemVerplicht ? '' : 'none';
+    elProbleemOptioneel.style.display = problemVerplicht ? 'none' : '';
+    if (!problemVerplicht) clearError('field-probleem'); // evt. oude foutmelding meteen wegnemen
+
     clearError('field-type');
   }
 
@@ -782,7 +826,7 @@
 
   // Live formatteren tijdens het typen — medewerker hoeft het streepje nooit
   // zelf in te typen, die verschijnt vanzelf na het 4e cijfer.
-  document.getElementById('repnr').addEventListener('input', function () {
+  elRepnr.addEventListener('input', function () {
     this.value = formatRepnr(this.value);
   });
 
@@ -802,19 +846,31 @@
     document.getElementById(fieldId).classList.remove('has-error');
   }
 
+  // ── Vernieuwknop (logo) ──
+  // Simpele, veilige page reload: Firebase-sessie (SESSION-persistence) en de
+  // wachtrijdata zelf blijven intact, want die staan niet lokaal maar in
+  // Firebase — na de reload verbindt de pagina gewoon opnieuw en toont
+  // dezelfde live-status. Geen los "ververs de data"-mechanisme nodig dat
+  // apart onderhouden moet worden en kan gaan afwijken van een echte reload.
+  function verversPagina() {
+    location.reload();
+  }
+
   // ── Formulier indienen ──
   document.getElementById('aanmeld-form').addEventListener('submit', function(e) {
     e.preventDefault();
     let ok = true;
 
-    const naam = document.getElementById('naam').value.trim();
-    const medewerker = document.getElementById('medewerker').value.trim();
-    const probleem = document.getElementById('probleem').value.trim();
+    const naam = elNaam.value.trim();
+    const medewerker = elMedewerker.value.trim();
+    const probleem = elProbleem.value.trim();
 
     if (!naam) { showError('field-naam'); ok = false; } else clearError('field-naam');
     if (!medewerker) { showError('field-medewerker'); ok = false; } else clearError('field-medewerker');
     if (!selectedType) { showError('field-type'); ok = false; } else clearError('field-type');
-    if (!probleem) { showError('field-probleem'); ok = false; } else clearError('field-probleem');
+    // Probleemomschrijving is alleen verplicht als het GEEN "Reparatie ophalen" betreft
+    const probleemVerplicht = selectedType !== 'ophalen';
+    if (probleemVerplicht && !probleem) { showError('field-probleem'); ok = false; } else clearError('field-probleem');
     if (!selectedZoek) { showError('field-zoek'); ok = false; } else clearError('field-zoek');
 
     if (!ok) return;
@@ -823,11 +879,11 @@
       naam,
       medewerker,
       type: selectedType,
-      repnr: selectedType === 'ophalen' ? formatRepnr(document.getElementById('repnr').value.trim()) : '',
+      repnr: selectedType === 'ophalen' ? formatRepnr(elRepnr.value.trim()) : '',
       probleem,
       zoek: selectedZoek,
-      icare: document.getElementById('icare').checked,
-      geenNl: document.getElementById('geen-nl').checked,
+      icare: elIcare.checked,
+      geenNl: elGeenNl.checked,
       tijd: new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }),
       timestamp: Date.now(),
     };
@@ -838,13 +894,16 @@
   });
 
   function resetForm() {
-    document.getElementById('naam').value = '';
-    document.getElementById('medewerker').value = '';
-    document.getElementById('repnr').value = '';
-    document.getElementById('probleem').value = '';
-    document.getElementById('icare').checked = false;
-    document.getElementById('geen-nl').checked = false;
-    document.getElementById('field-repnr').style.display = 'none';
+    elNaam.value = '';
+    elMedewerker.value = '';
+    elRepnr.value = '';
+    elProbleem.value = '';
+    elIcare.checked = false;
+    elGeenNl.checked = false;
+    elFieldRepnr.style.display = 'none';
+    // Probleemomschrijving-label terugzetten naar de standaard "verplicht"-stand
+    elProbleemReq.style.display = '';
+    elProbleemOptioneel.style.display = 'none';
     document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
     document.querySelectorAll('input[name="type"]').forEach(el => el.checked = false);
     document.querySelectorAll('.zoek-option').forEach(el => el.classList.remove('selected'));
