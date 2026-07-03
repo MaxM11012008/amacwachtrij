@@ -10,6 +10,9 @@
   <link rel="preconnect" href="https://securetoken.googleapis.com">
   <link rel="preload" href="Amac-B2C_Achtergrond.png" as="image">
   <link rel="preload" href="Amac_Logo.svg" as="image" type="image/svg+xml">
+  <link rel="icon" href="Amac_Profielafbeelding_Algemeen.png" type="image/svg+xml">
+  <link rel="alternate icon" href="Amac_Profielafbeelding_Algemeen.png">
+  <link rel="apple-touch-icon" href="Amac_Profielafbeelding_Algemeen.png">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -227,6 +230,154 @@
     }
     .btn-remove:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
 
+        .logo-btn {
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s, filter 0.2s;
+    }
+    .logo-btn:hover  {
+      opacity: 1;
+      transform: scale(1.06);
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
+    }
+    .logo-btn:active { transform: scale(0.94); }
+    .logo-btn:focus-visible { outline: 2px solid white; outline-offset: 2px; }
+    .header-title { font-size: 13px; font-weight: 700; }
+    .header-sub { font-size: 11px; color: var(--muted); }
+    .header-time { margin-left: auto; font-size: 12px; color: white; }
+
+    main { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+    .banner { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center; }
+    .badge-stat {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--radius);
+      font-size: 12px; font-weight: 600;
+      border: 1px solid;
+    }
+    .badge-blue { background: var(--primary-light); color: var(--primary); border-color: #c5d5f0; }
+    .badge-amber { background: var(--warning-light); color: var(--warning); border-color: #fde68a; }
+    .badge-gray { background: #f8fafc; color: var(--muted); border-color: var(--border); }
+
+    .section-title {
+      font-size: 13px; font-weight: 700; margin-bottom: 12px;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .section-title svg { color: var(--primary); }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+    }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field.full { grid-column: 1 / -1; }
+    label { font-size: 12px; font-weight: 600; color: var(--text); }
+    label .req { color: var(--danger); margin-left: 2px; }
+    input[type="text"], input[type="email"], input[type="password"], textarea, select {
+      width: 100%;
+      padding: 8px 11px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text);
+      background: white;
+      transition: border-color 0.15s;
+      outline: none;
+    }
+    input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(26,61,124,0.1);
+    }
+    textarea { resize: vertical; min-height: 72px; }
+    .error-msg { font-size: 11px; color: var(--danger); display: none; }
+    .field.has-error input, .field.has-error textarea, .field.has-error select { border-color: var(--danger); }
+    .field.has-error .error-msg { display: block; }
+
+    .radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
+    .radio-option {
+      display: flex; align-items: flex-start; gap: 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 14px;
+      cursor: pointer;
+      flex: 1; min-width: 200px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .radio-option:hover { background: var(--primary-light); }
+    .radio-option.selected { border-color: var(--primary); background: var(--primary-light); }
+    .radio-option input[type="radio"] { margin-top: 2px; accent-color: var(--primary); flex-shrink: 0; }
+    .radio-label-main { font-size: 13px; font-weight: 600; }
+    .radio-label-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+    .zoek-group { display: flex; flex-wrap: wrap; gap: 6px; }
+    .zoek-option {
+      display: flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 7px 12px;
+      cursor: pointer;
+      font-size: 12px; font-weight: 500;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .zoek-option:hover { background: var(--primary-light); }
+    .zoek-option.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+    .zoek-option input[type="radio"] { accent-color: var(--primary); }
+
+    .checkbox-row { display: flex; flex-wrap: wrap; gap: 16px; }
+    .checkbox-item { display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 13px; }
+    .checkbox-item input { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; }
+
+    .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.15s;
+      margin-left: auto;
+    }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .queue-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow);
+    }
+    .queue-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .queue-number {
+      width: 28px; height: 28px;
+      background: var(--primary);
+      color: white;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; flex-shrink: 0;
+    }
+    .queue-number.is-top {
+  animation: top-of-queue-breathe 2.4s ease-in-out infinite;
+}
+@keyframes top-of-queue-breathe {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(26,61,124,0.45); transform: scale(1); }
+  50%      { box-shadow: 0 0 0 6px rgba(26,61,124,0.12); transform: scale(1.08); }
+}
+
+
     /* ── "Wacht boven"-markering: subtiele toggle-knop + hoek-badge op de kaart ──
        Amber kleurgebruik gekozen omdat dat in de app al staat voor "handmatige
        uitzonderingsstatus" (zie .btn-toggle-closed.is-closed) — zelfde taal, dus
@@ -318,6 +469,7 @@
     .wachtend-dots .dot:nth-child(1) { animation: dot1-appear 2.4s ease-in-out infinite; }
     .wachtend-dots .dot:nth-child(2) { animation: dot2-appear 2.4s ease-in-out infinite; }
     .wachtend-dots .dot:nth-child(3) { animation: dot3-appear 2.4s ease-in-out infinite; }
+    
     /* ── Vrije tekstinvoer i.p.v. dropdown zodra een klant wordt opgepakt ──
        Geen 'list'-attribuut en autocomplete="off" zodat geen suggesties/datalist
        verschijnen — de medewerker typt zijn/haar naam volledig handmatig. */
