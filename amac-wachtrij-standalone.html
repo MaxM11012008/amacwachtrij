@@ -205,6 +205,7 @@
       padding: 14px 16px;
       margin-bottom: 10px;
       box-shadow: var(--shadow);
+      position: relative; /* nodig zodat de "wacht boven"-badge in de hoek kan pinnen */
     }
     .queue-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
     .queue-number {
@@ -225,6 +226,32 @@
       transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
     }
     .btn-remove:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
+
+    /* ── "Wacht boven"-markering: subtiele toggle-knop + hoek-badge op de kaart ──
+       Amber kleurgebruik gekozen omdat dat in de app al staat voor "handmatige
+       uitzonderingsstatus" (zie .btn-toggle-closed.is-closed) — zelfde taal, dus
+       direct herkenbaar voor medewerkers. */
+    .queue-header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
+    .btn-boven {
+      display: flex; align-items: center; gap: 4px;
+      background: none; border: 1px solid var(--border);
+      border-radius: 5px; padding: 5px 10px;
+      font-size: 11px; color: var(--muted); cursor: pointer;
+      transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+    }
+    .btn-boven:hover { background: var(--warning-light); color: var(--warning); border-color: var(--warning); }
+    .btn-boven.is-actief {
+      background: var(--warning-light); color: var(--warning); border-color: var(--warning); font-weight: 700;
+    }
+    .boven-badge {
+      position: absolute; top: -9px; right: 14px;
+      display: flex; align-items: center; gap: 4px;
+      background: var(--warning); color: white;
+      font-size: 10px; font-weight: 700;
+      padding: 3px 9px; border-radius: 999px;
+      box-shadow: 0 2px 5px rgba(217,119,6,0.35);
+      white-space: nowrap;
+    }
     .queue-desc {
       background: var(--bg);
       border-radius: 5px;
@@ -263,6 +290,34 @@
     }
     .behandel-status.wachtend { background: #f8fafc; color: var(--muted); border: 1px solid var(--border); }
     .behandel-status.in-behandeling { background: var(--success-light); color: var(--success); border: 1px solid #bbf7d0; }
+
+    /* ── Wachtend-animatie: zandloper draait, puntjes lopen 1→2→3 op ──
+       Beide op dezelfde 2.4s-cyclus zodat ze als één samenhangend effect
+       aanvoelen. Puur CSS (geen JS-timer): renderQueue() bouwt de hele
+       wachtrij-HTML regelmatig opnieuw op, dus een JS-interval zou bij elke
+       herbouw opnieuw gestart/opgeruimd moeten worden — foutgevoelig en
+       overbodig zolang CSS het net zo goed kan. */
+    .hourglass-icon { display: inline-block; }
+    @keyframes hourglass-flip {
+      0%, 40%  { transform: rotate(0deg); }
+      50%, 90% { transform: rotate(180deg); }
+      100%     { transform: rotate(360deg); }
+    }
+    .behandel-status.wachtend .hourglass-icon {
+      animation: hourglass-flip 2.4s ease-in-out infinite;
+    }
+    .wachtend-dots { display: inline-flex; gap: 2px; margin-left: 1px; }
+    .wachtend-dots .dot {
+      width: 3px; height: 3px; border-radius: 50%;
+      background: currentColor;
+      opacity: 0;
+    }
+    @keyframes dot1-appear { 0%,8%  {opacity:0;} 12%,84% {opacity:1;} 92%,100% {opacity:0;} }
+    @keyframes dot2-appear { 0%,36% {opacity:0;} 40%,84% {opacity:1;} 92%,100% {opacity:0;} }
+    @keyframes dot3-appear { 0%,64% {opacity:0;} 68%,84% {opacity:1;} 92%,100% {opacity:0;} }
+    .wachtend-dots .dot:nth-child(1) { animation: dot1-appear 2.4s ease-in-out infinite; }
+    .wachtend-dots .dot:nth-child(2) { animation: dot2-appear 2.4s ease-in-out infinite; }
+    .wachtend-dots .dot:nth-child(3) { animation: dot3-appear 2.4s ease-in-out infinite; }
     /* ── Vrije tekstinvoer i.p.v. dropdown zodra een klant wordt opgepakt ──
        Geen 'list'-attribuut en autocomplete="off" zodat geen suggesties/datalist
        verschijnen — de medewerker typt zijn/haar naam volledig handmatig. */
@@ -880,6 +935,14 @@
     });
   }
 
+  // ── "Wacht boven"-markering ──
+  // Simpele boolean-vlag per klant, net als icare/geenNl. huidigeStatus komt
+  // rechtstreeks uit de al-geladen queue-data (renderQueue geeft 'm mee), dus
+  // geen extra DOM-lookup nodig — gewoon de waarde omkeren in Firebase.
+  function toggleBoven(key, huidigeStatus) {
+    dbRef.child(key).update({ boven: !huidigeStatus });
+  }
+
   function zoekLabel(z) {
     if (z === 'uitgeschakeld') return { cls: 'tag-zoek-uit', text: 'Zoek Mijn: Uitgeschakeld' };
     if (z === 'niet_mogelijk') return { cls: 'tag-zoek-niet', text: 'Zoek Mijn: Niet mogelijk' };
@@ -919,13 +982,16 @@
       const nlTag    = e.geenNl  ? '<span class="tag tag-nl">⚠ Spreekt geen Nederlands</span>' : '';
       const zoekTag  = `<span class="tag ${z.cls}">${z.text}</span>`;
 
-      // ── NIEUW: behandel-status en toewijzingsactie per klant ──
+      // ── behandel-status en toewijzingsactie per klant ──
       const behandelHtml = e.behandelaar
         ? `<div class="behandel-status in-behandeling">
              🧑‍💼 Wordt in behandeling genomen door: <strong>${e.behandelaar}</strong>
            </div>
            <button type="button" class="btn-vrijgeven" onclick="laatVrij('${e.key}')">Vrijgeven</button>`
-        : `<div class="behandel-status wachtend">⏳ Wachtend</div>
+        : `<div class="behandel-status wachtend">
+             <span class="hourglass-icon">⏳</span> Wachtend
+             <span class="wachtend-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
+           </div>
            <div class="behandel-field" id="behandel-field-${e.key}">
              <input type="text" class="behandel-input" id="pick-${e.key}"
                     placeholder="Jouw naam…" autocomplete="off" />
@@ -936,8 +1002,18 @@
              Neem in behandeling
            </button>`;
 
+      // ── "Wacht boven"-markering: knop + hoek-badge op de kaart ──
+      const bovenActief = !!e.boven;
+      const bovenBadge = bovenActief
+        ? `<div class="boven-badge" title="Deze klant wacht boven, niet beneden">
+             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+             Wacht boven
+           </div>`
+        : '';
+
       return `
         <div class="queue-item">
+          ${bovenBadge}
           <div class="queue-header">
             <div style="display:flex;align-items:center;gap:10px;min-width:0">
               <div class="queue-number">${e.positie}</div>
@@ -946,10 +1022,18 @@
                 <div class="queue-meta">Aangemeld om ${e.tijd} · door ${e.medewerker}</div>
               </div>
             </div>
-            <button class="btn-remove" onclick="verwijder('${e.key}')">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-              Geholpen
-            </button>
+            <div class="queue-header-actions">
+              <button class="btn-boven${bovenActief ? ' is-actief' : ''}"
+                      onclick="toggleBoven('${e.key}', ${bovenActief})"
+                      title="Markeer of deze klant boven wacht (bijv. bij een trapprobleem)">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+                ${bovenActief ? '✓ Boven' : 'Boven?'}
+              </button>
+              <button class="btn-remove" onclick="verwijder('${e.key}')">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                Geholpen
+              </button>
+            </div>
           </div>
           <div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}</div>
           <div class="queue-desc">${e.probleem}</div>
