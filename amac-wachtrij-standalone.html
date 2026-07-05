@@ -81,6 +81,7 @@
       flex-shrink: 0;
       margin-top: 10px;
     }
+    
     .logo-btn {
       background: none;
       border: none;
@@ -89,11 +90,17 @@
       display: flex;
       flex-shrink: 0;
       border-radius: 7px;
-      transition: opacity 0.15s, transform 0.1s;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s, filter 0.2s;
     }
-    .logo-btn:hover  { opacity: 0.85; }
-    .logo-btn:active { transform: scale(0.95); }
+    .logo-btn:hover {
+      opacity: 1;
+      transform: scale(1.06);
+      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
+    }
+    .logo-btn:active { transform: scale(0.94); }
     .logo-btn:focus-visible { outline: 2px solid white; outline-offset: 2px; }
+
+.logo-btn:focus-visible { outline: 2px solid white; outline-offset: 2px; }
     .header-title { font-size: 13px; font-weight: 700; }
     .header-sub { font-size: 11px; color: var(--muted); }
     .header-time { margin-left: auto; font-size: 12px; color: white; }
@@ -115,8 +122,8 @@
     .section-title {
       font-size: 13px; font-weight: 700; margin-bottom: 12px;
       display: flex; align-items: center; gap: 6px;
+      color: white; /* beide sectietitels staan op de donkere achtergrondfoto */
     }
-    .section-title svg { color: var(--primary); }
 
     .card {
       background: var(--card);
@@ -205,8 +212,7 @@
       margin-left: auto;
     }
     .btn-primary:hover { background: var(--primary-hover); }
-
-    .queue-item {
+        .queue-item {
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
@@ -215,7 +221,7 @@
       box-shadow: var(--shadow);
       position: relative; /* nodig zodat de "wacht boven"-badge in de hoek kan pinnen */
     }
-    .queue-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.queue-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
     .queue-number {
       width: 28px; height: 28px;
       background: var(--primary);
@@ -234,146 +240,6 @@
       transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
     }
     .btn-remove:hover { background: var(--danger-light); color: var(--danger); border-color: var(--danger); }
-
-        .logo-btn {
-      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s, filter 0.2s;
-    }
-    .logo-btn:hover  {
-      opacity: 1;
-      transform: scale(1.06);
-      filter: drop-shadow(0 2px 6px rgba(0,0,0,0.25));
-    }
-    .logo-btn:active { transform: scale(0.94); }
-    .logo-btn:focus-visible { outline: 2px solid white; outline-offset: 2px; }
-    .header-title { font-size: 13px; font-weight: 700; }
-    .header-sub { font-size: 11px; color: var(--muted); }
-    .header-time { margin-left: auto; font-size: 12px; color: white; }
-
-    main { max-width: 900px; margin: 0 auto; padding: 20px; }
-
-    .banner { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center; }
-    .badge-stat {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 14px;
-      border-radius: var(--radius);
-      font-size: 12px; font-weight: 600;
-      border: 1px solid;
-    }
-    .badge-blue { background: var(--primary-light); color: var(--primary); border-color: #c5d5f0; }
-    .badge-amber { background: var(--warning-light); color: var(--warning); border-color: #fde68a; }
-    .badge-gray { background: #f8fafc; color: var(--muted); border-color: var(--border); }
-
-    .section-title {
-      font-size: 13px; font-weight: 700; margin-bottom: 12px;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .section-title svg { color: var(--primary); }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: var(--shadow);
-      margin-bottom: 24px;
-    }
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
-    .field { display: flex; flex-direction: column; gap: 5px; }
-    .field.full { grid-column: 1 / -1; }
-    label { font-size: 12px; font-weight: 600; color: var(--text); }
-    label .req { color: var(--danger); margin-left: 2px; }
-    input[type="text"], input[type="email"], input[type="password"], textarea, select {
-      width: 100%;
-      padding: 8px 11px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-size: 13px;
-      font-family: inherit;
-      color: var(--text);
-      background: white;
-      transition: border-color 0.15s;
-      outline: none;
-    }
-    input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(26,61,124,0.1);
-    }
-    textarea { resize: vertical; min-height: 72px; }
-    .error-msg { font-size: 11px; color: var(--danger); display: none; }
-    .field.has-error input, .field.has-error textarea, .field.has-error select { border-color: var(--danger); }
-    .field.has-error .error-msg { display: block; }
-
-    .radio-group { display: flex; flex-wrap: wrap; gap: 8px; }
-    .radio-option {
-      display: flex; align-items: flex-start; gap: 8px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 10px 14px;
-      cursor: pointer;
-      flex: 1; min-width: 200px;
-      transition: border-color 0.15s, background 0.15s;
-    }
-    .radio-option:hover { background: var(--primary-light); }
-    .radio-option.selected { border-color: var(--primary); background: var(--primary-light); }
-    .radio-option input[type="radio"] { margin-top: 2px; accent-color: var(--primary); flex-shrink: 0; }
-    .radio-label-main { font-size: 13px; font-weight: 600; }
-    .radio-label-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
-
-    .zoek-group { display: flex; flex-wrap: wrap; gap: 6px; }
-    .zoek-option {
-      display: flex; align-items: center; gap: 6px;
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 7px 12px;
-      cursor: pointer;
-      font-size: 12px; font-weight: 500;
-      transition: border-color 0.15s, background 0.15s;
-    }
-    .zoek-option:hover { background: var(--primary-light); }
-    .zoek-option.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
-    .zoek-option input[type="radio"] { accent-color: var(--primary); }
-
-    .checkbox-row { display: flex; flex-wrap: wrap; gap: 16px; }
-    .checkbox-item { display: flex; align-items: center; gap: 7px; cursor: pointer; font-size: 13px; }
-    .checkbox-item input { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; }
-
-    .divider { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
-
-    .btn-primary {
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 20px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.15s;
-      margin-left: auto;
-    }
-    .btn-primary:hover { background: var(--primary-hover); }
-
-    .queue-item {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 16px;
-      margin-bottom: 10px;
-      box-shadow: var(--shadow);
-    }
-    .queue-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
-    .queue-number {
-      width: 28px; height: 28px;
-      background: var(--primary);
-      color: white;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 12px; font-weight: 700; flex-shrink: 0;
-    }
     .queue-number.is-top {
   animation: top-of-queue-breathe 2.4s ease-in-out infinite;
 }
@@ -439,6 +305,59 @@
     .tag-zoek-niet { background: var(--danger-light); color: var(--danger); }
     .tag-zoek-nvt { background: #f8fafc; color: var(--muted); }
     .tag-repnr { background: #f8fafc; color: var(--muted); border: 1px solid var(--border); }
+
+    /* ── NIEUW: 18+ status-tag — direct herkenbaar op de klantkaart zodat
+       medewerkers nooit vergeten dit te vragen/vermelden. ── */
+    .tag-adult-yes { background: var(--success-light); color: var(--success); }
+    .tag-adult-no  { background: var(--danger-light); color: var(--danger); font-weight: 700; }
+
+    /* ── NIEUW: tabs boven de wachtrij — "Actief" / "Vandaag afgerond" /
+       "Gisteren afgerond". Simpele tab-bar i.p.v. aparte pagina's, zodat
+       wisselen instant gaat zonder herladen. ── */
+    .queue-tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+    .queue-tab {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 13px; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--muted); font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .queue-tab:hover { border-color: var(--primary); color: var(--primary); }
+    .queue-tab.is-actief-tab { background: var(--primary); border-color: var(--primary); color: white; }
+    .queue-tab .tab-count { background: rgba(0,0,0,0.08); border-radius: 999px; padding: 1px 7px; font-size: 11px; }
+    .queue-tab.is-actief-tab .tab-count { background: rgba(255,255,255,0.25); }
+
+    /* ── NIEUW: afgeronde kaarten (geschiedenis) — visueel gedimd en zonder
+       actieknoppen, zodat nooit verward met de actieve wachtrij. ── */
+    .queue-item.is-geschiedenis { opacity: 0.86; background: #fafbfc; }
+    .queue-item.is-geschiedenis .queue-number { background: var(--muted); }
+    .history-day-label {
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.03em;
+      margin: 14px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border);
+    }
+    .history-day-label:first-child { margin-top: 0; }
+    .btn-herstel {
+      background: white; border: 1px solid var(--border); color: var(--muted);
+      border-radius: 6px; padding: 5px 10px; font-size: 11px; font-weight: 600;
+      cursor: pointer; white-space: nowrap;
+    }
+    .btn-herstel:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+    .afgerond-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ── NIEUW: 18+ keuzeknoppen in het formulier — zelfde visuele taal als
+       de bestaande "Zoek Mijn"-keuzes, direct herkenbaar. ── */
+    .adult-group { display: flex; gap: 8px; flex-wrap: wrap; }
+    .adult-option {
+      display: flex; align-items: center; gap: 6px;
+      border: 1px solid var(--border); border-radius: 6px;
+      padding: 8px 14px; cursor: pointer; font-size: 12px; font-weight: 600;
+      transition: border-color 0.15s, background 0.15s; flex: 1; min-width: 140px; justify-content: center;
+    }
+    .adult-option:hover { background: var(--primary-light); }
+    .adult-option.selected-yes { border-color: var(--success); background: var(--success-light); color: var(--success); }
+    .adult-option.selected-no  { border-color: var(--danger); background: var(--danger-light); color: var(--danger); }
+    .adult-option input[type="radio"] { accent-color: var(--primary); }
 
     /* ── NIEUW: behandel-status per klant ── */
     .behandel-row {
@@ -527,6 +446,43 @@
     .behandel-field { display: flex; flex-direction: column; gap: 3px; }
     .behandel-field.has-error .behandel-input { border-color: var(--danger); }
     .behandel-field.has-error .error-msg { display: block; }
+
+    /* ── Klantkaart bewerken ── */
+    .btn-edit-icon {
+      display: flex; align-items: center; justify-content: center;
+      background: none; border: 1px solid var(--border);
+      border-radius: 5px; width: 26px; height: 26px;
+      color: var(--muted); cursor: pointer;
+      transition: all 0.15s; flex-shrink: 0;
+    }
+    .btn-edit-icon:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+    .queue-item.is-editing { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,61,124,0.12); }
+    .edit-form { display: flex; flex-direction: column; gap: 10px; margin-top: 2px; }
+    .edit-row { display: flex; flex-direction: column; gap: 4px; }
+    .edit-row label { font-size: 11px; font-weight: 600; color: var(--muted); }
+    .edit-input {
+      width: 100%; padding: 7px 10px;
+      border: 1px solid var(--border); border-radius: 6px;
+      font-size: 13px; font-family: inherit; color: var(--text);
+      background: white; outline: none; transition: border-color 0.15s;
+    }
+    .edit-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,61,124,0.1); }
+    textarea.edit-input { resize: vertical; min-height: 60px; }
+    .edit-checkrow { display: flex; flex-wrap: wrap; gap: 14px; }
+    .edit-actions { display: flex; gap: 8px; }
+    .btn-save-edit {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--primary); color: white; border: none;
+      border-radius: 6px; padding: 7px 14px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .btn-save-edit:hover { background: var(--primary-hover); }
+    .btn-cancel-edit {
+      background: none; border: 1px solid var(--border); color: var(--muted);
+      border-radius: 6px; padding: 7px 14px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .btn-cancel-edit:hover { background: var(--bg); color: var(--text); }
 
     .empty-state {
       background: var(--card);
@@ -693,7 +649,98 @@
       40%           { transform: rotate(6deg) scale(1.05); }
       50%           { transform: rotate(0deg) scale(1); }
     }
-  </style>
+
+    /* ── Interne teamchat: floating knop + uitklapbaar paneel ──
+       Bewust een floating widget (vast rechtsonder) i.p.v. een vast zijpaneel:
+       zo blijft hij altijd binnen handbereik zonder blijvend ruimte in te
+       nemen op een toch al compact wachtrijscherm. */
+    .chat-toggle-btn {
+      position: fixed; bottom: 20px; right: 20px; z-index: 900;
+      width: 52px; height: 52px; border-radius: 50%;
+      background: var(--primary); color: white;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 14px rgba(26,61,124,0.35);
+      transition: transform 0.15s, background 0.15s;
+    }
+    .chat-toggle-btn:hover { background: var(--primary-hover); transform: scale(1.06); }
+    .chat-toggle-btn.is-open { background: var(--primary-hover); }
+    .chat-badge {
+      position: absolute; top: -4px; right: -4px;
+      min-width: 18px; height: 18px; padding: 0 4px;
+      border-radius: 999px;
+      background: var(--danger); color: white;
+      font-size: 10px; font-weight: 700;
+      display: none; align-items: center; justify-content: center;
+      border: 2px solid var(--bg);
+    }
+    .chat-panel {
+      position: fixed; bottom: 84px; right: 20px; z-index: 900;
+      width: 320px; max-height: 440px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; box-shadow: 0 10px 32px rgba(0,0,0,0.18);
+      display: none; flex-direction: column; overflow: hidden;
+    }
+    @media (max-width: 480px) {
+      .chat-panel { right: 10px; left: 10px; width: auto; bottom: 80px; }
+    }
+    .chat-panel-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px; background: var(--primary); color: white;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .chat-panel-header button { background: none; border: none; color: white; cursor: pointer; opacity: 0.85; padding: 2px; }
+    .chat-panel-header button:hover { opacity: 1; }
+    /* ── Verbindingsindicator: maakt in één oogopslag zichtbaar of de chat
+       daadwerkelijk toegang heeft tot Firebase, zonder dat je eerst een
+       bericht hoeft te proberen te versturen. ── */
+    .chat-status-dot {
+      display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+      background: rgba(255,255,255,0.45); margin-left: 5px; vertical-align: middle;
+    }
+    .chat-status-dot.status-ok    { background: #4ade80; }
+    .chat-status-dot.status-error { background: #f87171; }
+    .chat-naam-row { display: flex; gap: 6px; padding: 10px 12px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .chat-naam-row input {
+      flex: 1; padding: 6px 9px; border: 1px solid var(--border);
+      border-radius: 6px; font-size: 12px; font-family: inherit; outline: none;
+    }
+    .chat-naam-row input:focus { border-color: var(--primary); }
+    .chat-naam-row button {
+      background: var(--primary); color: white; border: none;
+      border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .chat-naam-label {
+      display: none; align-items: center; gap: 6px;
+      padding: 7px 12px; font-size: 11px; color: var(--muted);
+      border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .chat-naam-label strong { color: var(--text); }
+    .chat-naam-label button { background: none; border: none; color: var(--primary); font-size: 11px; font-weight: 600; cursor: pointer; padding: 0; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; min-height: 120px; }
+    .chat-bericht { max-width: 85%; }
+    .chat-bericht-meta { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
+    .chat-bericht-tekst {
+      background: #f8fafc; border: 1px solid var(--border);
+      border-radius: 10px; padding: 7px 11px;
+      font-size: 13px; line-height: 1.4; word-break: break-word;
+    }
+    .chat-bericht.chat-eigen { align-self: flex-end; }
+    .chat-bericht.chat-eigen .chat-bericht-meta { text-align: right; }
+    .chat-bericht.chat-eigen .chat-bericht-tekst { background: var(--primary-light); border-color: #c5d5f0; }
+    .chat-empty { text-align: center; color: var(--muted); font-size: 12px; padding: 20px 10px; }
+    .chat-input-row { display: flex; gap: 6px; padding: 10px 12px; border-top: 1px solid var(--border); flex-shrink: 0; }
+    .chat-input-row input {
+      flex: 1; padding: 8px 11px; border: 1px solid var(--border);
+      border-radius: 999px; font-size: 13px; font-family: inherit; outline: none;
+    }
+    .chat-input-row input:focus { border-color: var(--primary); }
+    .chat-send-btn {
+      width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+      background: var(--primary); color: white; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .chat-send-btn:hover { background: var(--primary-hover); }</style>
 </head>
 <body>
 
@@ -772,7 +819,7 @@
 
   <!-- Formulier -->
   <section>
-<div class="section-title" style="color: white;">
+<div class="section-title">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       Klant aanmelden 
     </div>
@@ -851,6 +898,20 @@
             <span class="error-msg">Selecteer een Zoek Mijn status</span>
           </div>
 
+          <!-- NIEUW: 18+ keuze — verplicht, voorkomt dat medewerkers dit vergeten te vragen -->
+          <div class="field full" id="field-adult">
+            <label>Klant is 18 jaar of ouder <span class="req">*</span></label>
+            <div class="adult-group">
+              <label class="adult-option" id="adult-ja" onclick="selectAdult(true)">
+                <input type="radio" name="adult" value="ja" /> ✓ Ja, 18+
+              </label>
+              <label class="adult-option" id="adult-nee" onclick="selectAdult(false)">
+                <input type="radio" name="adult" value="nee" /> Nee, onder 18
+              </label>
+            </div>
+            <span class="error-msg">Geef aan of de klant 18 jaar of ouder is</span>
+          </div>
+
           <!-- Checkboxes -->
           <div class="field full">
             <div class="checkbox-row">
@@ -875,15 +936,62 @@
 
   <!-- Wachtrij -->
   <section>
-    <div class="section-title" id="queue-title" style="color: #ffffff;">
+    <div class="section-title" id="queue-title">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Actuele wachtrij
+    </div>
+    <!-- NIEUW: tabs voor Actief / Vandaag afgerond / Gisteren afgerond -->
+    <div class="queue-tabs" id="queue-tabs">
+      <button type="button" class="queue-tab is-actief-tab" id="tab-actief" onclick="switchQueueTab('actief')">
+        Actief <span class="tab-count" id="tab-count-actief">0</span>
+      </button>
+      <button type="button" class="queue-tab" id="tab-vandaag" onclick="switchQueueTab('vandaag')">
+        Vandaag afgerond <span class="tab-count" id="tab-count-vandaag">0</span>
+      </button>
+      <button type="button" class="queue-tab" id="tab-gisteren" onclick="switchQueueTab('gisteren')">
+        Gisteren afgerond <span class="tab-count" id="tab-count-gisteren">0</span>
+      </button>
     </div>
     <div id="queue-container"></div>
   </section>
 </main>
 
 <footer>Deel geen gevoelige informatie!</footer>
+
+<!-- ── Interne teamchat: floating knop + uitklapbaar paneel ── -->
+<button class="chat-toggle-btn" id="chat-toggle-btn" onclick="toggleChatPanel()" title="Team chat" aria-label="Open team chat">
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+  <span class="chat-badge" id="chat-badge"></span>
+</button>
+
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-panel-header">
+    <span>💬 Team chat <span class="chat-status-dot" id="chat-status-dot" title="Verbinding controleren…"></span></span>
+    <button type="button" onclick="toggleChatPanel()" aria-label="Sluit chat">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="chat-naam-row" id="chat-naam-row">
+    <input type="text" id="chat-naam-input" placeholder="Jouw naam…" autocomplete="off" />
+    <button type="button" onclick="bevestigChatNaam()">OK</button>
+  </div>
+  <div class="chat-naam-label" id="chat-naam-label">
+    Chatten als <strong id="chat-naam-huidige"></strong>
+    <button type="button" onclick="wijzigChatNaam()">wijzigen</button>
+  </div>
+
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-empty">Nog geen berichten — stuur de eerste!</div>
+  </div>
+
+  <div class="chat-input-row">
+    <input type="text" id="chat-bericht-input" placeholder="Typ een bericht…" autocomplete="off" maxlength="300" />
+    <button type="button" class="chat-send-btn" onclick="verstuurChatBericht()" aria-label="Verstuur bericht">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
 
 </div><!-- /#app-content -->
 
@@ -905,6 +1013,8 @@
   };
   firebase.initializeApp(firebaseConfig);
   const dbRef = firebase.database().ref('wachtrij');
+  // ── Interne teamchat: eigen Firebase-pad, los van de wachtrij-data ──
+  const chatRef = firebase.database().ref('chat/berichten');
 
   // ── NIEUW: volledige medewerkerslijst — één centrale array, hergebruikt in
   // het aanmeldformulier (datalist) én in de "Neem in behandeling"-dropdown
@@ -943,6 +1053,25 @@
   const elZoekReq           = document.getElementById('zoek-req');
   const elZoekOptioneel     = document.getElementById('zoek-optioneel');
 
+  // ── Extra gecachete refs (performance): deze werden voorheen bij ELKE
+  // aanroep van hun functie opnieuw via getElementById/querySelector
+  // opgezocht — nu eenmalig bij het laden van de pagina. ──
+  const elClock            = document.getElementById('clock');
+  const elTabCountActief   = document.getElementById('tab-count-actief');
+  const elTabCountVandaag  = document.getElementById('tab-count-vandaag');
+  const elTabCountGisteren = document.getElementById('tab-count-gisteren');
+  const elChatToggleBtn    = document.getElementById('chat-toggle-btn');
+  const elChatPanel        = document.getElementById('chat-panel');
+  const elChatBadge        = document.getElementById('chat-badge');
+  const elChatStatusDot    = document.getElementById('chat-status-dot');
+  const elChatNaamRow      = document.getElementById('chat-naam-row');
+  const elChatNaamLabel    = document.getElementById('chat-naam-label');
+  const elChatNaamHuidige  = document.getElementById('chat-naam-huidige');
+  const elChatNaamInput    = document.getElementById('chat-naam-input');
+  const elChatMessages     = document.getElementById('chat-messages');
+  const elChatBerichtInput = document.getElementById('chat-bericht-input');
+  const elChatSendBtn      = document.querySelector('.chat-send-btn');
+
   // ── NIEUW: datalist vullen vanuit de centrale MEDEWERKERS-array ──
   // Herstelt de volledige, selecteerbare namenlijst in het aanmeldformulier.
   elMedewerkersList.innerHTML = MEDEWERKERS.map(n => `<option value="${n}">`).join('');
@@ -980,10 +1109,30 @@
   let queue = [];
   let selectedType = null;
   let selectedZoek = null;
+  let selectedAdult = null;
+  // NIEUW: welke tab wordt getoond boven de wachtrij
+  let activeQueueTab = 'actief';
+  function switchQueueTab(tab) {
+    activeQueueTab = tab;
+    document.querySelectorAll('.queue-tab').forEach(el => el.classList.remove('is-actief-tab'));
+    document.getElementById('tab-' + tab).classList.add('is-actief-tab');
+    renderQueue();
+  }
+  // editingKey: welke klantkaart wordt LOKAAL bewerkt (of null). Bewust geen
+  // Firebase-veld — elk apparaat kan onafhankelijk een andere kaart bewerken.
+  let editingKey = null;
+
+  // Voorkomt dat klantgegevens (die nu ook in value="..."-attributen van het
+  // bewerkformulier terechtkomen) de HTML breken als er een " of < in staat.
+  function escapeHtml(str) {
+    return String(str ?? '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
 
   // ── Klok ──
   function updateClock() {
-    document.getElementById('clock').textContent =
+    elClock.textContent =
       new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
   }
   updateClock();
@@ -1025,6 +1174,16 @@
     clearError('field-zoek');
   }
 
+  // ── NIEUW: 18+ keuze ──
+  function selectAdult(isAdult) {
+    selectedAdult = isAdult;
+    document.getElementById('adult-ja').classList.remove('selected-yes');
+    document.getElementById('adult-nee').classList.remove('selected-no');
+    document.getElementById(isAdult ? 'adult-ja' : 'adult-nee').classList.add(isAdult ? 'selected-yes' : 'selected-no');
+    document.querySelector(`input[name="adult"][value="${isAdult ? 'ja' : 'nee'}"]`).checked = true;
+    clearError('field-adult');
+  }
+
   function showError(fieldId) {
     document.getElementById(fieldId).classList.add('has-error');
   }
@@ -1052,6 +1211,7 @@
     const isOphalen = selectedType === 'ophalen';
     if (!isOphalen && !probleem)    { showError('field-probleem'); ok = false; } else clearError('field-probleem');
     if (!isOphalen && !selectedZoek) { showError('field-zoek'); ok = false; } else clearError('field-zoek');
+    if (selectedAdult === null) { showError('field-adult'); ok = false; } else clearError('field-adult');
 
     if (!ok) return;
 
@@ -1071,6 +1231,8 @@
       // status is puur informatief/leesbaar voor de UI ('wachtend' / 'in-behandeling').
       behandelaar: null,
       status: 'wachtend',
+      // NIEUW: 18+ status, direct opgeslagen en zichtbaar op de kaart
+      volwassen: selectedAdult,
     };
 
     dbRef.push(entry);
@@ -1093,12 +1255,36 @@
     document.querySelectorAll('input[name="type"]').forEach(el => el.checked = false);
     document.querySelectorAll('.zoek-option').forEach(el => el.classList.remove('selected'));
     document.querySelectorAll('input[name="zoek"]').forEach(el => el.checked = false);
+    document.getElementById('adult-ja').classList.remove('selected-yes');
+    document.getElementById('adult-nee').classList.remove('selected-no');
+    document.querySelectorAll('input[name="adult"]').forEach(el => el.checked = false);
     selectedType = null;
     selectedZoek = null;
+    selectedAdult = null;
   }
 
+  // ── FIX: kaarten worden niet meer hard verwijderd, maar naar "afgerond"
+  // gezet met een tijdstempel. Zo blijven ze terug te vinden in de nieuwe
+  // Vandaag/Gisteren-tabs, zonder dat de actieve wachtrij vervuild raakt
+  // (die filtert simpelweg op status !== 'afgerond'). Oudere kaarten dan
+  // gisteren worden bij het laden automatisch genegeerd (zie renderQueue),
+  // zodat de dataset niet onbeperkt blijft groeien qua wat getoond wordt.
   function verwijder(key) {
+    dbRef.child(key).update({
+      status: 'afgerond',
+      afgerondOp: Date.now(),
+    });
+  }
+
+  // Definitief verwijderen — alleen bereikbaar vanuit de geschiedenis-tabs,
+  // voor als een kaart per ongeluk is afgerond of niet meer nodig is.
+  function verwijderDefinitief(key) {
     dbRef.child(key).remove();
+  }
+
+  // Terugzetten van een per ongeluk afgeronde klant naar de actieve wachtrij.
+  function herstelUitGeschiedenis(key) {
+    dbRef.child(key).update({ status: 'wachtend', afgerondOp: null });
   }
 
   // ── Toewijzingslogica ──
@@ -1135,6 +1321,55 @@
     dbRef.child(key).update({ boven: !huidigeStatus });
   }
 
+  // ── Klantkaart bewerken ──
+  // editingKey pauzeert (zie dbRef.on('value', ...) verderop) de live
+  // her-render van de wachtrij, zodat een tussentijdse Firebase-update van
+  // een collega je lopende tekstinvoer niet overschrijft.
+  function startEdit(key) {
+    editingKey = key;
+    renderQueue();
+  }
+
+  function cancelEdit() {
+    editingKey = null;
+    renderQueue(); // toont meteen de actuele stand, incl. eventuele wijzigingen die ondertussen binnenkwamen
+  }
+
+  function saveEdit(key) {
+    const naamEl     = document.getElementById('edit-naam-' + key);
+    const probleemEl = document.getElementById('edit-probleem-' + key);
+    const repnrEl     = document.getElementById('edit-repnr-' + key); // bestaat alleen bij type 'ophalen'
+    const icareEl     = document.getElementById('edit-icare-' + key);
+    const geenNlEl    = document.getElementById('edit-geennl-' + key);
+
+    const naam = naamEl.value.trim();
+    if (!naam) { naamEl.focus(); return; } // naam mag nooit leeg worden
+
+    const updates = {
+      naam,
+      probleem: probleemEl.value.trim(),
+      icare: icareEl.checked,
+      geenNl: geenNlEl.checked,
+    };
+    if (repnrEl) updates.repnr = formatRepnr(repnrEl.value.trim());
+
+    // ── BUGFIX: geen .catch() betekende dat een mislukte write volledig
+    // onzichtbaar bleef — "opslaan doet niks" zonder enige foutmelding. ──
+    // Nu: direct lokaal bijwerken en tonen (snel, voelt meteen werkend aan,
+    // ongeacht netwerksnelheid), en bij een écht mislukte Firebase-write een
+    // duidelijke foutmelding zodat de oorzaak (bijv. ontbrekende rechten)
+    // meteen zichtbaar is in plaats van stil te falen.
+    const entry = queue.find(e => e.key === key);
+    if (entry) Object.assign(entry, updates);
+    editingKey = null;
+    renderQueue();
+
+    dbRef.child(key).update(updates).catch((err) => {
+      console.error('Opslaan van klantkaart mislukt:', err);
+      alert('Opslaan is niet gelukt: ' + err.message + '\n\nControleer of je nog bent ingelogd en of de Firebase-beveiligingsregels schrijven naar "wachtrij" toestaan.');
+    });
+  }
+
   function zoekLabel(z) {
     if (z === 'uitgeschakeld') return { cls: 'tag-zoek-uit', text: 'Zoek Mijn: Uitgeschakeld' };
     if (z === 'niet_mogelijk') return { cls: 'tag-zoek-niet', text: 'Zoek Mijn: Niet mogelijk' };
@@ -1142,10 +1377,32 @@
   }
 
   function renderQueue() {
-    const n = queue.length;
+    // ── NIEUW: wachtrij splitsen in actief vs. afgerond (vandaag/gisteren) ──
+    // Zo blijft de actieve wachtrij (en de banner-telling/animatie) altijd
+    // gebaseerd op alleen de klanten die nog wachten — geschiedenis staat
+    // volledig los en beïnvloedt nooit de tellers of animaties bovenin.
+    const nu = new Date();
+    const vandaagStr = nu.toDateString();
+    const gisterenDatum = new Date(nu); gisterenDatum.setDate(nu.getDate() - 1);
+    const gisterenStr = gisterenDatum.toDateString();
 
+    const actief = queue.filter(e => e.status !== 'afgerond');
+    const afgerondVandaag = queue.filter(e => e.status === 'afgerond' && e.afgerondOp && new Date(e.afgerondOp).toDateString() === vandaagStr)
+      .sort((a, b) => (b.afgerondOp || 0) - (a.afgerondOp || 0));
+    const afgerondGisteren = queue.filter(e => e.status === 'afgerond' && e.afgerondOp && new Date(e.afgerondOp).toDateString() === gisterenStr)
+      .sort((a, b) => (b.afgerondOp || 0) - (a.afgerondOp || 0));
+
+    // Positienummers alleen op de actieve wachtrij herberekenen — geschiedenis
+    // toont geen volgnummer meer (niet relevant voor afgeronde klanten).
+    actief.forEach((e, i) => e.positie = i + 1);
+
+    elTabCountActief.textContent   = actief.length;
+    elTabCountVandaag.textContent  = afgerondVandaag.length;
+    elTabCountGisteren.textContent = afgerondGisteren.length;
+
+    const n = actief.length;
     elBannerCount.textContent = n + (n === 1 ? ' klant in wachtrij' : ' klanten in wachtrij');
-    const totaal = queue.reduce((som, e) => som + (e.type === 'ophalen' ? 5 : 15), 0);
+    const totaal = actief.reduce((som, e) => som + (e.type === 'ophalen' ? 5 : 15), 0);
     elBannerTijd.innerHTML =
       'Geschatte totale wachttijd: <strong>' + (totaal === 0 ? 'geen wachttijd' : totaal + ' min') + '</strong>';
 
@@ -1154,6 +1411,66 @@
       Actuele wachtrij${n > 0 ? ' <span style="font-weight:400;color:var(--muted);font-size:12px">— ' + n + (n===1?' klant':' klanten') + ' · geschatte wachttijd ' + totaal + ' min</span>' : ''}
     `;
 
+    function adultTag(e) {
+      if (e.volwassen === true)  return '<span class="tag tag-adult-yes">✓ 18+</span>';
+      if (e.volwassen === false) return '<span class="tag tag-adult-no">⚠ Onder 18</span>';
+      return '';
+    }
+
+    // ── Weergave: geschiedenis-tabs (vandaag/gisteren afgerond) ──
+    if (activeQueueTab === 'vandaag' || activeQueueTab === 'gisteren') {
+      const lijst = activeQueueTab === 'vandaag' ? afgerondVandaag : afgerondGisteren;
+      const label = activeQueueTab === 'vandaag' ? 'Vandaag' : 'Gisteren';
+
+      if (lijst.length === 0) {
+        elQueueContainer.innerHTML = `
+          <div class="empty-state">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <p><strong>Nog geen afgeronde klanten ${label.toLowerCase()}</strong></p>
+            <p>Zodra een klant op "Geholpen" wordt gezet, verschijnt die kaart hier.</p>
+          </div>`;
+        return;
+      }
+
+      elQueueContainer.innerHTML = `<div class="history-day-label">${label} · ${lijst.length} ${lijst.length===1?'klant':'klanten'}</div>` +
+        lijst.map(e => {
+          const z = zoekLabel(e.zoek);
+          const typeTag = e.type === 'ophalen'
+            ? '<span class="tag tag-type-ophalen">📦 Reparatie ophalen</span>'
+            : '<span class="tag tag-type-ongepland">🔧 Ongepland — ter reparatie/service</span>';
+          const repTag   = e.repnr   ? `<span class="tag tag-repnr">Rep.nr: ${formatRepnr(e.repnr)}</span>` : '';
+          const icareTag = e.icare   ? '<span class="tag tag-icare">✓ iCare / AppleCare</span>' : '';
+          const nlTag    = e.geenNl  ? '<span class="tag tag-nl">⚠ Spreekt geen Nederlands</span>' : '';
+          const zoekTag  = `<span class="tag ${z.cls}">${z.text}</span>`;
+          const afgerondTijd = e.afgerondOp ? new Date(e.afgerondOp).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) : '';
+
+          return `
+            <div class="queue-item is-geschiedenis">
+              <div class="queue-header">
+                <div style="display:flex;align-items:center;gap:10px;min-width:0">
+                  <div class="queue-number">✓</div>
+                  <div style="min-width:0">
+                    <div class="queue-name">${e.naam}</div>
+                    <div class="queue-meta">Aangemeld om ${e.tijd} · door ${e.medewerker}</div>
+                    <div class="afgerond-meta">Afgerond om ${afgerondTijd}${e.behandelaar ? ' · door ' + e.behandelaar : ''}</div>
+                  </div>
+                </div>
+                <div class="queue-header-actions">
+                  <button class="btn-herstel" onclick="herstelUitGeschiedenis('${e.key}')" title="Terugzetten naar actieve wachtrij">↺ Herstellen</button>
+                  <button class="btn-remove" onclick="verwijderDefinitief('${e.key}')" title="Definitief verwijderen">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${adultTag(e)}</div>
+              <div class="queue-desc">${e.probleem}</div>
+              <div class="tag-row">${icareTag}${nlTag}${zoekTag}</div>
+            </div>`;
+        }).join('');
+      return;
+    }
+
+    // ── Weergave: actieve wachtrij (bestaande logica, ongewijzigd qua gedrag) ──
     if (n === 0) {
       elQueueContainer.innerHTML = `
         <div class="empty-state">
@@ -1164,7 +1481,8 @@
       return;
     }
 
-    elQueueContainer.innerHTML = queue.map(e => {
+    elQueueContainer.innerHTML = actief.map(e => {
+      const isEditing = e.key === editingKey;
       const z = zoekLabel(e.zoek);
       const typeTag = e.type === 'ophalen'
         ? '<span class="tag tag-type-ophalen">📦 Reparatie ophalen</span>'
@@ -1203,18 +1521,51 @@
            </div>`
         : '';
 
+      // ── bewerkmodus — inline formulier i.p.v. normale weergave ──
+      const editForm = isEditing ? `
+        <div class="edit-form">
+          <div class="edit-row">
+            <label>Naam</label>
+            <input type="text" class="edit-input" id="edit-naam-${e.key}" value="${escapeHtml(e.naam)}" />
+          </div>
+          ${e.type === 'ophalen' ? `
+          <div class="edit-row">
+            <label>Reparatienummer</label>
+            <input type="text" class="edit-input" id="edit-repnr-${e.key}" value="${escapeHtml(formatRepnr(e.repnr || ''))}" inputmode="numeric" maxlength="9" />
+          </div>` : ''}
+          <div class="edit-row">
+            <label>Probleemomschrijving</label>
+            <textarea class="edit-input" id="edit-probleem-${e.key}">${escapeHtml(e.probleem || '')}</textarea>
+          </div>
+          <div class="edit-checkrow">
+            <label class="checkbox-item"><input type="checkbox" id="edit-icare-${e.key}" ${e.icare ? 'checked' : ''}/> iCare / AppleCare</label>
+            <label class="checkbox-item"><input type="checkbox" id="edit-geennl-${e.key}" ${e.geenNl ? 'checked' : ''}/> Spreekt geen Nederlands</label>
+          </div>
+          <div class="edit-actions">
+            <button type="button" class="btn-save-edit" onclick="saveEdit('${e.key}')">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Opslaan
+            </button>
+            <button type="button" class="btn-cancel-edit" onclick="cancelEdit()">Annuleren</button>
+          </div>
+        </div>` : '';
+
       return `
-        <div class="queue-item">
+        <div class="queue-item${isEditing ? ' is-editing' : ''}">
           ${bovenBadge}
           <div class="queue-header">
             <div style="display:flex;align-items:center;gap:10px;min-width:0">
               <div class="queue-number">${e.positie}</div>
-              <div>
-                <div class="queue-name">${e.naam}</div>
+              <div style="min-width:0">
+                ${isEditing ? '' : `<div class="queue-name">${e.naam}</div>`}
                 <div class="queue-meta">Aangemeld om ${e.tijd} · door ${e.medewerker}</div>
               </div>
             </div>
             <div class="queue-header-actions">
+              ${isEditing ? '' : `
+              <button class="btn-edit-icon" onclick="startEdit('${e.key}')" title="Kaart bewerken">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
+              </button>
               <button class="btn-boven${bovenActief ? ' is-actief' : ''}"
                       onclick="toggleBoven('${e.key}', ${bovenActief})"
                       title="Markeer of deze klant boven wacht (bijv. bij een trapprobleem)">
@@ -1224,19 +1575,160 @@
               <button class="btn-remove" onclick="verwijder('${e.key}')">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
                 Geholpen
-              </button>
+              </button>`}
             </div>
           </div>
-          <div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}</div>
+          ${isEditing ? editForm : `
+          <div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${adultTag(e)}</div>
           <div class="queue-desc">${e.probleem}</div>
           <div class="tag-row">${icareTag}${nlTag}${zoekTag}</div>
-          <div class="behandel-row">${behandelHtml}</div>
+          <div class="behandel-row">${behandelHtml}</div>`}
         </div>`;
     }).join('');
+
+    // ── reparatienummer-opmaak ook in de bewerkmodus ──
+    if (editingKey !== null) {
+      const editRepnrEl = document.getElementById('edit-repnr-' + editingKey);
+      if (editRepnrEl) {
+        editRepnrEl.addEventListener('input', function () {
+          const posVoor = this.selectionStart;
+          const lengteVoor = this.value.length;
+          this.value = formatRepnr(this.value);
+          const verschil = this.value.length - lengteVoor;
+          this.selectionStart = this.selectionEnd = Math.max(0, posVoor + verschil);
+        });
+      }
+    }
   }
 
-  // ── Attentie-animatie ──
+    // ── Attentie-animatie ──
   let prevQueueLength = -1;
+
+  // ── Interne teamchat ──
+  // chatNaam is bewust sessie-only (geen Firebase, geen localStorage): elk
+  // apparaat/tabblad vraagt 'm eenmalig, daarna hoeft de medewerker nooit
+  // meer dan zijn berichttekst te typen — cruciaal voor snelheid aan de balie.
+  let chatNaam = '';
+  let chatPanelOpen = false;
+  let chatOngelezen = 0;
+  let chatBerichten = [];
+  let prevChatLength = -1;
+
+  function bevestigChatNaam() {
+    const val = elChatNaamInput.value.trim();
+    if (!val) { elChatNaamInput.focus(); return; }
+    chatNaam = val;
+    elChatNaamRow.style.display = 'none';
+    elChatNaamLabel.style.display = 'flex';
+    elChatNaamHuidige.textContent = chatNaam;
+    renderChat(); // labels "chat-eigen" kunnen nu kloppen voor eerder geladen berichten
+    elChatBerichtInput.focus();
+  }
+
+  function wijzigChatNaam() {
+    elChatNaamRow.style.display = 'flex';
+    elChatNaamLabel.style.display = 'none';
+    elChatNaamInput.value = chatNaam;
+    elChatNaamInput.focus();
+  }
+
+  function toggleChatPanel() {
+    chatPanelOpen = !chatPanelOpen;
+    elChatPanel.style.display = chatPanelOpen ? 'flex' : 'none';
+    elChatToggleBtn.classList.toggle('is-open', chatPanelOpen);
+    if (chatPanelOpen) {
+      chatOngelezen = 0;
+      updateChatBadge();
+      renderChat();
+      setTimeout(() => {
+        const input = chatNaam ? elChatBerichtInput : elChatNaamInput;
+        if (input) input.focus();
+      }, 50);
+    }
+  }
+
+  function updateChatBadge() {
+    if (chatOngelezen > 0) {
+      elChatBadge.textContent = chatOngelezen > 9 ? '9+' : String(chatOngelezen);
+      elChatBadge.style.display = 'flex';
+    } else {
+      elChatBadge.style.display = 'none';
+    }
+  }
+
+  // ── Verbindingsstatus van de chat, altijd zichtbaar in de header ──
+  // 'ok'    → een lees-event is succesvol binnengekomen: Firebase-toegang werkt.
+  // 'error' → Firebase heeft lezen/schrijven geweigerd (bijna altijd: rules).
+  function setChatStatus(state) {
+    if (!elChatStatusDot) return;
+    elChatStatusDot.classList.remove('status-ok', 'status-error');
+    if (state === 'ok') {
+      elChatStatusDot.classList.add('status-ok');
+      elChatStatusDot.title = 'Chat verbonden en werkend';
+    } else if (state === 'error') {
+      elChatStatusDot.classList.add('status-error');
+      elChatStatusDot.title = 'Geen toegang tot de chat — controleer de Firebase-beveiligingsregels voor pad "chat"';
+    } else {
+      elChatStatusDot.title = 'Verbinding controleren…';
+    }
+  }
+
+  function renderChat() {
+    if (chatBerichten.length === 0) {
+      elChatMessages.innerHTML = '<div class="chat-empty">Nog geen berichten — stuur de eerste!</div>';
+      return;
+    }
+    elChatMessages.innerHTML = chatBerichten.map(m => {
+      const eigen = chatNaam && m.naam === chatNaam;
+      return `
+        <div class="chat-bericht${eigen ? ' chat-eigen' : ''}">
+          <div class="chat-bericht-meta">${escapeHtml(m.naam)} · ${escapeHtml(m.tijd || '')}</div>
+          <div class="chat-bericht-tekst">${escapeHtml(m.tekst)}</div>
+        </div>`;
+    }).join('');
+    elChatMessages.scrollTop = elChatMessages.scrollHeight; // altijd naar het nieuwste bericht
+  }
+
+  function verstuurChatBericht() {
+    if (!chatNaam) { wijzigChatNaam(); return; }
+    const tekst = elChatBerichtInput.value.trim();
+    if (!tekst) return;
+
+    elChatBerichtInput.value = '';
+    // Knop + veld kort blokkeren zodat de klik zichtbaar "iets doet" — voorkomt
+    // de indruk dat er niks gebeurt terwijl Firebase antwoord aan het ophalen is.
+    elChatBerichtInput.disabled = true;
+    if (elChatSendBtn) elChatSendBtn.disabled = true;
+
+    chatRef.push({
+      naam: chatNaam,
+      tekst,
+      tijd: new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }),
+      timestamp: Date.now(),
+    }).then(() => {
+      elChatBerichtInput.disabled = false;
+      if (elChatSendBtn) elChatSendBtn.disabled = false;
+      elChatBerichtInput.focus();
+    }).catch((err) => {
+      console.error('Bericht versturen mislukt:', err);
+      setChatStatus('error');
+      const isPermissie = err.code === 'PERMISSION_DENIED' || /permission/i.test(err.message || '');
+      alert(isPermissie
+        ? 'Bericht versturen is geweigerd door Firebase (PERMISSION_DENIED).\n\nDe beveiligingsregels voor pad "chat" staan nog niet (correct) ingesteld in de Firebase Console.'
+        : 'Bericht versturen is niet gelukt: ' + err.message);
+      elChatBerichtInput.value = tekst; // teruggeven zodat het bericht niet kwijt is
+      elChatBerichtInput.disabled = false;
+      if (elChatSendBtn) elChatSendBtn.disabled = false;
+      elChatBerichtInput.focus();
+    });
+  }
+
+  elChatNaamInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); bevestigChatNaam(); }
+  });
+  elChatBerichtInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); verstuurChatBericht(); }
+  });
 
   function startAttentieAnimatie() {
     elBannerBadge.classList.remove('badge-attention');
@@ -1273,18 +1765,61 @@
               queue = Object.keys(data)
                 .map(key => ({ key, ...data[key] }))
                 .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-              queue.forEach((e, i) => e.positie = i + 1);
 
-              if (prevQueueLength !== -1 && queue.length > prevQueueLength) {
+              // De kaart-animatie mag ALLEEN reageren op een groeiende ACTIEVE
+              // wachtrij (nieuwe aanmelding), nooit op afgeronde/hersteld
+              // klanten of chatactiviteit — vandaar deze aparte telling.
+              const actiefAantal = queue.filter(e => e.status !== 'afgerond').length;
+
+              if (prevQueueLength !== -1 && actiefAantal > prevQueueLength) {
                 startAttentieAnimatie();
               }
-              prevQueueLength = queue.length;
-              renderQueue();
+              prevQueueLength = actiefAantal;
+
+              // Tijdens het bewerken van een kaart (editingKey gezet) slaan we
+              // de her-render bewust over — anders zou een tussentijdse update
+              // van een collega de lopende tekstinvoer overschrijven. Zodra
+              // saveEdit()/cancelEdit() editingKey weer op null zetten, wordt
+              // hier (of daar zelf) meteen bijgewerkt.
+              if (editingKey === null) {
+                renderQueue();
+              }
             });
 
             statusRef.on('value', (snapshot) => {
               queueClosed = snapshot.val() === true;
               toepassenGeslotenStatus();
+            });
+
+            // ── Interne teamchat: live synchronisatie ──
+            // limitToLast(50) beperkt wat gesynchroniseerd wordt tot de 50
+            // meest recente berichten, zodat de chat de app niet vertraagt
+            // ook als de geschiedenis na verloop van tijd groter wordt.
+            chatRef.limitToLast(50).on('value', (snapshot) => {
+              setChatStatus('ok'); // een geslaagd 'value'-event bewijst dat lees-toegang werkt
+              const data = snapshot.val() || {};
+              chatBerichten = Object.keys(data)
+                .map(key => ({ key, ...data[key] }))
+                .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+              // Ongelezen-teller alleen ophogen als het paneel dicht is —
+              // anders is het bericht al zichtbaar in de open chat zelf.
+              if (prevChatLength !== -1 && chatBerichten.length > prevChatLength && !chatPanelOpen) {
+                chatOngelezen += (chatBerichten.length - prevChatLength);
+                updateChatBadge();
+              }
+              prevChatLength = chatBerichten.length;
+
+              renderChat();
+            }, (err) => {
+              // ── BUGFIX: zonder deze foutcallback bleef een geweigerde
+              // lees-toegang (bijv. ontbrekende Firebase-rechten op "chat")
+              // volledig onzichtbaar — de chat leek dan gewoon leeg/stil,
+              // in plaats van duidelijk te maken dat er iets mis is. ──
+              console.error('Chat kon niet geladen worden:', err);
+              setChatStatus('error');
+              elChatMessages.innerHTML =
+                '<div class="chat-empty">⚠ Chat kon niet geladen worden (' + err.message + '). Controleer de Firebase-rechten voor pad "chat".</div>';
             });
           }
         } else {
@@ -1294,10 +1829,28 @@
           if (dbListenerActief) {
             dbRef.off();
             statusRef.off();
+            chatRef.off();
             dbListenerActief = false;
           }
           queue = [];
           prevQueueLength = -1;
+          editingKey = null;
+          activeQueueTab = 'actief';
+          document.querySelectorAll('.queue-tab').forEach(el => el.classList.remove('is-actief-tab'));
+          const tabActiefEl = document.getElementById('tab-actief');
+          if (tabActiefEl) tabActiefEl.classList.add('is-actief-tab');
+
+          // Chat-state resetten: nieuwe sessie vraagt opnieuw om een naam
+          chatBerichten = [];
+          prevChatLength = -1;
+          chatOngelezen = 0;
+          chatPanelOpen = false;
+          chatNaam = '';
+          elChatPanel.style.display = 'none';
+          elChatToggleBtn.classList.remove('is-open');
+          elChatNaamRow.style.display = 'flex';
+          elChatNaamLabel.style.display = 'none';
+          updateChatBadge();
         }
       });
 
