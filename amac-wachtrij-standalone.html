@@ -345,19 +345,42 @@
     .btn-herstel:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
     .afgerond-meta { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
-    /* ── NIEUW: 18+ keuzeknoppen in het formulier — zelfde visuele taal als
-       de bestaande "Zoek Mijn"-keuzes, direct herkenbaar. ── */
-    .adult-group { display: flex; gap: 8px; flex-wrap: wrap; }
-    .adult-option {
-      display: flex; align-items: center; gap: 6px;
-      border: 1px solid var(--border); border-radius: 6px;
-      padding: 8px 14px; cursor: pointer; font-size: 12px; font-weight: 600;
-      transition: border-color 0.15s, background 0.15s; flex: 1; min-width: 140px; justify-content: center;
+    /* ── 18+ keuze: compact en subtiel, in lijn met de checkbox-rij ── */
+    .adult-inline {
+      display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+      padding-left: 14px; border-left: 1px solid var(--border);
     }
-    .adult-option:hover { background: var(--primary-light); }
-    .adult-option.selected-yes { border-color: var(--success); background: var(--success-light); color: var(--success); }
-    .adult-option.selected-no  { border-color: var(--danger); background: var(--danger-light); color: var(--danger); }
-    .adult-option input[type="radio"] { accent-color: var(--primary); }
+    .adult-inline .error-msg { flex-basis: 100%; margin-top: 2px; }
+    .adult-inline-label { font-size: 13px; color: var(--text); white-space: nowrap; }
+    .adult-chip {
+      display: flex; align-items: center; gap: 4px;
+      border: 1px solid var(--border); border-radius: 999px;
+      padding: 3px 12px; font-size: 11px; font-weight: 600; cursor: pointer;
+      color: var(--muted);
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+    }
+    .adult-chip input { display: none; } /* radio zelf verborgen — de chip fungeert als de klikbare knop */
+    .adult-chip:hover { background: var(--bg); }
+    .adult-chip.selected-yes { border-color: var(--success); background: var(--success-light); color: var(--success); }
+    .adult-chip.selected-no  { border-color: var(--danger);  background: var(--danger-light);  color: var(--danger); }
+    .adult-inline.has-error .adult-inline-label { color: var(--danger); }
+
+    /* ── Weekendmelding: permanent, opvallend, helemaal bovenin ──
+       Bewust GEEN sluitknop — moet het hele weekend zichtbaar blijven, dus
+       geen state nodig, alleen een dag-check bij het laden/elke minuut. */
+    #weekend-banner {
+      display: none;
+      background: linear-gradient(135deg, #b91c1c, #991b1b);
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 13px; font-weight: 700;
+      letter-spacing: 0.2px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+      position: relative; z-index: 950;
+    }
+    #weekend-banner strong { font-weight: 800; }
+    #weekend-banner .weekend-icon { margin-right: 6px; }
 
     /* ── NIEUW: behandel-status per klant ── */
     .behandel-row {
@@ -561,6 +584,17 @@
     }
     .btn-logout:hover { background: rgba(255,255,255,0.28); }
 
+    /* ── Geluidsmeldingen aan/uit ── */
+    .btn-audio {
+      background: rgba(255,255,255,0.15); color: white;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 6px; width: 30px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s; flex-shrink: 0;
+    }
+    .btn-audio:hover { background: rgba(255,255,255,0.28); }
+    .btn-audio.is-uit { opacity: 0.55; }
+
     .btn-toggle-closed {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 8px 14px;
@@ -665,6 +699,16 @@
     }
     .chat-toggle-btn:hover { background: var(--primary-hover); transform: scale(1.06); }
     .chat-toggle-btn.is-open { background: var(--primary-hover); }
+    @keyframes chat-toggle-pulse {
+      0%   { box-shadow: 0 4px 14px rgba(26,61,124,0.35); transform: scale(1); }
+      30%  { box-shadow: 0 0 0 10px rgba(26,61,124,0.20), 0 8px 18px rgba(26,61,124,0.30); transform: scale(1.08); }
+      60%  { box-shadow: 0 0 0 4px rgba(26,61,124,0.12), 0 6px 16px rgba(26,61,124,0.24); transform: scale(1.03); }
+      100% { box-shadow: 0 4px 14px rgba(26,61,124,0.35); transform: scale(1); }
+    }
+    .chat-toggle-btn.chat-attention {
+      animation: chat-toggle-pulse 0.9s ease-in-out infinite;
+      will-change: transform, box-shadow;
+    }
     .chat-badge {
       position: absolute; top: -4px; right: -4px;
       min-width: 18px; height: 18px; padding: 0 4px;
@@ -740,9 +784,36 @@
       background: var(--primary); color: white; border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
     }
-    .chat-send-btn:hover { background: var(--primary-hover); }</style>
+    .chat-send-btn:hover { background: var(--primary-hover); }
+
+    /* ── Regen-effecten ── */
+    .rain-overlay {
+      position: fixed; inset: 0; pointer-events: none; z-index: 850;
+      overflow: hidden; contain: strict;
+    }
+    .rain-drop {
+      position: absolute; top: -12vh; left: var(--x, 50%);
+      font-size: var(--size, 22px); line-height: 1;
+      transform: translate3d(0,0,0) rotate(var(--rot, 0deg));
+      opacity: 0;
+      will-change: transform, opacity;
+      animation: rain-fall var(--dur, 5s) ease-in-out var(--delay, 0s) infinite;
+      filter: drop-shadow(0 2px 3px rgba(0,0,0,0.18));
+      user-select: none;
+    }
+    .rain-drop img {
+      width: var(--img, 26px); height: var(--img, 26px); object-fit: contain;
+      display: block;
+    }
+    @keyframes rain-fall {
+      0%   { transform: translate3d(0,-12vh,0) translateX(0) rotate(var(--rot, 0deg)); opacity: 0; }
+      10%  { opacity: 1; }
+      78%  { opacity: 1; }
+      100% { transform: translate3d(var(--drift, 0px), 118vh, 0) translateX(0) rotate(calc(var(--rot, 0deg) + 260deg)); opacity: 0; }
+    }</style>
 </head>
 <body>
+<div class="rain-overlay" id="rain-overlay" aria-hidden="true"></div>
 
 <div id="loading-overlay">
   <img src="Amac_Logo.svg" alt="Amac logo" class="loading-logo">
@@ -776,6 +847,12 @@
 
 <div id="app-content" style="display:none">
 
+<!-- Weekendmelding: alleen zichtbaar op zaterdag/zondag, permanent tijdens het weekend -->
+<div id="weekend-banner">
+  <span class="weekend-icon">⚠️</span>
+  <strong>Let op — weekend:</strong> beloof geen reparaties voor zondag — er kan op zondag niet worden uitgeleverd.
+</div>
+
 <header>
   <div class="header-inner">
     <button class="logo-btn" onclick="verversPagina()" title="Klik om de wachtrij te vernieuwen" aria-label="Pagina vernieuwen">
@@ -783,6 +860,9 @@
     </button>
     <div></div>
     <div class="header-time" id="clock"></div>
+    <button class="btn-audio" id="btn-audio" onclick="toggleAudioMeldingen()" title="Geluidsmeldingen">
+      <svg id="audio-icoon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+    </button>
     <button class="btn-logout" onclick="uitloggen()">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       Uitloggen
@@ -898,21 +978,7 @@
             <span class="error-msg">Selecteer een Zoek Mijn status</span>
           </div>
 
-          <!-- NIEUW: 18+ keuze — verplicht, voorkomt dat medewerkers dit vergeten te vragen -->
-          <div class="field full" id="field-adult">
-            <label>Klant is 18 jaar of ouder <span class="req">*</span></label>
-            <div class="adult-group">
-              <label class="adult-option" id="adult-ja" onclick="selectAdult(true)">
-                <input type="radio" name="adult" value="ja" /> ✓ Ja, 18+
-              </label>
-              <label class="adult-option" id="adult-nee" onclick="selectAdult(false)">
-                <input type="radio" name="adult" value="nee" /> Nee, onder 18
-              </label>
-            </div>
-            <span class="error-msg">Geef aan of de klant 18 jaar of ouder is</span>
-          </div>
-
-          <!-- Checkboxes -->
+          <!-- Checkboxes + 18+ (compact, subtiel, op één rij) -->
           <div class="field full">
             <div class="checkbox-row">
               <label class="checkbox-item">
@@ -921,6 +987,16 @@
               <label class="checkbox-item">
                 <input type="checkbox" id="geen-nl" /> Spreekt geen Nederlands
               </label>
+              <div class="adult-inline" id="field-adult">
+                <span class="adult-inline-label">18 jaar of ouder? <span class="req">*</span></span>
+                <label class="adult-chip" id="adult-ja" onclick="selectAdult(true)">
+                  <input type="radio" name="adult" value="ja" /> Ja
+                </label>
+                <label class="adult-chip" id="adult-nee" onclick="selectAdult(false)">
+                  <input type="radio" name="adult" value="nee" /> Nee
+                </label>
+                <span class="error-msg">Geef aan of de klant 18 jaar of ouder is</span>
+              </div>
             </div>
           </div>
         </div>
@@ -1026,6 +1102,148 @@
     "Stefano","Sumeja","Sylvan","Thomas","Tuana"
   ];
 
+  function isGeldigeMedewerkerNaam(naam) {
+    return MEDEWERKERS.includes(String(naam || '').trim());
+  }
+
+  // ── Regen-config ──
+  // Pas hier per medewerker snel het effect aan: type, item, grootte, dichtheid.
+  const REGEN_CONFIG = {
+    algemeen: { items: ['✨', '💧', '⭐'], size: [16, 28], speed: [4.5, 7], density: 24 },
+    perMedewerker: {
+      'Ajla': { items: ['🌸', '💖'], size: [20, 30], speed: [4.5, 6.5], density: 18 },
+      'Antoine': { items: ['🎧', '🎵'], size: [18, 26], speed: [4.2, 6.0], density: 18 },
+      'Arjan': { items: ['🛠️', '🔧'], size: [18, 28], speed: [4.0, 5.8], density: 20 },
+      'Chin': { items: ['🛵', '💽'], size: [18, 28], speed: [4.4, 6.2], density: 20 },
+      'Constantijn': { items: ['👑', '✨'], size: [18, 30], speed: [4.4, 6.6], density: 16 },
+      'Damian': { items: ['⚡', '🔥'], size: [18, 28], speed: [4.0, 5.8], density: 20 },
+      'Dennie': { items: ['🎲', '🟦'], size: [18, 26], speed: [4.4, 6.4], density: 18 },
+      'Denzel': { items: ['🏁', '💨'], size: [18, 28], speed: [4.1, 6.0], density: 20 },
+      'Ilem': { items: ['💫', '🌙'], size: [18, 28], speed: [4.5, 6.5], density: 16 },
+      'Indi': { items: ['🌺', '🍃'], size: [18, 28], speed: [4.5, 6.5], density: 18 },
+      'Jayson': { items: ['🎮', '🕹️'], size: [18, 28], speed: [4.1, 6.0], density: 20 },
+      'Joyce': { items: ['🌈', '✨'], size: [18, 28], speed: [4.6, 6.8], density: 18 },
+      'Juanita': { items: ['🦋', '🌷'], size: [18, 28], speed: [4.6, 6.8], density: 18 },
+      'Leeuwerik': { items: ['🐦', '🎶'], size: [18, 28], speed: [4.2, 6.0], density: 16 },
+      'Leon': { items: ['🦁', '🔥'], size: [20, 30], speed: [4.0, 5.8], density: 20 },
+      'Levy': { items: ['💎', '✨'], size: [18, 28], speed: [4.4, 6.5], density: 18 },
+      'Lucas': { items: ['🚀', '⭐'], size: [18, 28], speed: [4.2, 6.2], density: 20 },
+      'Luuk': { items: ['☄️', '💥'], size: [18, 30], speed: [4.0, 5.8], density: 20 },
+      'Marco': { items: ['📦', '🚚'], size: [18, 28], speed: [4.4, 6.0], density: 20 },
+      'Max': { items: ['⚽', '🏆'], size: [18, 28], speed: [4.0, 5.8], density: 20 },
+      'Mehrin': { items: ['🎀', '💗'], size: [18, 28], speed: [4.6, 6.6], density: 18 },
+      'Mike': { items: ['🎸', '🔥'], size: [18, 28], speed: [4.0, 5.8], density: 20 },
+      'Milou': { items: ['🦄', '💜'], size: [20, 30], speed: [4.5, 6.5], density: 18 },
+      'Rêve': { items: ['🌙', '💤'], size: [18, 28], speed: [4.6, 6.8], density: 16 },
+      'Rohan': { items: ['🧩', '⚙️'], size: [18, 28], speed: [4.3, 6.2], density: 20 },
+      'Sidney': { items: ['🎯', '✨'], size: [18, 28], speed: [4.2, 6.2], density: 18 },
+      'Stefano': { items: ['🍕', '⭐'], size: [18, 28], speed: [4.2, 6.0], density: 20 },
+      'Sumeja': { items: ['🌷', '💐'], size: [18, 28], speed: [4.6, 6.6], density: 18 },
+      'Sylvan': { items: ['🌲', '🍃'], size: [18, 28], speed: [4.4, 6.2], density: 16 },
+      'Thomas': { items: ['🧠', '💡'], size: [18, 28], speed: [4.4, 6.4], density: 18 },
+      'Tuana': { items: ['🌸', '🩷'], size: [20, 30], speed: [4.6, 6.8], density: 18 },
+    },
+    imgBasePath: 'assets/rain/'
+  };
+
+  // Hoe lang het effect na een aanmelding zichtbaar blijft.
+  const RAIN_EFFECT_MS = 11000;
+
+  let rainOverlay = null;
+  let rainSyncRef = null;
+  let activeRainKey = '';
+  let rainStopTimer = null;
+
+  function getRainConfig(name) {
+    return REGEN_CONFIG.perMedewerker[name] || REGEN_CONFIG.algemeen;
+  }
+
+  function renderRainEffect(name, config) {
+    rainOverlay = rainOverlay || document.getElementById('rain-overlay');
+    if (!rainOverlay) return;
+    rainOverlay.innerHTML = '';
+    const count = config.density;
+    for (let i = 0; i < count; i++) {
+      const drop = document.createElement('div');
+      drop.className = 'rain-drop';
+      const value = config.items[i % config.items.length];
+      const isImage = /\.(png|jpe?g|gif|webp|svg)$/i.test(value);
+      const size = config.size[0] + Math.random() * (config.size[1] - config.size[0]);
+      const speed = config.speed[0] + Math.random() * (config.speed[1] - config.speed[0]);
+      const x = Math.random() * 100;
+      drop.style.setProperty('--x', x.toFixed(2) + 'vw');
+      drop.style.setProperty('--size', size.toFixed(1) + 'px');
+      drop.style.setProperty('--dur', speed.toFixed(2) + 's');
+      drop.style.setProperty('--delay', (Math.random() * Math.max(0.1, speed * 0.9)).toFixed(2) + 's');
+      drop.style.setProperty('--drift', (Math.random() * 260 - 130).toFixed(0) + 'px');
+      drop.style.setProperty('--rot', (Math.random() * 360).toFixed(0) + 'deg');
+      if (isImage) {
+        drop.innerHTML = `<img src="${REGEN_CONFIG.imgBasePath + value}" alt="${name}" />`;
+      } else {
+        drop.textContent = value;
+      }
+      rainOverlay.appendChild(drop);
+    }
+  }
+
+  function syncRain(name, enabled) {
+    if (!enabled) {
+      if (rainOverlay) {
+        rainOverlay.style.transition = 'opacity 700ms ease';
+        rainOverlay.style.opacity = '0';
+        setTimeout(() => {
+          if (rainOverlay) {
+            rainOverlay.innerHTML = '';
+            rainOverlay.style.opacity = '';
+            rainOverlay.style.transition = '';
+          }
+        }, 720);
+      }
+      activeRainKey = '';
+      return;
+    }
+    const key = name || 'algemeen';
+    if (rainOverlay) rainOverlay.style.opacity = '1';
+    if (activeRainKey === key && rainOverlay && rainOverlay.childElementCount) return;
+    activeRainKey = key;
+    renderRainEffect(name, getRainConfig(name));
+  }
+
+  function triggerEmployeeRain(name) {
+    const geldigeNaam = String(name || '').trim();
+    if (!isGeldigeMedewerkerNaam(geldigeNaam)) return;
+    if (!rainSyncRef) return;
+    if (rainStopTimer) clearTimeout(rainStopTimer);
+    rainSyncRef.set({
+      name: geldigeNaam,
+      startedAt: firebase.database.ServerValue.TIMESTAMP,
+      expiresAt: Date.now() + RAIN_EFFECT_MS
+    });
+    rainStopTimer = setTimeout(() => {
+      rainSyncRef.remove();
+    }, RAIN_EFFECT_MS);
+  }
+
+  function initRainSync() {
+    rainSyncRef = firebase.database().ref('regen/actief');
+    rainSyncRef.on('value', snap => {
+      const data = snap.val();
+      if (rainStopTimer) { clearTimeout(rainStopTimer); rainStopTimer = null; }
+      if (!data || !data.name || !isGeldigeMedewerkerNaam(data.name)) {
+        syncRain(null, false);
+        return;
+      }
+      if (data.expiresAt && data.expiresAt < Date.now()) {
+        syncRain(null, false);
+        return;
+      }
+      syncRain(String(data.name).trim(), true);
+      rainStopTimer = setTimeout(() => {
+        syncRain(null, false);
+      }, RAIN_EFFECT_MS);
+    });
+  }
+
   // ── Gecachete DOM-referenties ──
   const elLoginOverlay   = document.getElementById('login-overlay');
   const elLoadingOverlay = document.getElementById('loading-overlay');
@@ -1071,6 +1289,8 @@
   const elChatMessages     = document.getElementById('chat-messages');
   const elChatBerichtInput = document.getElementById('chat-bericht-input');
   const elChatSendBtn      = document.querySelector('.chat-send-btn');
+  const elWeekendBanner    = document.getElementById('weekend-banner');
+  const elBtnAudio         = document.getElementById('btn-audio');
 
   // ── NIEUW: datalist vullen vanuit de centrale MEDEWERKERS-array ──
   // Herstelt de volledige, selecteerbare namenlijst in het aanmeldformulier.
@@ -1138,6 +1358,22 @@
   updateClock();
   setInterval(updateClock, 10000);
 
+  // ── BUGFIX (app laadde niet meer / inlogscherm bleef leeg) ──
+  // Oorzaak: hieronder stonden voorheen twee directe aanroepen —
+  // updateAudioKnop() en controleerWeekend() — die de functies en de
+  // 'let audioMeldingenAan'-variabele gebruikten VÓÓRDAT die verderop in
+  // het bestand gedefinieerd werden. Een 'let' bestaat door de "temporal
+  // dead zone" nog niet vóór de regel waar hij gedeclareerd wordt, dus dit
+  // gooide een ReferenceError. Die fout stopte de volledige scriptuitvoering
+  // meteen — inclusief de Firebase-auth-listener verderop die het
+  // loginscherm zichtbaar maakt. Resultaat: de pagina bleef vastzitten op
+  // de laad-overlay en het inlogscherm verscheen nooit.
+  // Fix: deze twee initialisatie-aanroepen zijn verplaatst naar ná de
+  // functie- en variabele-declaraties (zie verderop, vlak vóór de
+  // Firebase-authenticatie), zodat alles al bestaat op het moment dat ze
+  // worden aangeroepen. Gedrag blijft verder identiek — beide lopen nog
+  // steeds meteen bij het laden van de pagina.
+
   // ── Type selectie ──
   function selectType(type) {
     selectedType = type;
@@ -1195,6 +1431,116 @@
     location.reload();
   }
 
+  // ── Geluidsmeldingen (i.p.v. pushmeldingen) ──
+  // Gegenereerd met de Web Audio API: geen los mp3-bestand nodig, dus niets
+  // om te vergeten uploaden — werkt direct na het plakken van dit bestand.
+  let audioMeldingenAan = localStorage.getItem('amacAudioMeldingen') !== 'uit';
+  let audioCtx = null;
+
+  function updateAudioKnop() {
+    elBtnAudio.classList.toggle('is-uit', !audioMeldingenAan);
+    elBtnAudio.title = audioMeldingenAan
+      ? 'Geluidsmeldingen staan aan — klik om uit te zetten'
+      : 'Geluidsmeldingen staan uit — klik om aan te zetten';
+    document.getElementById('audio-icoon').innerHTML = audioMeldingenAan
+      ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>'
+      : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+  }
+
+  function toggleAudioMeldingen() {
+    audioMeldingenAan = !audioMeldingenAan;
+    localStorage.setItem('amacAudioMeldingen', audioMeldingenAan ? 'aan' : 'uit');
+    updateAudioKnop();
+    if (audioMeldingenAan) speelChatGeluid(); // klein bevestigingsgeluidje
+  }
+
+  function getAudioContext() {
+    if (!audioCtx) {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      audioCtx = new AC();
+    }
+    return audioCtx;
+  }
+
+  // Browsers blokkeren geluid totdat de gebruiker één keer ergens op de
+  // pagina heeft geklikt/getikt — dit ontgrendelt de audio bij die eerste klik.
+  window.addEventListener('click', function ontgrendelAudio() {
+    const ctx = getAudioContext();
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+    window.removeEventListener('click', ontgrendelAudio);
+  }, { once: true });
+
+  function speelToon(frequenties) {
+    if (!audioMeldingenAan) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    try {
+      let tijd = ctx.currentTime;
+      const duur = 0.13;
+      frequenties.forEach((freq) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.0001, tijd);
+        gain.gain.exponentialRampToValueAtTime(0.22, tijd + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, tijd + duur);
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(tijd);
+        osc.stop(tijd + duur + 0.02);
+        tijd += duur;
+      });
+    } catch (err) {
+      console.warn('[Amac Wachtrij] Geluid afspelen mislukt:', err);
+    }
+  }
+
+  // Twee duidelijk verschillende, korte tonen — zo hoor je zonder te kijken
+  // meteen of het om een chatbericht of een nieuwe klant gaat.
+  function speelChatGeluid()       { speelToon([880, 1108]); }
+  function speelNieuweKlantGeluid(){ speelToon([660, 660]); }
+
+  // ── Weekendmelding: zaterdag (6) en zondag (0) ──
+  function controleerWeekend() {
+    const dag = new Date().getDay();
+    elWeekendBanner.style.display = (dag === 0 || dag === 6) ? 'block' : 'none';
+  }
+
+  // ── Dagelijks schema: chat + wachtrij automatisch resetten op vaste tijden ──
+  // Gebruikt een datumstring (YYYY-MM-DD) opgeslagen in Firebase als "vinkje"
+  // zodat de overgang maar 1x per dag wordt uitgevoerd, ongeacht hoeveel
+  // apparaten open staan of hoe vaak de check draait.
+  function huidigeDatumString() {
+    const d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  function controleerDagelijksSchema() {
+    const uur = new Date().getHours();
+    const vandaag = huidigeDatumString();
+    const dagelijksRef = firebase.database().ref('dagelijkseReset');
+
+    if (uur >= 8 && uur < 17) {
+      // Binnen openingsvenster: zorg dat de wachtrij open staat + chat vers is
+      dagelijksRef.child('laatsteAutoOpen').once('value').then((snap) => {
+        if (snap.val() !== vandaag) {
+          statusRef.set(false);
+          chatRef.remove();
+          dagelijksRef.update({ laatsteAutoOpen: vandaag });
+        }
+      }).catch((err) => console.warn('[Amac Wachtrij] Dagschema (open) mislukt:', err));
+    } else {
+      // Buiten openingsvenster (17:00–08:00): zorg dat de wachtrij dicht staat
+      dagelijksRef.child('laatsteAutoDicht').once('value').then((snap) => {
+        if (snap.val() !== vandaag) {
+          statusRef.set(true);
+          dagelijksRef.update({ laatsteAutoDicht: vandaag });
+        }
+      }).catch((err) => console.warn('[Amac Wachtrij] Dagschema (dicht) mislukt:', err));
+    }
+  }
+
   // ── Formulier indienen ──
   document.getElementById('aanmeld-form').addEventListener('submit', function(e) {
     e.preventDefault();
@@ -1235,7 +1581,9 @@
       volwassen: selectedAdult,
     };
 
-    dbRef.push(entry);
+    dbRef.push(entry).then(() => {
+      triggerEmployeeRain(medewerker);
+    });
     resetForm();
   });
 
@@ -1300,10 +1648,12 @@
       return;
     }
     clearError(veldId);
+    const naam = medewerkerNaam.trim();
     dbRef.child(key).update({
-      behandelaar: medewerkerNaam.trim(),
+      behandelaar: naam,
       status: 'in-behandeling'
     });
+    if (MEDEWERKERS.includes(naam)) triggerEmployeeRain(naam);
   }
 
   function laatVrij(key) {
@@ -1638,12 +1988,15 @@
     elChatToggleBtn.classList.toggle('is-open', chatPanelOpen);
     if (chatPanelOpen) {
       chatOngelezen = 0;
+      stopChatAttention();
       updateChatBadge();
       renderChat();
       setTimeout(() => {
         const input = chatNaam ? elChatBerichtInput : elChatNaamInput;
         if (input) input.focus();
       }, 50);
+    } else {
+      syncAttentionStates();
     }
   }
 
@@ -1653,7 +2006,9 @@
       elChatBadge.style.display = 'flex';
     } else {
       elChatBadge.style.display = 'none';
+      stopChatAttention();
     }
+    syncAttentionStates();
   }
 
   // ── Verbindingsstatus van de chat, altijd zichtbaar in de header ──
@@ -1730,19 +2085,48 @@
     if (e.key === 'Enter') { e.preventDefault(); verstuurChatBericht(); }
   });
 
+  let queueAttentionActive = false;
+  let chatAttentionActive = false;
+
+  function syncAttentionStates() {
+    elBannerBadge.classList.toggle('badge-attention', queueAttentionActive);
+    elChatToggleBtn.classList.toggle('chat-attention', chatAttentionActive && !chatPanelOpen);
+  }
+
   function startAttentieAnimatie() {
-    elBannerBadge.classList.remove('badge-attention');
-    void elBannerBadge.offsetWidth;
-    elBannerBadge.classList.add('badge-attention');
+    queueAttentionActive = true;
+    syncAttentionStates();
   }
 
   function stopAttentieAnimatie() {
-    elBannerBadge.classList.remove('badge-attention');
+    queueAttentionActive = false;
+    syncAttentionStates();
+  }
+
+  function startChatAttention() {
+    chatAttentionActive = true;
+    syncAttentionStates();
+  }
+
+  function stopChatAttention() {
+    chatAttentionActive = false;
+    syncAttentionStates();
   }
 
   ['click', 'scroll', 'keydown', 'touchstart'].forEach(evt =>
     window.addEventListener(evt, stopAttentieAnimatie, { passive: true })
   );
+
+  // Audio-knop en weekendmelding direct correct tonen bij het laden.
+  // (Verplaatst hierheen — zie uitleg hierboven bij de BUGFIX-toelichting —
+  // want op dit punt in het bestand bestaan updateAudioKnop(),
+  // controleerWeekend() en de bijbehorende variabelen al gegarandeerd.)
+  updateAudioKnop();
+  controleerWeekend();
+  // Elke minuut herchecken: vangt zowel de weekendovergang (bijv. vrijdag
+  // 23:59 → zaterdag 00:00) als het 08:00/17:00-schema betrouwbaar op,
+  // zonder dat de pagina herladen hoeft te worden.
+  setInterval(controleerWeekend, 60000);
 
   // ── Authenticatie ──
   let dbListenerActief = false;
@@ -1760,6 +2144,14 @@
 
           if (!dbListenerActief) {
             dbListenerActief = true;
+
+            // Dagschema meteen bij het inloggen checken, en daarna elke minuut
+            // opnieuw — dit is de enige plek waar dit mag draaien, want het
+            // schrijft naar Firebase en dat vereist een ingelogde gebruiker.
+            controleerDagelijksSchema();
+            setInterval(controleerDagelijksSchema, 60000);
+            initRainSync();
+
             dbRef.on('value', (snapshot) => {
               const data = snapshot.val() || {};
               queue = Object.keys(data)
@@ -1773,6 +2165,7 @@
 
               if (prevQueueLength !== -1 && actiefAantal > prevQueueLength) {
                 startAttentieAnimatie();
+                speelNieuweKlantGeluid();
               }
               prevQueueLength = actiefAantal;
 
@@ -1806,7 +2199,12 @@
               // anders is het bericht al zichtbaar in de open chat zelf.
               if (prevChatLength !== -1 && chatBerichten.length > prevChatLength && !chatPanelOpen) {
                 chatOngelezen += (chatBerichten.length - prevChatLength);
+                chatAttentionActive = true;
                 updateChatBadge();
+                speelChatGeluid();
+              }
+              if (chatPanelOpen || chatOngelezen === 0) {
+                stopChatAttention();
               }
               prevChatLength = chatBerichten.length;
 
@@ -1830,6 +2228,7 @@
             dbRef.off();
             statusRef.off();
             chatRef.off();
+            if (rainSyncRef) rainSyncRef.off();
             dbListenerActief = false;
           }
           queue = [];
@@ -1846,6 +2245,9 @@
           chatOngelezen = 0;
           chatPanelOpen = false;
           chatNaam = '';
+          stopChatAttention();
+          queueAttentionActive = false;
+          syncAttentionStates();
           elChatPanel.style.display = 'none';
           elChatToggleBtn.classList.remove('is-open');
           elChatNaamRow.style.display = 'flex';
