@@ -332,7 +332,7 @@
     .queue-item.is-geschiedenis { opacity: 0.86; background: #fafbfc; }
     .queue-item.is-geschiedenis .queue-number { background: var(--muted); }
     .history-day-label {
-      font-size: 11px; font-weight: 700; color: var(--muted);
+      font-size: 11px; font-weight: 700; color: var(--card);
       text-transform: uppercase; letter-spacing: 0.03em;
       margin: 14px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border);
     }
@@ -727,73 +727,6 @@
     }
     @media (max-width: 480px) {
       .chat-panel { right: 10px; left: 10px; width: auto; bottom: 80px; }
-    }
-
-    /* ══════════════════════════════════════════════════════════════════
-       MOBIELE & TABLET UX — iPhone / iPad
-       Uitsluitend aanvullingen (overrides) voor kleinere/touch-schermen.
-       De desktopweergave hierboven blijft volledig ongewijzigd.
-       ══════════════════════════════════════════════════════════════════ */
-    @media (max-width: 768px) {
-      body { font-size: 15px; }
-      main { padding: 14px; }
-      .card { padding: 16px; border-radius: 10px; }
-
-      /* iOS zoomt automatisch in op een invoerveld als de tekst kleiner is
-         dan 16px — dat voelt storend aan. Dit voorkomt dat, hier en in de chat. */
-      input[type="text"], input[type="email"], input[type="password"], textarea, select {
-        font-size: 16px;
-        padding: 10px 12px;
-      }
-
-      /* Duimvriendelijke tikdoelen (Apple-richtlijn: minimaal ~44px hoog) */
-      .btn-primary, .btn-behandel, .btn-vrijgeven, .btn-save-edit,
-      .btn-cancel-edit, .btn-herstel, .queue-tab {
-        min-height: 40px;
-      }
-      .btn-remove, .btn-boven, .btn-edit-icon {
-        min-height: 36px;
-        padding-top: 8px; padding-bottom: 8px;
-      }
-      .radio-option { min-height: 48px; }
-      .adult-chip, .zoek-option { padding-top: 7px; padding-bottom: 7px; }
-      .checkbox-item { min-height: 30px; }
-
-      /* Header: iets compacter zodat alle knoppen blijven passen */
-      .header-inner { gap: 6px; padding: 0 12px; }
-      .logo { width: 52px; height: 52px; }
-      .btn-logout { padding: 6px 9px; font-size: 11px; }
-
-      /* Banner-badges: elk hun eigen ruimte i.p.v. krap wrappen */
-      .banner { gap: 6px; }
-      .badge-stat { flex: 1 1 auto; justify-content: center; }
-
-      .queue-item { padding: 12px; }
-      .queue-header-actions { width: 100%; justify-content: flex-start; }
-
-      /* ── Chat: bijna-volledig scherm i.p.v. een klein zwevend paneeltje ──
-         Een chatvenster van 320px breed is op een telefoon piepklein; dit
-         maakt 'm groot en prettig bruikbaar, met een duidelijke sluitknop. */
-      .chat-panel {
-        left: 8px; right: 8px; bottom: 8px; top: 8px;
-        width: auto; max-height: none;
-        border-radius: 14px;
-      }
-      .chat-toggle-btn { bottom: 16px; right: 16px; width: 56px; height: 56px; }
-      .chat-messages { padding: 12px 14px; }
-      .chat-bericht { max-width: 90%; }
-      .chat-bericht-tekst { font-size: 14px; padding: 9px 13px; }
-      .chat-input-row { padding: 10px; }
-      .chat-input-row input { font-size: 16px; padding: 10px 13px; }
-      .chat-send-btn { width: 40px; height: 40px; }
-      .chat-naam-row input { font-size: 16px; padding: 9px 11px; }
-    }
-
-    @media (max-width: 420px) {
-      /* Extra compact voor kleine telefoons (bijv. iPhone SE) */
-      .logo { width: 46px; height: 46px; }
-      .header-time { font-size: 11px; }
-      .btn-audio { width: 28px; }
     }
     .chat-panel-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -1588,8 +1521,8 @@
     const vandaag = huidigeDatumString();
     const dagelijksRef = firebase.database().ref('dagelijkseReset');
 
-    if (uur >= 9 && uur < 17) {
-      // Binnen openingsvenster (09:00–17:00): wachtrij open + chat vers, 1x per dag
+    if (uur >= 8 && uur < 17) {
+      // Binnen openingsvenster: zorg dat de wachtrij open staat + chat vers is
       dagelijksRef.child('laatsteAutoOpen').once('value').then((snap) => {
         if (snap.val() !== vandaag) {
           statusRef.set(false);
@@ -1598,7 +1531,7 @@
         }
       }).catch((err) => console.warn('[Amac Wachtrij] Dagschema (open) mislukt:', err));
     } else {
-      // Buiten openingsvenster (17:00–09:00): wachtrij dicht, 1x per dag/nacht
+      // Buiten openingsvenster (17:00–08:00): zorg dat de wachtrij dicht staat
       dagelijksRef.child('laatsteAutoDicht').once('value').then((snap) => {
         if (snap.val() !== vandaag) {
           statusRef.set(true);
@@ -1825,7 +1758,7 @@
 
     elQueueTitle.innerHTML = `
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      Actuele wachtrij${n > 0 ? ' <span style="font-weight:400;color:var(--muted);font-size:12px">— ' + n + (n===1?' klant':' klanten') + ' · geschatte wachttijd ' + totaal + ' min</span>' : ''}
+      Actuele wachtrij${n > 0 ? ' <span style="font-weight:400;color:var(--card);font-size:12px">— ' + n + (n===1?' klant':' klanten') + ' · geschatte wachttijd ' + totaal + ' min</span>' : ''}
     `;
 
     function adultTag(e) {
@@ -2230,24 +2163,9 @@
               // klanten of chatactiviteit — vandaar deze aparte telling.
               const actiefAantal = queue.filter(e => e.status !== 'afgerond').length;
 
-              // ── BUGFIX: animatie kon oneindig doorlopen ──
-              // Voorheen stopte de animatie UITSLUITEND door interactie op dit
-              // ene apparaat (klik/scroll/toets/touch). Als een onbeheerd
-              // apparaat geen interactie kreeg terwijl de klant intussen door
-              // een COLLEGA op een ANDER apparaat werd geholpen/verwijderd,
-              // bleef de animatie daar voor altijd doorpulseren.
-              // Nu is de animatie direct gekoppeld aan de echte staat: zodra de
-              // actieve wachtrij niet meer groeit t.o.v. de vorige stand (dus:
-              // een klant is geholpen/verwijderd, of er kwam er per saldo geen
-              // nieuwe bij), stopt de animatie hier — en omdat elk apparaat
-              // dezelfde Firebase-snapshot verwerkt, gebeurt dat gegarandeerd
-              // op ALLE apparaten tegelijk, niet alleen op het apparaat waar
-              // iemand toevallig op klikte.
               if (prevQueueLength !== -1 && actiefAantal > prevQueueLength) {
                 startAttentieAnimatie();
                 speelNieuweKlantGeluid();
-              } else if (actiefAantal <= prevQueueLength) {
-                stopAttentieAnimatie();
               }
               prevQueueLength = actiefAantal;
 
