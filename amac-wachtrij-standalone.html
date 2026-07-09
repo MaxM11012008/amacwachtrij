@@ -99,8 +99,6 @@
     }
     .logo-btn:active { transform: scale(0.94); }
     .logo-btn:focus-visible { outline: 2px solid white; outline-offset: 2px; }
-
-.logo-btn:focus-visible { outline: 2px solid white; outline-offset: 2px; }
     .header-title { font-size: 13px; font-weight: 700; }
     .header-sub { font-size: 11px; color: var(--muted); }
     .header-time { margin-left: auto; font-size: 12px; color: white; }
@@ -175,6 +173,31 @@
     .radio-option input[type="radio"] { margin-top: 2px; accent-color: var(--primary); flex-shrink: 0; }
     .radio-label-main { font-size: 13px; font-weight: 600; }
     .radio-label-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+    /* ── Visuele hiërarchie type-bezoek: "ophalen"/"ongepland" zijn de twee
+       meest gebruikte opties en blijven daarom de volwaardige, prominente
+       kaarten. "Schoonmaak"/"PO" komen minder vaak voor en zijn daarom
+       bewust compacter en subtieler — dat maakt het geheel in één oogopslag
+       scanbaar: het oog valt eerst vanzelf op de twee grote, gangbare opties. */
+    .radio-option.optie-primair { padding: 12px 16px; }
+    .radio-option.optie-primair .radio-label-main { font-size: 14px; }
+
+    .radio-group-label {
+      width: 100%;
+      font-size: 10.5px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin: 2px 0 -2px;
+    }
+    .radio-option.optie-secundair {
+      flex: 0 1 auto; min-width: 0;
+      padding: 6px 12px; gap: 6px;
+    }
+    .radio-option.optie-secundair .radio-label-main { font-size: 11.5px; font-weight: 500; color: var(--muted); }
+    .radio-option.optie-secundair .radio-label-sub { display: none; } /* label is zelfverklarend op dit schaalniveau */
+    .radio-option.optie-secundair input[type="radio"] { transform: scale(0.85); margin-top: 0; }
+    .radio-option.optie-secundair:hover { background: var(--bg); }
+    .radio-option.optie-secundair.selected { border-color: var(--primary); background: var(--primary-light); }
+    .radio-option.optie-secundair.selected .radio-label-main { color: var(--primary); font-weight: 600; }
 
     .zoek-group { display: flex; flex-wrap: wrap; gap: 6px; }
     .zoek-option {
@@ -299,6 +322,16 @@
     }
     .tag-type-ophalen { background: var(--purple-light); color: var(--purple); }
     .tag-type-ongepland { background: var(--orange-light); color: var(--orange); }
+    /* ── NIEUW: twee extra type-bezoek tags — zelfde stijl-taal (lichte bg,
+       verzadigde tekstkleur), eigen kleur zodat het type in één oogopslag
+       te onderscheiden is van de bestaande twee. ── */
+    .tag-type-schoonmaak  { background: #ecfeff; color: #0e7490; }
+    .tag-type-prijsopgave { background: #fdf4ff; color: #a21caf; }
+    .tag-betaald-ja  { background: var(--success-light); color: var(--success); }
+    .tag-betaald-nee { background: var(--warning-light); color: var(--warning); }
+    .tag-backup-ja   { background: var(--success-light); color: var(--success); }
+    .tag-backup-nee  { background: var(--danger-light);  color: var(--danger); font-weight: 700; }
+    .backup-group { display: flex; gap: 8px; flex-wrap: wrap; }
     .tag-icare { background: #eff6ff; color: #1d4ed8; }
     .tag-nl { background: var(--warning-light); color: var(--warning); }
     .tag-zoek-uit { background: var(--success-light); color: var(--success); }
@@ -595,6 +628,41 @@
     .btn-audio:hover { background: rgba(255,255,255,0.28); }
     .btn-audio.is-uit { opacity: 0.55; }
 
+    /* ── Volumeregeling: compacte popover onder de geluidsknop ──
+       Zelfde soort interactiepatroon als bekende OS-volumeknoppen: klik op
+       het speaker-icoon → klein paneeltje met aan/uit + schuifregelaar. Dit
+       houdt de header zelf altijd compact, ook op mobiel. */
+    .audio-control { position: relative; }
+    .audio-popover {
+      display: none;
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      padding: 12px 14px; width: 220px; z-index: 960;
+    }
+    .audio-popover.open { display: block; }
+    .audio-popover-toggle {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 12px; color: var(--text); cursor: pointer;
+      margin-bottom: 12px; padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }
+    .audio-popover-toggle input { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; }
+    .audio-volume-label { font-size: 11px; color: var(--muted); margin-bottom: 6px; display: flex; justify-content: space-between; }
+    .audio-volume-row { display: flex; align-items: center; gap: 8px; }
+    .audio-volume-row input[type="range"] {
+      flex: 1; accent-color: var(--primary); cursor: pointer;
+      height: 26px; /* ruimer tikgebied, ook prettig op tablet/telefoon */
+    }
+    .audio-volume-hint { font-size: 10px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+    .popover-section-label {
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.05em;
+      margin: 0 0 8px;
+    }
+    .popover-section-label.tweede { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
+    .audio-popover-toggle.laatste { margin-bottom: 6px; padding-bottom: 0; border-bottom: none; }
+
     .btn-toggle-closed {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 8px 14px;
@@ -860,9 +928,37 @@
     </button>
     <div></div>
     <div class="header-time" id="clock"></div>
-    <button class="btn-audio" id="btn-audio" onclick="toggleAudioMeldingen()" title="Geluidsmeldingen">
-      <svg id="audio-icoon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-    </button>
+    <div class="audio-control">
+      <button class="btn-audio" id="btn-audio" onclick="toggleAudioPopover()" title="Geluidsmeldingen en volume">
+        <svg id="audio-icoon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+      </button>
+      <div class="audio-popover" id="audio-popover">
+        <div class="popover-section-label">Geluid</div>
+        <label class="audio-popover-toggle">
+          <input type="checkbox" id="audio-checkbox" onchange="toggleAudioMeldingen()" />
+          Geluidsmeldingen aan
+        </label>
+        <div class="audio-volume-label">
+          <span>Volume</span>
+          <span id="volume-label">65%</span>
+        </div>
+        <div class="audio-volume-row">
+          <input type="range" id="volume-slider" min="0" max="100" value="65" />
+        </div>
+        <div class="audio-volume-hint">Op 100% klinkt de melding duidelijk hard — handig in een drukke winkel.</div>
+
+        <div class="popover-section-label tweede">Pushmeldingen (browser)</div>
+        <label class="audio-popover-toggle">
+          <input type="checkbox" id="push-aanmelding-checkbox" onchange="togglePushAanmeldingen()" />
+          Bij nieuwe aanmelding
+        </label>
+        <label class="audio-popover-toggle laatste">
+          <input type="checkbox" id="push-chat-checkbox" onchange="togglePushChat()" />
+          Bij nieuw chatbericht
+        </label>
+        <div class="audio-volume-hint" id="push-permissie-hint">Werkt zolang dit tabblad open staat, ook op de achtergrond.</div>
+      </div>
+    </div>
     <button class="btn-logout" onclick="uitloggen()">
       <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-1px"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
       Uitloggen
@@ -924,18 +1020,33 @@
           <div class="field full" id="field-type">
             <label>Type bezoek <span class="req">*</span></label>
             <div class="radio-group">
-              <label class="radio-option" id="opt-ophalen" onclick="selectType('ophalen')">
+              <label class="radio-option optie-primair" id="opt-ophalen" onclick="selectType('ophalen')">
                 <input type="radio" name="type" value="ophalen" />
                 <div>
                   <div class="radio-label-main">📦 Reparatie ophalen</div>
                   <div class="radio-label-sub">Klant haalt product op</div>
                 </div>
               </label>
-              <label class="radio-option" id="opt-ongepland" onclick="selectType('ongepland')">
+              <label class="radio-option optie-primair" id="opt-ongepland" onclick="selectType('ongepland')">
                 <input type="radio" name="type" value="ongepland" />
                 <div>
                   <div class="radio-label-main">🔧 Ongepland — ter reparatie/service</div>
                   <div class="radio-label-sub">Klant brengt product voor reparatie of service</div>
+                </div>
+              </label>
+              <div class="radio-group-label">Overige bezoekredenen</div>
+              <label class="radio-option optie-secundair" id="opt-schoonmaak" onclick="selectType('schoonmaak')">
+                <input type="radio" name="type" value="schoonmaak" />
+                <div>
+                  <div class="radio-label-main">🧼 Schoonmaak</div>
+                  <div class="radio-label-sub">Klant komt voor het laten schoonmaken van het apparaat</div>
+                </div>
+              </label>
+              <label class="radio-option optie-secundair" id="opt-prijsopgave" onclick="selectType('prijsopgave')">
+                <input type="radio" name="type" value="prijsopgave" />
+                <div>
+                  <div class="radio-label-main">💶 Prijsopgave</div>
+                  <div class="radio-label-sub">Klant vraagt om een prijsopgave</div>
                 </div>
               </label>
             </div>
@@ -946,6 +1057,13 @@
           <div class="field full" id="field-repnr" style="display:none;">
             <label>Reparatienummer <span style="color:var(--muted);font-weight:400">(optioneel)</span></label>
             <input type="text" id="repnr" placeholder="bijv. 2019-7438" inputmode="numeric" maxlength="9" />
+          </div>
+
+          <!-- Betaald? (conditioneel, alleen bij Schoonmaak) -->
+          <div class="field full" id="field-betaald" style="display:none;">
+            <label class="checkbox-item">
+              <input type="checkbox" id="betaald" /> Betaald?
+            </label>
           </div>
 
           <!-- Probleemomschrijving -->
@@ -978,6 +1096,23 @@
             <span class="error-msg">Selecteer een Zoek Mijn status</span>
           </div>
 
+          <!-- Backup gemaakt? — net zo verplicht/conditioneel als Zoek Mijn status -->
+          <div class="field full" id="field-backup">
+            <label>Backup gemaakt?
+              <span class="req" id="backup-req">*</span>
+              <span id="backup-optioneel" style="display:none;color:var(--muted);font-weight:400">(optioneel)</span>
+            </label>
+            <div class="backup-group">
+              <label class="adult-chip" id="backup-ja" onclick="selectBackup(true)">
+                <input type="radio" name="backup" value="ja" /> Ja
+              </label>
+              <label class="adult-chip" id="backup-nee" onclick="selectBackup(false)">
+                <input type="radio" name="backup" value="nee" /> Nee
+              </label>
+            </div>
+            <span class="error-msg">Geef aan of er een backup is gemaakt</span>
+          </div>
+
           <!-- Checkboxes + 18+ (compact, subtiel, op één rij) -->
           <div class="field full">
             <div class="checkbox-row">
@@ -988,7 +1123,10 @@
                 <input type="checkbox" id="geen-nl" /> Spreekt geen Nederlands
               </label>
               <div class="adult-inline" id="field-adult">
-                <span class="adult-inline-label">18 jaar of ouder? <span class="req">*</span></span>
+                <span class="adult-inline-label">18 jaar of ouder?
+                  <span class="req" id="adult-req">*</span>
+                  <span id="adult-optioneel" style="display:none;color:var(--muted);font-weight:400">(optioneel)</span>
+                </span>
                 <label class="adult-chip" id="adult-ja" onclick="selectAdult(true)">
                   <input type="radio" name="adult" value="ja" /> Ja
                 </label>
@@ -1270,6 +1408,12 @@
   const elFieldRepnr        = document.getElementById('field-repnr');
   const elZoekReq           = document.getElementById('zoek-req');
   const elZoekOptioneel     = document.getElementById('zoek-optioneel');
+  const elFieldBetaald      = document.getElementById('field-betaald');
+  const elBetaald           = document.getElementById('betaald');
+  const elBackupReq         = document.getElementById('backup-req');
+  const elBackupOptioneel   = document.getElementById('backup-optioneel');
+  const elAdultReq          = document.getElementById('adult-req');
+  const elAdultOptioneel    = document.getElementById('adult-optioneel');
 
   // ── Extra gecachete refs (performance): deze werden voorheen bij ELKE
   // aanroep van hun functie opnieuw via getElementById/querySelector
@@ -1291,6 +1435,14 @@
   const elChatSendBtn      = document.querySelector('.chat-send-btn');
   const elWeekendBanner    = document.getElementById('weekend-banner');
   const elBtnAudio         = document.getElementById('btn-audio');
+  const elAudioPopover     = document.getElementById('audio-popover');
+  const elAudioControl     = document.querySelector('.audio-control');
+  const elAudioCheckbox    = document.getElementById('audio-checkbox');
+  const elVolumeSlider     = document.getElementById('volume-slider');
+  const elVolumeLabel      = document.getElementById('volume-label');
+  const elPushAanmeldingCheckbox = document.getElementById('push-aanmelding-checkbox');
+  const elPushChatCheckbox       = document.getElementById('push-chat-checkbox');
+  const elPushPermissieHint      = document.getElementById('push-permissie-hint');
 
   // ── NIEUW: datalist vullen vanuit de centrale MEDEWERKERS-array ──
   // Herstelt de volledige, selecteerbare namenlijst in het aanmeldformulier.
@@ -1330,6 +1482,7 @@
   let selectedType = null;
   let selectedZoek = null;
   let selectedAdult = null;
+  let selectedBackup = null;
   // NIEUW: welke tab wordt getoond boven de wachtrij
   let activeQueueTab = 'actief';
   function switchQueueTab(tab) {
@@ -1380,17 +1533,38 @@
     document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
     document.getElementById('opt-' + type).classList.add('selected');
     elFieldRepnr.style.display = type === 'ophalen' ? '' : 'none';
+    // "Betaald?" is alleen relevant bij het type "Schoonmaak"
+    elFieldBetaald.style.display = type === 'schoonmaak' ? '' : 'none';
 
-    // "Reparatie ophalen" maakt zowel Probleemomschrijving als Zoek Mijn optioneel —
-    // label en verplichtings-asterisk schakelen direct mee zodra het type wijzigt.
+    // "Reparatie ophalen" ÉN "Schoonmaak" maken Probleemomschrijving, Zoek
+    // Mijn en "Backup gemaakt?" optioneel — label en verplichtings-asterisk
+    // schakelen direct mee zodra het type wijzigt. "18 jaar of ouder?" is
+    // een aparte uitzondering: die is ALLEEN optioneel bij Schoonmaak (bij
+    // "ophalen" blijft de leeftijdscontrole gewoon verplicht, zoals voorheen).
     const isOphalen = type === 'ophalen';
-    elProbleemReq.style.display       = isOphalen ? 'none' : '';
-    elProbleemOptioneel.style.display = isOphalen ? '' : 'none';
-    elZoekReq.style.display           = isOphalen ? 'none' : '';
-    elZoekOptioneel.style.display     = isOphalen ? '' : 'none';
-    if (isOphalen) { clearError('field-probleem'); clearError('field-zoek'); }
+    const isSchoonmaak = type === 'schoonmaak';
+    const overigeVeldenOptioneel = isOphalen || isSchoonmaak;
+    elProbleemReq.style.display       = overigeVeldenOptioneel ? 'none' : '';
+    elProbleemOptioneel.style.display = overigeVeldenOptioneel ? '' : 'none';
+    elZoekReq.style.display           = overigeVeldenOptioneel ? 'none' : '';
+    elZoekOptioneel.style.display     = overigeVeldenOptioneel ? '' : 'none';
+    elBackupReq.style.display         = overigeVeldenOptioneel ? 'none' : '';
+    elBackupOptioneel.style.display   = overigeVeldenOptioneel ? '' : 'none';
+    elAdultReq.style.display          = isSchoonmaak ? 'none' : '';
+    elAdultOptioneel.style.display    = isSchoonmaak ? '' : 'none';
+    if (overigeVeldenOptioneel) { clearError('field-probleem'); clearError('field-zoek'); clearError('field-backup'); }
+    if (isSchoonmaak) { clearError('field-adult'); }
 
     clearError('field-type');
+  }
+
+  function selectBackup(isBackup) {
+    selectedBackup = isBackup;
+    document.getElementById('backup-ja').classList.remove('selected-yes');
+    document.getElementById('backup-nee').classList.remove('selected-no');
+    document.getElementById(isBackup ? 'backup-ja' : 'backup-nee').classList.add(isBackup ? 'selected-yes' : 'selected-no');
+    document.querySelector(`input[name="backup"][value="${isBackup ? 'ja' : 'nee'}"]`).checked = true;
+    clearError('field-backup');
   }
 
   function formatRepnr(raw) {
@@ -1437,22 +1611,52 @@
   let audioMeldingenAan = localStorage.getItem('amacAudioMeldingen') !== 'uit';
   let audioCtx = null;
 
+  // ── NIEUW: instelbaar volume (0-100), onthouden per apparaat ──
+  let meldingVolume = parseInt(localStorage.getItem('amacMeldingVolume'), 10);
+  if (isNaN(meldingVolume) || meldingVolume < 0 || meldingVolume > 100) meldingVolume = 65;
+
   function updateAudioKnop() {
     elBtnAudio.classList.toggle('is-uit', !audioMeldingenAan);
     elBtnAudio.title = audioMeldingenAan
-      ? 'Geluidsmeldingen staan aan — klik om uit te zetten'
-      : 'Geluidsmeldingen staan uit — klik om aan te zetten';
+      ? 'Geluidsmeldingen en volume'
+      : 'Geluidsmeldingen staan uit — klik voor instellingen';
     document.getElementById('audio-icoon').innerHTML = audioMeldingenAan
       ? '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>'
       : '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>';
+    elAudioCheckbox.checked = audioMeldingenAan;
   }
 
   function toggleAudioMeldingen() {
-    audioMeldingenAan = !audioMeldingenAan;
+    audioMeldingenAan = elAudioCheckbox.checked;
     localStorage.setItem('amacAudioMeldingen', audioMeldingenAan ? 'aan' : 'uit');
     updateAudioKnop();
     if (audioMeldingenAan) speelChatGeluid(); // klein bevestigingsgeluidje
   }
+
+  // ── Popover openen/sluiten ──
+  function toggleAudioPopover() {
+    elAudioPopover.classList.toggle('open');
+  }
+  // Klik buiten de popover sluit 'm — klikken ín de popover (incl. de knop
+  // zelf) telt niet mee, want die zit ook binnen .audio-control.
+  window.addEventListener('click', function (e) {
+    if (elAudioPopover.classList.contains('open') && !elAudioControl.contains(e.target)) {
+      elAudioPopover.classList.remove('open');
+    }
+  });
+
+  // ── Volumeslider: live label-update tijdens het slepen, testtoon pas
+  // zodra je loslaat (anders overlappen te veel tonen tijdens het slepen) ──
+  elVolumeSlider.value = meldingVolume;
+  elVolumeLabel.textContent = meldingVolume + '%';
+  elVolumeSlider.addEventListener('input', function () {
+    meldingVolume = parseInt(this.value, 10);
+    elVolumeLabel.textContent = meldingVolume + '%';
+    localStorage.setItem('amacMeldingVolume', meldingVolume);
+  });
+  elVolumeSlider.addEventListener('change', function () {
+    if (audioMeldingenAan) speelChatGeluid();
+  });
 
   function getAudioContext() {
     if (!audioCtx) {
@@ -1472,9 +1676,15 @@
   }, { once: true });
 
   function speelToon(frequenties) {
-    if (!audioMeldingenAan) return;
+    if (!audioMeldingenAan || meldingVolume <= 0) return;
     const ctx = getAudioContext();
     if (!ctx) return;
+    // Volume 0-100 → piekwaarde 0-1.8. Bewust ver BOVEN 1.0 aan de bovenkant:
+    // dat duwt de golfvorm bij hoge standen bewust tegen de digitale
+    // clipping-grens aan, wat een merkbaar hardere, dringendere meldingstoon
+    // geeft op 100% — geen braaf piepje, maar een toon die je ECHT hoort,
+    // precies zoals gevraagd.
+    const piek = (meldingVolume / 100) * 1.8;
     try {
       let tijd = ctx.currentTime;
       const duur = 0.13;
@@ -1484,7 +1694,7 @@
         osc.type = 'sine';
         osc.frequency.value = freq;
         gain.gain.setValueAtTime(0.0001, tijd);
-        gain.gain.exponentialRampToValueAtTime(0.22, tijd + 0.015);
+        gain.gain.exponentialRampToValueAtTime(piek, tijd + 0.015);
         gain.gain.exponentialRampToValueAtTime(0.0001, tijd + duur);
         osc.connect(gain).connect(ctx.destination);
         osc.start(tijd);
@@ -1500,6 +1710,116 @@
   // meteen of het om een chatbericht of een nieuwe klant gaat.
   function speelChatGeluid()       { speelToon([880, 1108]); }
   function speelNieuweKlantGeluid(){ speelToon([660, 660]); }
+
+  // ── NIEUW: Pushmeldingen — apart regelbaar voor aanmeldingen en chat ──
+  // Belangrijke technische beperking (Firebase Spark-plan, geen server):
+  // de browser kent maar ÉÉN toestemming per site ("Notification.permission"),
+  // niet per type melding. Deze twee schakelaars zijn dus een APP-niveau
+  // voorkeur die daarbovenop zit: één gedeelde browsertoestemming, maar
+  // "aanmeldingen" en "chat" onafhankelijk aan/uit binnen de app zelf.
+  // Deze meldingen werken zolang dit tabblad open staat (ook op de
+  // achtergrond) — niet wanneer het tabblad/de browser volledig dicht is.
+  // Dat laatste kan alleen met een Cloud Function + Firebase Blaze-plan; zie
+  // de uitleg in het antwoord voor die (optionele) vervolgstap.
+  let pushAanmeldingenAan = localStorage.getItem('amacPushAanmeldingen') === 'aan';
+  let pushChatAan         = localStorage.getItem('amacPushChat') === 'aan';
+
+  // ── BUGFIX: service worker registreren voor betrouwbare meldingen ──
+  // Root cause van "pushmeldingen werken niet": de klassieke `new
+  // Notification()`-aanroep (zie stuurBrowserMelding hieronder) werkt niet
+  // overal — met name Chrome op Android weigert dit stilzwijgend buiten een
+  // service worker. Met deze registratie gebruiken we overal waar mogelijk
+  // de breed ondersteunde showNotification()-route via de service worker,
+  // met de oude methode als terugval voor browsers die dat niet nodig hebben.
+  let notificatieSwRegistratie = null;
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('notificatie-sw.js')
+      .then((reg) => { notificatieSwRegistratie = reg; })
+      .catch((err) => console.warn('[Amac Wachtrij] Service worker voor meldingen kon niet worden geregistreerd:', err));
+  }
+
+  function updatePushKnoppen() {
+    elPushAanmeldingCheckbox.checked = pushAanmeldingenAan;
+    elPushChatCheckbox.checked = pushChatAan;
+
+    // ── Diagnose: op iPhone bestaat de Notification-API alleen als de site
+    // via "Delen → Zet op beginscherm" is geïnstalleerd — in een gewoon
+    // Safari-tabblad ontbreekt 'Notification' dus volledig. Dat is een
+    // bewuste Apple-beperking, geen bug in deze app, maar wel de meest
+    // waarschijnlijke reden dat het op een iPhone/iPad "niet werkt". ──
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    const isPWA = window.navigator.standalone === true;
+
+    if (!('Notification' in window)) {
+      elPushPermissieHint.textContent = isIOS && !isPWA
+        ? 'Op iPhone/iPad werken meldingen alleen als je deze site via "Delen → Zet op beginscherm" toevoegt.'
+        : 'Deze browser ondersteunt geen pushmeldingen.';
+    } else if (Notification.permission === 'denied') {
+      elPushPermissieHint.textContent = 'Geblokkeerd in de browserinstellingen — zet dit handmatig aan bij het slotje/i-icoon in de adresbalk.';
+    } else if (Notification.permission === 'default') {
+      elPushPermissieHint.textContent = 'Vink een optie aan om toestemming te geven voor meldingen.';
+    } else {
+      elPushPermissieHint.textContent = 'Werkt zolang dit tabblad open staat, ook op de achtergrond.';
+    }
+  }
+
+  function vraagNotificatieToestemming() {
+    if (!('Notification' in window)) return Promise.resolve(false);
+    if (Notification.permission === 'granted') return Promise.resolve(true);
+    if (Notification.permission === 'denied') return Promise.resolve(false);
+    return Notification.requestPermission().then((result) => result === 'granted');
+  }
+
+  function togglePushAanmeldingen() {
+    if (elPushAanmeldingCheckbox.checked) {
+      vraagNotificatieToestemming().then((toegestaan) => {
+        pushAanmeldingenAan = toegestaan;
+        localStorage.setItem('amacPushAanmeldingen', toegestaan ? 'aan' : 'uit');
+        updatePushKnoppen();
+      });
+    } else {
+      pushAanmeldingenAan = false;
+      localStorage.setItem('amacPushAanmeldingen', 'uit');
+      updatePushKnoppen();
+    }
+  }
+
+  function togglePushChat() {
+    if (elPushChatCheckbox.checked) {
+      vraagNotificatieToestemming().then((toegestaan) => {
+        pushChatAan = toegestaan;
+        localStorage.setItem('amacPushChat', toegestaan ? 'aan' : 'uit');
+        updatePushKnoppen();
+      });
+    } else {
+      pushChatAan = false;
+      localStorage.setItem('amacPushChat', 'uit');
+      updatePushKnoppen();
+    }
+  }
+
+  function stuurBrowserMelding(titel, body) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const opties = { body, icon: 'Amac_Logo.svg', tag: titel + '-' + Date.now() };
+
+    if (notificatieSwRegistratie) {
+      notificatieSwRegistratie.showNotification(titel, opties).catch((err) => {
+        console.warn('[Amac Wachtrij] showNotification via service worker mislukt, val terug op directe melding:', err);
+        toonDirecteMelding(titel, opties);
+      });
+    } else {
+      toonDirecteMelding(titel, opties);
+    }
+  }
+
+  function toonDirecteMelding(titel, opties) {
+    try {
+      const n = new Notification(titel, opties);
+      n.onclick = () => { window.focus(); n.close(); };
+    } catch (err) {
+      console.warn('[Amac Wachtrij] Pushmelding kon niet worden getoond:', err);
+    }
+  }
 
   // ── Weekendmelding: zaterdag (6) en zondag (0) ──
   function controleerWeekend() {
@@ -1553,11 +1873,15 @@
     if (!naam) { showError('field-naam'); ok = false; } else clearError('field-naam');
     if (!medewerker) { showError('field-medewerker'); ok = false; } else clearError('field-medewerker');
     if (!selectedType) { showError('field-type'); ok = false; } else clearError('field-type');
-    // "Reparatie ophalen" maakt zowel Probleemomschrijving als Zoek Mijn optioneel
+    // "Reparatie ophalen" én "Schoonmaak" maken Probleemomschrijving, Zoek
+    // Mijn en Backup optioneel. "18+" is alleen optioneel bij Schoonmaak.
     const isOphalen = selectedType === 'ophalen';
-    if (!isOphalen && !probleem)    { showError('field-probleem'); ok = false; } else clearError('field-probleem');
-    if (!isOphalen && !selectedZoek) { showError('field-zoek'); ok = false; } else clearError('field-zoek');
-    if (selectedAdult === null) { showError('field-adult'); ok = false; } else clearError('field-adult');
+    const isSchoonmaak = selectedType === 'schoonmaak';
+    const overigeVeldenOptioneel = isOphalen || isSchoonmaak;
+    if (!overigeVeldenOptioneel && !probleem)     { showError('field-probleem'); ok = false; } else clearError('field-probleem');
+    if (!overigeVeldenOptioneel && !selectedZoek) { showError('field-zoek'); ok = false; } else clearError('field-zoek');
+    if (!overigeVeldenOptioneel && selectedBackup === null) { showError('field-backup'); ok = false; } else clearError('field-backup');
+    if (!isSchoonmaak && selectedAdult === null) { showError('field-adult'); ok = false; } else clearError('field-adult');
 
     if (!ok) return;
 
@@ -1566,6 +1890,8 @@
       medewerker,
       type: selectedType,
       repnr: selectedType === 'ophalen' ? formatRepnr(elRepnr.value.trim()) : '',
+      betaald: selectedType === 'schoonmaak' ? elBetaald.checked : false,
+      backup: selectedBackup,
       probleem,
       zoek: selectedZoek,
       icare: elIcare.checked,
@@ -1595,10 +1921,20 @@
     elIcare.checked = false;
     elGeenNl.checked = false;
     elFieldRepnr.style.display = 'none';
+    elFieldBetaald.style.display = 'none';
+    elBetaald.checked = false;
     elProbleemReq.style.display = '';
     elProbleemOptioneel.style.display = 'none';
     elZoekReq.style.display = '';
     elZoekOptioneel.style.display = 'none';
+    elBackupReq.style.display = '';
+    elBackupOptioneel.style.display = 'none';
+    elAdultReq.style.display = '';
+    elAdultOptioneel.style.display = 'none';
+    document.getElementById('backup-ja').classList.remove('selected-yes');
+    document.getElementById('backup-nee').classList.remove('selected-no');
+    document.querySelectorAll('input[name="backup"]').forEach(el => el.checked = false);
+    selectedBackup = null;
     document.querySelectorAll('.radio-option').forEach(el => el.classList.remove('selected'));
     document.querySelectorAll('input[name="type"]').forEach(el => el.checked = false);
     document.querySelectorAll('.zoek-option').forEach(el => el.classList.remove('selected'));
@@ -1761,9 +2097,35 @@
       Actuele wachtrij${n > 0 ? ' <span style="font-weight:400;color:var(--card);font-size:12px">— ' + n + (n===1?' klant':' klanten') + ' · geschatte wachttijd ' + totaal + ' min</span>' : ''}
     `;
 
+    // ── Gedeelde helper voor het type-bezoek-label — nu 4 typen i.p.v. 2,
+    // vandaar een kleine lookup i.p.v. een simpele ternary. Gebruikt in zowel
+    // de actieve wachtrij als de geschiedenisweergave hieronder. ──
+    function typeTagHtml(type) {
+      if (type === 'ophalen')     return '<span class="tag tag-type-ophalen">📦 Reparatie ophalen</span>';
+      if (type === 'schoonmaak')  return '<span class="tag tag-type-schoonmaak">🧼 Schoonmaak</span>';
+      if (type === 'prijsopgave') return '<span class="tag tag-type-prijsopgave">💶 Prijsopgave voor PO</span>';
+      return '<span class="tag tag-type-ongepland">🔧 Ongepland — ter reparatie/service</span>';
+    }
+
     function adultTag(e) {
       if (e.volwassen === true)  return '<span class="tag tag-adult-yes">✓ 18+</span>';
       if (e.volwassen === false) return '<span class="tag tag-adult-no">⚠ Onder 18</span>';
+      return '';
+    }
+
+    // ── NIEUW: "betaald?" alleen relevant bij Schoonmaak ──
+    function betaaldTag(e) {
+      if (e.type !== 'schoonmaak') return '';
+      return e.betaald
+        ? '<span class="tag tag-betaald-ja">✓ Betaald</span>'
+        : '<span class="tag tag-betaald-nee">⚠ Nog niet betaald</span>';
+    }
+
+    // ── NIEUW: "backup gemaakt?" — alleen getoond als het is gevraagd
+    // (dus niet bij "ophalen", zelfde voorwaarde als bij Zoek Mijn status) ──
+    function backupTag(e) {
+      if (e.backup === true)  return '<span class="tag tag-backup-ja">✓ Backup gemaakt</span>';
+      if (e.backup === false) return '<span class="tag tag-backup-nee">⚠ Geen backup</span>';
       return '';
     }
 
@@ -1785,9 +2147,7 @@
       elQueueContainer.innerHTML = `<div class="history-day-label">${label} · ${lijst.length} ${lijst.length===1?'klant':'klanten'}</div>` +
         lijst.map(e => {
           const z = zoekLabel(e.zoek);
-          const typeTag = e.type === 'ophalen'
-            ? '<span class="tag tag-type-ophalen">📦 Reparatie ophalen</span>'
-            : '<span class="tag tag-type-ongepland">🔧 Ongepland — ter reparatie/service</span>';
+          const typeTag = typeTagHtml(e.type);
           const repTag   = e.repnr   ? `<span class="tag tag-repnr">Rep.nr: ${formatRepnr(e.repnr)}</span>` : '';
           const icareTag = e.icare   ? '<span class="tag tag-icare">✓ iCare / AppleCare</span>' : '';
           const nlTag    = e.geenNl  ? '<span class="tag tag-nl">⚠ Spreekt geen Nederlands</span>' : '';
@@ -1812,7 +2172,7 @@
                   </button>
                 </div>
               </div>
-              <div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${adultTag(e)}</div>
+              <div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${adultTag(e)}${betaaldTag(e)}${backupTag(e)}</div>
               <div class="queue-desc">${e.probleem}</div>
               <div class="tag-row">${icareTag}${nlTag}${zoekTag}</div>
             </div>`;
@@ -1834,9 +2194,7 @@
     elQueueContainer.innerHTML = actief.map(e => {
       const isEditing = e.key === editingKey;
       const z = zoekLabel(e.zoek);
-      const typeTag = e.type === 'ophalen'
-        ? '<span class="tag tag-type-ophalen">📦 Reparatie ophalen</span>'
-        : '<span class="tag tag-type-ongepland">🔧 Ongepland — ter reparatie/service</span>';
+      const typeTag = typeTagHtml(e.type);
       const repTag   = e.repnr   ? `<span class="tag tag-repnr">Rep.nr: ${formatRepnr(e.repnr)}</span>` : '';
       const icareTag = e.icare   ? '<span class="tag tag-icare">✓ iCare / AppleCare</span>' : '';
       const nlTag    = e.geenNl  ? '<span class="tag tag-nl">⚠ Spreekt geen Nederlands</span>' : '';
@@ -1929,7 +2287,7 @@
             </div>
           </div>
           ${isEditing ? editForm : `
-          <div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${adultTag(e)}</div>
+          <div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${adultTag(e)}${betaaldTag(e)}${backupTag(e)}</div>
           <div class="queue-desc">${e.probleem}</div>
           <div class="tag-row">${icareTag}${nlTag}${zoekTag}</div>
           <div class="behandel-row">${behandelHtml}</div>`}
@@ -2122,6 +2480,7 @@
   // want op dit punt in het bestand bestaan updateAudioKnop(),
   // controleerWeekend() en de bijbehorende variabelen al gegarandeerd.)
   updateAudioKnop();
+  updatePushKnoppen();
   controleerWeekend();
   // Elke minuut herchecken: vangt zowel de weekendovergang (bijv. vrijdag
   // 23:59 → zaterdag 00:00) als het 08:00/17:00-schema betrouwbaar op,
@@ -2166,6 +2525,14 @@
               if (prevQueueLength !== -1 && actiefAantal > prevQueueLength) {
                 startAttentieAnimatie();
                 speelNieuweKlantGeluid();
+                if (pushAanmeldingenAan) {
+                  const nieuwsteKlant = queue.filter(e => e.status !== 'afgerond')
+                    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))[0];
+                  stuurBrowserMelding(
+                    'Nieuwe aanmelding',
+                    nieuwsteKlant ? nieuwsteKlant.naam + ' staat nu in de wachtrij.' : 'Er staat een nieuwe klant in de wachtrij.'
+                  );
+                }
               }
               prevQueueLength = actiefAantal;
 
@@ -2202,6 +2569,12 @@
                 chatAttentionActive = true;
                 updateChatBadge();
                 speelChatGeluid();
+                if (pushChatAan) {
+                  const laatsteBericht = chatBerichten[chatBerichten.length - 1];
+                  if (laatsteBericht && laatsteBericht.naam !== chatNaam) {
+                    stuurBrowserMelding('💬 ' + laatsteBericht.naam, laatsteBericht.tekst);
+                  }
+                }
               }
               if (chatPanelOpen || chatOngelezen === 0) {
                 stopChatAttention();
