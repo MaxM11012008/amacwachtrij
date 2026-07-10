@@ -663,6 +663,115 @@
     .popover-section-label.tweede { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border); }
     .audio-popover-toggle.laatste { margin-bottom: 6px; padding-bottom: 0; border-bottom: none; }
 
+    /* ══════════════════════════════════════════════════════════════════
+       NIEUW: Dagoverzicht + Medewerker-overzicht — gedeelde modal-stijl
+       ══════════════════════════════════════════════════════════════════ */
+    .btn-report {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 13px; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--muted); font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .btn-report:hover { border-color: var(--primary); color: var(--primary); }
+    .queue-tabs-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    .queue-tabs-row .queue-tabs { margin-bottom: 0; flex: 1; }
+    .report-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
+
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 1200;
+      background: rgba(15,20,30,0.5);
+      display: none; align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-card {
+      background: var(--card); border-radius: 12px;
+      width: 100%; max-width: 480px; max-height: 85vh;
+      display: flex; flex-direction: column; overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 18px; background: var(--primary); color: white;
+      font-size: 14px; font-weight: 700; flex-shrink: 0;
+    }
+    .modal-header button { background: none; border: none; color: white; cursor: pointer; font-size: 15px; opacity: 0.85; padding: 2px; }
+    .modal-header button:hover { opacity: 1; }
+    .modal-body { padding: 18px; overflow-y: auto; }
+    .modal-footer { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 8px; flex-shrink: 0; }
+
+    .overzicht-stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .overzicht-stat-card { background: var(--bg); border-radius: 8px; padding: 12px; text-align: center; }
+    .overzicht-stat-card.breed { grid-column: 1 / -1; }
+    .overzicht-stat-value { font-size: 22px; font-weight: 800; color: var(--primary); }
+    .overzicht-stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .overzicht-type-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 7px 0; border-bottom: 1px solid var(--border); }
+    .overzicht-type-row:last-child { border-bottom: none; }
+
+    .periode-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+    .periode-tab {
+      padding: 6px 12px; border-radius: 999px; border: 1px solid var(--border);
+      background: var(--card); color: var(--muted); font-size: 12px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .periode-tab:hover { border-color: var(--primary); color: var(--primary); }
+    .periode-tab.is-actief-periode { background: var(--primary); border-color: var(--primary); color: white; }
+
+    .medewerker-rij {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 4px; border-bottom: 1px solid var(--border);
+    }
+    .medewerker-rij:last-child { border-bottom: none; }
+    .medewerker-rij .naam { flex: 1; font-size: 13px; font-weight: 600; }
+    .medewerker-rij .aantal { font-size: 13px; font-weight: 700; color: var(--primary); min-width: 24px; text-align: right; }
+    .medewerker-balk-track { flex: 2; height: 6px; background: var(--bg); border-radius: 999px; overflow: hidden; }
+    .medewerker-balk-vulling { height: 100%; background: var(--primary); border-radius: 999px; }
+
+    /* ══════════════════════════════════════════════════════════════════
+       NIEUW: Mini-leaderboard — speelse popover, zelfde interactiepatroon
+       als de audio-instellingen (icoon → popover eronder).
+       ══════════════════════════════════════════════════════════════════ */
+    .btn-leaderboard {
+      background: rgba(255,255,255,0.15); color: white;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 6px; width: 30px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s; flex-shrink: 0;
+    }
+    .btn-leaderboard:hover { background: rgba(255,255,255,0.28); }
+    .leaderboard-control { position: relative; }
+    .leaderboard-popover {
+      display: none;
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      padding: 12px 14px; width: 230px; z-index: 960;
+    }
+    .leaderboard-popover.open { display: block; }
+    .leaderboard-rij {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 4px; font-size: 12px;
+    }
+    .leaderboard-rij .plek { width: 18px; font-weight: 800; color: var(--muted); text-align: center; }
+    .leaderboard-rij .naam { flex: 1; font-weight: 600; }
+    .leaderboard-rij .aantal { font-weight: 700; color: var(--muted); }
+    .leaderboard-rij.nummer-1 {
+      background: linear-gradient(90deg, #fff7e0, transparent);
+      border-radius: 6px;
+    }
+    .leaderboard-rij.nummer-1 .plek { color: #b8860b; }
+    .leaderboard-rij.nummer-1 .naam,
+    .leaderboard-rij.nummer-1 .aantal { color: #8a6100; }
+    .leaderboard-trofee { display: inline-block; animation: trofee-glow 2.2s ease-in-out infinite; }
+    @keyframes trofee-glow {
+      0%, 100% { filter: drop-shadow(0 0 0 rgba(184,134,11,0)); transform: scale(1); }
+      50%      { filter: drop-shadow(0 0 4px rgba(184,134,11,0.6)); transform: scale(1.12); }
+    }
+    .leaderboard-hint { font-size: 10px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+
+        .datum-rij { display: flex; gap: 6px; }
+
     .btn-toggle-closed {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 8px 14px;
@@ -928,6 +1037,19 @@
     </button>
     <div></div>
     <div class="header-time" id="clock"></div>
+
+    <!-- NIEUW: Mini-leaderboard -->
+    <div class="leaderboard-control">
+      <button class="btn-leaderboard" id="btn-leaderboard" onclick="toggleLeaderboardPopover()" title="Leaderboard deze week">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3a2 2 0 0 1-2 4h-1"/><path d="M7 5H4a2 2 0 0 0 2 4h1"/></svg>
+      </button>
+      <div class="leaderboard-popover" id="leaderboard-popover">
+        <div class="popover-section-label">🏆 Meeste klanten geholpen — deze week</div>
+        <div id="leaderboard-body"></div>
+        <div class="leaderboard-hint">Telt vanaf maandag 00:00 · reset vanzelf elke week</div>
+      </div>
+    </div>
+
     <div class="audio-control">
       <button class="btn-audio" id="btn-audio" onclick="toggleAudioPopover()" title="Geluidsmeldingen en volume">
         <svg id="audio-icoon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
@@ -1154,17 +1276,23 @@
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Actuele wachtrij
     </div>
-    <!-- NIEUW: tabs voor Actief / Vandaag afgerond / Gisteren afgerond -->
-    <div class="queue-tabs" id="queue-tabs">
-      <button type="button" class="queue-tab is-actief-tab" id="tab-actief" onclick="switchQueueTab('actief')">
-        Actief <span class="tab-count" id="tab-count-actief">0</span>
-      </button>
-      <button type="button" class="queue-tab" id="tab-vandaag" onclick="switchQueueTab('vandaag')">
-        Vandaag afgerond <span class="tab-count" id="tab-count-vandaag">0</span>
-      </button>
-      <button type="button" class="queue-tab" id="tab-gisteren" onclick="switchQueueTab('gisteren')">
-        Gisteren afgerond <span class="tab-count" id="tab-count-gisteren">0</span>
-      </button>
+    <!-- NIEUW: tabs voor Actief / Vandaag afgerond / Gisteren afgerond + rapportageknoppen -->
+    <div class="queue-tabs-row">
+      <div class="queue-tabs" id="queue-tabs">
+        <button type="button" class="queue-tab is-actief-tab" id="tab-actief" onclick="switchQueueTab('actief')">
+          Actief <span class="tab-count" id="tab-count-actief">0</span>
+        </button>
+        <button type="button" class="queue-tab" id="tab-vandaag" onclick="switchQueueTab('vandaag')">
+          Vandaag afgerond <span class="tab-count" id="tab-count-vandaag">0</span>
+        </button>
+        <button type="button" class="queue-tab" id="tab-gisteren" onclick="switchQueueTab('gisteren')">
+          Gisteren afgerond <span class="tab-count" id="tab-count-gisteren">0</span>
+        </button>
+      </div>
+      <div class="report-buttons">
+        <button type="button" class="btn-report" onclick="toonDagoverzicht()" title="Dagoverzicht bekijken en exporteren">📊 Dagoverzicht</button>
+        <button type="button" class="btn-report" onclick="toonMedewerkerOverzicht()" title="Overzicht per medewerker">👥 Medewerkers</button>
+      </div>
     </div>
     <div id="queue-container"></div>
   </section>
@@ -1207,6 +1335,45 @@
   </div>
 </div>
 
+<!-- ── NIEUW: Dagoverzicht-modal ── -->
+<div class="modal-overlay" id="dagoverzicht-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span>📊 Dagoverzicht</span>
+      <button type="button" onclick="sluitModal('dagoverzicht-overlay')" aria-label="Sluiten">✕</button>
+    </div>
+    <div class="modal-body" id="dagoverzicht-body"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn-primary" style="margin-left:0" onclick="exporteerDagoverzichtCsv()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exporteer als CSV
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── NIEUW: Medewerker-overzicht-modal ── -->
+<div class="modal-overlay" id="medewerker-overlay">
+  <div class="modal-card">
+    <div class="modal-header">
+      <span>👥 Medewerker-overzicht</span>
+      <button type="button" onclick="sluitModal('medewerker-overlay')" aria-label="Sluiten">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="periode-tabs" id="medewerker-periode-tabs">
+        <button type="button" class="periode-tab is-actief-periode" data-periode="vandaag" onclick="setMedewerkerPeriode('vandaag')">Vandaag</button>
+        <button type="button" class="periode-tab" data-periode="week" onclick="setMedewerkerPeriode('week')">Deze week</button>
+        <button type="button" class="periode-tab" data-periode="aangepast" onclick="setMedewerkerPeriode('aangepast')">Aangepast</button>
+      </div>
+      <div id="medewerker-aangepast-rij" style="display:none;gap:6px;margin-bottom:12px" class="datum-rij">
+        <input type="date" id="medewerker-van" style="flex:1" onchange="renderMedewerkerOverzicht()">
+        <input type="date" id="medewerker-tot" style="flex:1" onchange="renderMedewerkerOverzicht()">
+      </div>
+      <div id="medewerker-overzicht-body"></div>
+    </div>
+  </div>
+</div>
+
 </div><!-- /#app-content -->
 
 <!-- Firebase: zorgt voor synchronisatie en authenticatie -->
@@ -1229,7 +1396,6 @@
   const dbRef = firebase.database().ref('wachtrij');
   // ── Interne teamchat: eigen Firebase-pad, los van de wachtrij-data ──
   const chatRef = firebase.database().ref('chat/berichten');
-
   // ── NIEUW: volledige medewerkerslijst — één centrale array, hergebruikt in
   // het aanmeldformulier (datalist) én in de "Neem in behandeling"-dropdown
   // per klant. Zo hoeft de lijst maar op één plek onderhouden te worden. ──
@@ -1502,6 +1668,278 @@
       .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
+
+  // ── Generieke modal-helper (dagoverzicht + medewerker-overzicht) ──
+  function sluitModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — FEATURE 1: Dagoverzicht + CSV-export
+  // Gebruikt uitsluitend bestaande velden (status, afgerondOp, timestamp,
+  // type, naam, behandelaar) — afgerondOp bestond al, dus geen nieuw veld
+  // nodig geweest.
+  // ══════════════════════════════════════════════════════════════════
+  const TYPE_LABELS_OVERZICHT = {
+    ophalen: '📦 Reparatie ophalen',
+    ongepland: '🔧 Ongepland',
+    schoonmaak: '🧼 Schoonmaak',
+    prijsopgave: '💶 Prijsopgave',
+  };
+
+  function berekenDagoverzicht() {
+    const vandaagStr = new Date().toDateString();
+    const lijst = queue.filter(e => e.status === 'afgerond' && e.afgerondOp && new Date(e.afgerondOp).toDateString() === vandaagStr);
+    const nogWachtend = queue.filter(e => e.status !== 'afgerond').length;
+
+    const perType = { ophalen: 0, ongepland: 0, schoonmaak: 0, prijsopgave: 0 };
+    let totaleMinuten = 0, telbaar = 0;
+    lijst.forEach(e => {
+      if (perType[e.type] !== undefined) perType[e.type]++;
+      if (e.timestamp && e.afgerondOp) { totaleMinuten += (e.afgerondOp - e.timestamp) / 60000; telbaar++; }
+    });
+    // Geen delen-door-nul: gemiddelde blijft 0 als er nog niemand is afgerond.
+    const gemiddelde = telbaar > 0 ? Math.round(totaleMinuten / telbaar) : 0;
+    return { totaal: lijst.length, perType, gemiddelde, nogWachtend, lijst };
+  }
+
+  function toonDagoverzicht() {
+    const data = berekenDagoverzicht();
+    document.getElementById('dagoverzicht-body').innerHTML = `
+      <div class="overzicht-stats-grid">
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${data.totaal}</div>
+          <div class="overzicht-stat-label">Afgerond vandaag</div>
+        </div>
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${data.nogWachtend}</div>
+          <div class="overzicht-stat-label">Nog in wachtrij</div>
+        </div>
+        <div class="overzicht-stat-card breed">
+          <div class="overzicht-stat-value">${data.totaal > 0 ? data.gemiddelde + ' min' : '—'}</div>
+          <div class="overzicht-stat-label">Gemiddelde wachttijd</div>
+        </div>
+      </div>
+      <div>
+        ${Object.keys(TYPE_LABELS_OVERZICHT).map(t => `
+          <div class="overzicht-type-row"><span>${TYPE_LABELS_OVERZICHT[t]}</span><strong>${data.perType[t] || 0}</strong></div>
+        `).join('')}
+      </div>`;
+    document.getElementById('dagoverzicht-overlay').classList.add('open');
+  }
+
+  function csvVeld(v) {
+    const s = String(v ?? '');
+    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+  }
+
+  function downloadCsv(inhoud, bestandsnaam) {
+    const blob = new Blob(['\uFEFF' + inhoud], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = bestandsnaam;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  const DAGEN_VAN_DE_WEEK = ['zondag', 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag'];
+
+  // ── CSV-export: bewust GEEN klantnaam (AVG) — alleen niet-herleidbare
+  // informatie die al elders in de app zichtbaar is. ──
+  function exporteerDagoverzichtCsv() {
+    const data = berekenDagoverzicht();
+    const kolommen = ['type', 'dag_van_week', 'aanmeldtijd', 'afgerondtijd', 'wachttijd_minuten', 'medewerker', 'behandelaar'];
+    const rijen = data.lijst.map(e => {
+      const wachttijd = (e.timestamp && e.afgerondOp) ? Math.round((e.afgerondOp - e.timestamp) / 60000) : '';
+      const afgerondTijd = e.afgerondOp ? new Date(e.afgerondOp).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) : '';
+      const dagVanWeek = e.afgerondOp ? DAGEN_VAN_DE_WEEK[new Date(e.afgerondOp).getDay()] : '';
+      const typeLabel = TYPE_LABELS_OVERZICHT[e.type] || e.type;
+      return [typeLabel, dagVanWeek, e.tijd, afgerondTijd, wachttijd, e.medewerker || '', e.behandelaar || ''].map(csvVeld).join(',');
+    });
+    downloadCsv(kolommen.join(',') + '\n' + rijen.join('\n'), 'dagoverzicht-' + huidigeDatumString() + '.csv');
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — FEATURE 2 + 3: gedeelde telling-logica (medewerker-overzicht
+  // én mini-leaderboard hergebruiken dit, om dubbele code te voorkomen).
+  // Performance: behandelCache wordt maar 1x per Firebase-snapshot ververst
+  // (zie verversBehandelCache(), aangeroepen in de dbRef-listener), niet bij
+  // elke render/popover-opening — de telling zelf is daarna alleen nog een
+  // goedkope filter+telling over die kleine, voorgefilterde cache.
+  // ══════════════════════════════════════════════════════════════════
+  let behandelCache = [];
+
+  function verversBehandelCache() {
+    behandelCache = queue
+      .filter(e => e.status === 'afgerond' && e.behandelaar && e.afgerondOp)
+      .map(e => ({ behandelaar: e.behandelaar, afgerondOp: e.afgerondOp }));
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // Naam-matching voor het leaderboard/medewerker-overzicht
+  // Medewerkers typen hun naam soms snel/afgekort in bij "Neem in
+  // behandeling", waardoor die tekst niet exact overeenkomt met de
+  // canonieke naam in MEDEWERKERS. Deze matching lost dat alleen op bij
+  // het TELLEN (leaderboard/overzicht) — de ruwe, ingevoerde naam blijft
+  // ongewijzigd in de data staan.
+  //
+  // Methode: Levenshtein-afstand (bewerkingsafstand), case-insensitive,
+  // met een prefix-kortingsregel voor afkortingen ("Max" → "Maximilian"
+  // zou als prefix direct een sterke match zijn, mocht dat ooit relevant
+  // worden). Er wordt alleen een match toegekend als:
+  //   1) de kandidaat met de kleinste afstand duidelijk (>= 1 punt) beter
+  //      scoort dan de op-één-na-beste kandidaat (geen twijfelgeval), én
+  //   2) die afstand klein genoeg is relatief tot de naamlengte
+  //      (max. ~30% van de langste van de twee namen, met een vaste
+  //      ondergrens van 2 zodat één typo bij korte namen ook telt).
+  // Als aan een van deze voorwaarden niet wordt voldaan, "verzint" de
+  // functie niets: ze geeft null terug en de naam telt nergens bij mee.
+  // Dit is lichte tekst-berekening over een lijst van ~30 namen, dus
+  // geschikt om bij elke render opnieuw te doen; het resultaat wordt
+  // bovendien per unieke ingevoerde naam gecachet zodat herhaalde
+  // afgeronde items met dezelfde tekst niet steeds opnieuw berekend
+  // worden.
+  // ══════════════════════════════════════════════════════════════════
+  const matchCache = new Map();
+
+  function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    if (m === 0) return n;
+    if (n === 0) return m;
+    let vorige = Array.from({ length: n + 1 }, (_, i) => i);
+    for (let i = 1; i <= m; i++) {
+      const huidige = [i];
+      for (let j = 1; j <= n; j++) {
+        const kosten = a[i - 1] === b[j - 1] ? 0 : 1;
+        huidige[j] = Math.min(
+          vorige[j] + 1,
+          huidige[j - 1] + 1,
+          vorige[j - 1] + kosten
+        );
+      }
+      vorige = huidige;
+    }
+    return vorige[n];
+  }
+
+  function matchMedewerkerNaam(ingevoerdeNaam) {
+    const naam = String(ingevoerdeNaam || '').trim();
+    if (!naam) return null;
+    if (MEDEWERKERS.includes(naam)) return naam; // exacte match, snelste pad
+
+    if (matchCache.has(naam)) return matchCache.get(naam);
+
+    const naamLower = naam.toLowerCase();
+    let beste = null, besteAfstand = Infinity, tweedeBesteAfstand = Infinity;
+
+    MEDEWERKERS.forEach(kandidaat => {
+      const afstand = levenshtein(naamLower, kandidaat.toLowerCase());
+      if (afstand < besteAfstand) {
+        tweedeBesteAfstand = besteAfstand;
+        besteAfstand = afstand;
+        beste = kandidaat;
+      } else if (afstand < tweedeBesteAfstand) {
+        tweedeBesteAfstand = afstand;
+      }
+    });
+
+    const langsteLengte = Math.max(naam.length, beste ? beste.length : 0);
+    const drempel = Math.max(2, Math.round(langsteLengte * 0.3));
+    const duidelijkeWinnaar = tweedeBesteAfstand - besteAfstand >= 1;
+
+    const resultaat = (beste && besteAfstand <= drempel && duidelijkeWinnaar) ? beste : null;
+    matchCache.set(naam, resultaat);
+    return resultaat;
+  }
+
+  function telMedewerkers(vanEpoch, totEpoch) {
+    const tellingen = {};
+    MEDEWERKERS.forEach(naam => { tellingen[naam] = 0; });
+    behandelCache.forEach(item => {
+      const canoniekeNaam = matchMedewerkerNaam(item.behandelaar);
+      if (canoniekeNaam && item.afgerondOp >= vanEpoch && item.afgerondOp <= totEpoch) {
+        tellingen[canoniekeNaam]++;
+      }
+    });
+    return Object.entries(tellingen).sort((a, b) => b[1] - a[1]);
+  }
+
+  function startVanVandaag()  { const d = new Date(); d.setHours(0, 0, 0, 0); return d.getTime(); }
+  function eindeVanVandaag()  { const d = new Date(); d.setHours(23, 59, 59, 999); return d.getTime(); }
+  function startVanDezeWeek() {
+    const d = new Date();
+    const dag = d.getDay(); // 0 = zondag
+    const offsetNaarMaandag = dag === 0 ? 6 : dag - 1;
+    d.setDate(d.getDate() - offsetNaarMaandag);
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+  }
+
+  // ── FEATURE 2: Medewerker-overzicht (modal met periode-filter) ──
+  let medewerkerPeriode = 'vandaag';
+
+  function setMedewerkerPeriode(p) {
+    medewerkerPeriode = p;
+    document.querySelectorAll('#medewerker-periode-tabs .periode-tab').forEach(el => el.classList.remove('is-actief-periode'));
+    document.querySelector(`#medewerker-periode-tabs [data-periode="${p}"]`).classList.add('is-actief-periode');
+    document.getElementById('medewerker-aangepast-rij').style.display = p === 'aangepast' ? 'flex' : 'none';
+    renderMedewerkerOverzicht();
+  }
+
+  function renderMedewerkerOverzicht() {
+    let van, tot;
+    if (medewerkerPeriode === 'vandaag') {
+      van = startVanVandaag(); tot = eindeVanVandaag();
+    } else if (medewerkerPeriode === 'week') {
+      van = startVanDezeWeek(); tot = Date.now();
+    } else {
+      const vanInput = document.getElementById('medewerker-van').value;
+      const totInput = document.getElementById('medewerker-tot').value;
+      van = vanInput ? new Date(vanInput + 'T00:00:00').getTime() : 0;
+      tot = totInput ? new Date(totInput + 'T23:59:59').getTime() : Date.now();
+    }
+
+    const tellingen = telMedewerkers(van, tot);
+    const max = Math.max(1, ...tellingen.map(([, c]) => c)); // voorkomt delen door 0 bij lege balkjes
+    document.getElementById('medewerker-overzicht-body').innerHTML = tellingen.map(([naam, count]) => `
+      <div class="medewerker-rij">
+        <span class="naam">${escapeHtml(naam)}</span>
+        <div class="medewerker-balk-track"><div class="medewerker-balk-vulling" style="width:${Math.round(count / max * 100)}%"></div></div>
+        <span class="aantal">${count}</span>
+      </div>`).join('');
+  }
+
+  function toonMedewerkerOverzicht() {
+    setMedewerkerPeriode('vandaag');
+    document.getElementById('medewerker-overlay').classList.add('open');
+  }
+
+  // ── FEATURE 3: Mini-leaderboard (speelse popover, hergebruikt telMedewerkers) ──
+  function renderLeaderboard() {
+    const van = startVanDezeWeek();
+    const tellingen = telMedewerkers(van, Date.now()).filter(([, c]) => c > 0).slice(0, 5);
+    const body = document.getElementById('leaderboard-body');
+    if (tellingen.length === 0) {
+      body.innerHTML = '<div class="leaderboard-hint" style="margin-top:0">Nog niemand deze week — wie pakt de eerste klant op?</div>';
+      return;
+    }
+    body.innerHTML = tellingen.map(([naam, count], i) => `
+      <div class="leaderboard-rij${i === 0 ? ' nummer-1' : ''}">
+        <span class="plek">${i === 0 ? '<span class="leaderboard-trofee">🏆</span>' : (i + 1)}</span>
+        <span class="naam">${escapeHtml(naam)}</span>
+        <span class="aantal">${count}</span>
+      </div>`).join('');
+  }
+
+  function toggleLeaderboardPopover() {
+    renderLeaderboard();
+    document.getElementById('leaderboard-popover').classList.toggle('open');
+  }
+  window.addEventListener('click', function (e) {
+    const control = document.querySelector('.leaderboard-control');
+    const pop = document.getElementById('leaderboard-popover');
+    if (pop.classList.contains('open') && control && !control.contains(e.target)) pop.classList.remove('open');
+  });
 
   // ── Klok ──
   function updateClock() {
@@ -2517,6 +2955,10 @@
                 .map(key => ({ key, ...data[key] }))
                 .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
+              // NIEUW: telling-cache voor medewerker-overzicht + leaderboard
+              // ververst hier, 1x per Firebase-snapshot — niet bij elke render.
+              verversBehandelCache();
+
               // De kaart-animatie mag ALLEEN reageren op een groeiende ACTIEVE
               // wachtrij (nieuwe aanmelding), nooit op afgeronde/hersteld
               // klanten of chatactiviteit — vandaar deze aparte telling.
@@ -2626,6 +3068,12 @@
           elChatNaamRow.style.display = 'flex';
           elChatNaamLabel.style.display = 'none';
           updateChatBadge();
+
+          // NIEUW: cache + open panelen van de nieuwe features netjes opruimen
+          behandelCache = [];
+          document.getElementById('dagoverzicht-overlay').classList.remove('open');
+          document.getElementById('medewerker-overlay').classList.remove('open');
+          document.getElementById('leaderboard-popover').classList.remove('open');
         }
       });
 
