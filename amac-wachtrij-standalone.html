@@ -201,10 +201,10 @@
 
     .zoek-group { display: flex; flex-wrap: wrap; gap: 6px; }
     .zoek-option {
-      display: flex; align-items: center; gap: 6px;
+      display: flex; align-items: center; gap: 5px;
       border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 7px 12px;
+      border-radius: 999px;
+      padding: 5px 11px;
       cursor: pointer;
       font-size: 12px; font-weight: 500;
       transition: border-color 0.15s, background 0.15s;
@@ -243,6 +243,33 @@
       margin-bottom: 10px;
       box-shadow: var(--shadow);
       position: relative; /* nodig zodat de "wacht boven"-badge in de hoek kan pinnen */
+    }
+    .behandeling-sectie {
+      margin-bottom: 18px;
+      padding: 12px;
+      border: 1px solid #bbf7d0;
+      border-radius: var(--radius);
+      background: var(--success-light);
+    }
+    .behandeling-sectie-titel {
+      display: flex; align-items: center; gap: 7px;
+      margin: 0 0 10px;
+      color: var(--success);
+      font-size: 13px; font-weight: 700;
+    }
+    .behandeling-sectie-titel .behandeling-aantal {
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: rgba(18,118,54,0.12);
+      font-size: 11px;
+    }
+    .behandeling-sectie .queue-item { margin-bottom: 10px; }
+    .behandeling-sectie .queue-item:last-child { margin-bottom: 0; }
+    .wachtend-sectie-label {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 11px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.03em;
     }
 .queue-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
     .queue-number {
@@ -1069,16 +1096,6 @@
         </div>
         <div class="audio-volume-hint">Op 100% klinkt de melding duidelijk hard — handig in een drukke winkel.</div>
 
-        <div class="popover-section-label tweede">Pushmeldingen (browser)</div>
-        <label class="audio-popover-toggle">
-          <input type="checkbox" id="push-aanmelding-checkbox" onchange="togglePushAanmeldingen()" />
-          Bij nieuwe aanmelding
-        </label>
-        <label class="audio-popover-toggle laatste">
-          <input type="checkbox" id="push-chat-checkbox" onchange="togglePushChat()" />
-          Bij nieuw chatbericht
-        </label>
-        <div class="audio-volume-hint" id="push-permissie-hint">Werkt zolang dit tabblad open staat, ook op de achtergrond.</div>
       </div>
     </div>
     <button class="btn-logout" onclick="uitloggen()">
@@ -1093,11 +1110,11 @@
   <div class="banner" id="banner">
     <div class="badge-stat badge-blue">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      <span id="banner-count">0 klanten in wachtrij</span>
+      <span id="banner-count">0 klanten</span>
     </div>
     <div class="badge-stat badge-amber">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-      <span id="banner-tijd">Geschatte totale wachttijd: <strong>geen wachttijd</strong></span>
+      <span id="banner-tijd">Wachttijd: <strong>geen wachttijd</strong></span>
     </div>
     <button class="btn-toggle-closed" id="btn-toggle-closed" onclick="toggleWachtrijGesloten()">
       <svg id="toggle-lock-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path id="lock-shackle" d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
@@ -1200,27 +1217,27 @@
 
           <!-- Zoek Mijn -->
           <div class="field full" id="field-zoek">
-            <label>Zoek Mijn status
+            <label>Zoek Mijn
               <span class="req" id="zoek-req">*</span>
               <span id="zoek-optioneel" style="display:none;color:var(--muted);font-weight:400">(optioneel)</span>
             </label>
             <div class="zoek-group">
               <label class="zoek-option" id="zoek-uitgeschakeld" onclick="selectZoek('uitgeschakeld')">
-                <input type="radio" name="zoek" value="uitgeschakeld" /> Uitgeschakeld
+                <input type="radio" name="zoek" value="uitgeschakeld" /> Uit
               </label>
               <label class="zoek-option" id="zoek-niet_mogelijk" onclick="selectZoek('niet_mogelijk')">
-                <input type="radio" name="zoek" value="niet_mogelijk" /> Niet mogelijk om uit te schakelen
+                <input type="radio" name="zoek" value="niet_mogelijk" /> Kan niet uit
               </label>
               <label class="zoek-option" id="zoek-nvt" onclick="selectZoek('nvt')">
-                <input type="radio" name="zoek" value="nvt" /> Niet van toepassing
+                <input type="radio" name="zoek" value="nvt" /> N.v.t.
               </label>
             </div>
-            <span class="error-msg">Selecteer een Zoek Mijn status</span>
+            <span class="error-msg">Kies een Zoek Mijn-status</span>
           </div>
 
           <!-- Backup gemaakt? — net zo verplicht/conditioneel als Zoek Mijn status -->
           <div class="field full" id="field-backup">
-            <label>Backup gemaakt?
+            <label>Backup?
               <span class="req" id="backup-req">*</span>
               <span id="backup-optioneel" style="display:none;color:var(--muted);font-weight:400">(optioneel)</span>
             </label>
@@ -1232,20 +1249,20 @@
                 <input type="radio" name="backup" value="nee" /> Nee
               </label>
             </div>
-            <span class="error-msg">Geef aan of er een backup is gemaakt</span>
+            <span class="error-msg">Geef aan of er backup is</span>
           </div>
 
           <!-- Checkboxes + 18+ (compact, subtiel, op één rij) -->
           <div class="field full">
             <div class="checkbox-row">
               <label class="checkbox-item">
-                <input type="checkbox" id="icare" /> Heeft iCare / AppleCare
+                <input type="checkbox" id="icare" /> iCare/AppleCare
               </label>
               <label class="checkbox-item">
-                <input type="checkbox" id="geen-nl" /> Spreekt geen Nederlands
+                <input type="checkbox" id="geen-nl" /> Geen Nederlands
               </label>
               <div class="adult-inline" id="field-adult">
-                <span class="adult-inline-label">18 jaar of ouder?
+                <span class="adult-inline-label">18+
                   <span class="req" id="adult-req">*</span>
                   <span id="adult-optioneel" style="display:none;color:var(--muted);font-weight:400">(optioneel)</span>
                 </span>
@@ -1255,7 +1272,7 @@
                 <label class="adult-chip" id="adult-nee" onclick="selectAdult(false)">
                   <input type="radio" name="adult" value="nee" /> Nee
                 </label>
-                <span class="error-msg">Geef aan of de klant 18 jaar of ouder is</span>
+                <span class="error-msg">Geef aan of klant 18+ is</span>
               </div>
             </div>
           </div>
@@ -1283,10 +1300,10 @@
           Actief <span class="tab-count" id="tab-count-actief">0</span>
         </button>
         <button type="button" class="queue-tab" id="tab-vandaag" onclick="switchQueueTab('vandaag')">
-          Vandaag afgerond <span class="tab-count" id="tab-count-vandaag">0</span>
+          Vandaag <span class="tab-count" id="tab-count-vandaag">0</span>
         </button>
         <button type="button" class="queue-tab" id="tab-gisteren" onclick="switchQueueTab('gisteren')">
-          Gisteren afgerond <span class="tab-count" id="tab-count-gisteren">0</span>
+          Gisteren <span class="tab-count" id="tab-count-gisteren">0</span>
         </button>
       </div>
       <div class="report-buttons">
@@ -1400,14 +1417,38 @@
   // het aanmeldformulier (datalist) én in de "Neem in behandeling"-dropdown
   // per klant. Zo hoeft de lijst maar op één plek onderhouden te worden. ──
   const MEDEWERKERS = [
-    "Ajla","Antoine","Arjan","Chin","Constantijn","Damian","Dennie","Denzel",
+    "Ajla","Antoine","Arjan","Bart","Chin","Constantijn","Damian","Dennie","Denzel",
     "Ilem","Indi","Jayson","Joyce","Juanita","Leeuwerik","Leon","Levy","Lucas",
     "Luuk","Marco","Max","Mehrin","Mike","Milou","Rêve","Rohan","Sidney",
     "Stefano","Sumeja","Sylvan","Thomas","Tuana"
   ];
 
+  // ── Centrale medewerkernaam-normalisatie ──
+  // Ruwe invoer blijft ongewijzigd in Firebase, maar alle tellingen,
+  // managementoverzichten en exports gebruiken de officiële naam hieronder.
+  // De keys zijn bewust lowercase zodat hoofdletters geen verschil maken.
+  const MEDEWERKER_ALIASES = {
+    leeuw: 'Leeuwerik',
+    syl: 'Sylvan',
+    jas: 'Jayson',
+    ant: 'Antoine',
+    stef: 'Stefano',
+    sid: 'Sidney',
+    dami: 'Damian',
+    denz: 'Denzel'
+  };
+
+  function normaliseerMedewerkerNaam(naam) {
+    const invoer = String(naam || '').trim();
+    if (!invoer) return null;
+    const sleutel = invoer.toLocaleLowerCase('nl-NL');
+    const alias = MEDEWERKER_ALIASES[sleutel];
+    if (alias) return alias;
+    return MEDEWERKERS.find(medewerker => medewerker.toLocaleLowerCase('nl-NL') === sleutel) || null;
+  }
+
   function isGeldigeMedewerkerNaam(naam) {
-    return MEDEWERKERS.includes(String(naam || '').trim());
+    return normaliseerMedewerkerNaam(naam) !== null;
   }
 
   // ── Regen-config ──
@@ -1418,6 +1459,7 @@
       'Ajla': { items: ['🌸', '💖'], size: [20, 30], speed: [4.5, 6.5], density: 18 },
       'Antoine': { items: ['🎧', '🎵'], size: [18, 26], speed: [4.2, 6.0], density: 18 },
       'Arjan': { items: ['🛠️', '🔧'], size: [18, 28], speed: [4.0, 5.8], density: 20 },
+      'Bart': { items: ['🏄', '🌊'], size: [18, 28], speed: [4.2, 6.0], density: 18 },
       'Chin': { items: ['🛵', '💽'], size: [18, 28], speed: [4.4, 6.2], density: 20 },
       'Constantijn': { items: ['👑', '✨'], size: [18, 30], speed: [4.4, 6.6], density: 16 },
       'Damian': { items: ['⚡', '🔥'], size: [18, 28], speed: [4.0, 5.8], density: 20 },
@@ -1606,9 +1648,6 @@
   const elAudioCheckbox    = document.getElementById('audio-checkbox');
   const elVolumeSlider     = document.getElementById('volume-slider');
   const elVolumeLabel      = document.getElementById('volume-label');
-  const elPushAanmeldingCheckbox = document.getElementById('push-aanmelding-checkbox');
-  const elPushChatCheckbox       = document.getElementById('push-chat-checkbox');
-  const elPushPermissieHint      = document.getElementById('push-permissie-hint');
 
   // ── NIEUW: datalist vullen vanuit de centrale MEDEWERKERS-array ──
   // Herstelt de volledige, selecteerbare namenlijst in het aanmeldformulier.
@@ -1754,7 +1793,7 @@
       const afgerondTijd = e.afgerondOp ? new Date(e.afgerondOp).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) : '';
       const dagVanWeek = e.afgerondOp ? DAGEN_VAN_DE_WEEK[new Date(e.afgerondOp).getDay()] : '';
       const typeLabel = TYPE_LABELS_OVERZICHT[e.type] || e.type;
-      return [typeLabel, dagVanWeek, e.tijd, afgerondTijd, wachttijd, e.medewerker || '', e.behandelaar || ''].map(csvVeld).join(',');
+      return [typeLabel, dagVanWeek, e.tijd, afgerondTijd, wachttijd, normaliseerMedewerkerNaam(e.medewerker) || e.medewerker || '', matchMedewerkerNaam(e.behandelaar) || e.behandelaar || ''].map(csvVeld).join(',');
     });
     downloadCsv(kolommen.join(',') + '\n' + rijen.join('\n'), 'dagoverzicht-' + huidigeDatumString() + '.csv');
   }
@@ -1811,29 +1850,28 @@
       const huidige = [i];
       for (let j = 1; j <= n; j++) {
         const kosten = a[i - 1] === b[j - 1] ? 0 : 1;
-        huidige[j] = Math.min(
-          vorige[j] + 1,
-          huidige[j - 1] + 1,
-          vorige[j - 1] + kosten
-        );
+        huidige[j] = Math.min(vorige[j] + 1, huidige[j - 1] + 1, vorige[j - 1] + kosten);
       }
       vorige = huidige;
     }
     return vorige[n];
   }
 
+  // Gebruikt overal waar een behandelaar gegroepeerd of getoond wordt.
+  // Eerst exacte/alias-normalisatie; pas daarna de bestaande conservatieve
+  // typo-fallback. Zo is "syl", "SYL" en "Sylvan" altijd "Sylvan".
   function matchMedewerkerNaam(ingevoerdeNaam) {
     const naam = String(ingevoerdeNaam || '').trim();
     if (!naam) return null;
-    if (MEDEWERKERS.includes(naam)) return naam; // exacte match, snelste pad
 
+    const genormaliseerd = normaliseerMedewerkerNaam(naam);
+    if (genormaliseerd) return genormaliseerd;
     if (matchCache.has(naam)) return matchCache.get(naam);
 
-    const naamLower = naam.toLowerCase();
+    const naamLower = naam.toLocaleLowerCase('nl-NL');
     let beste = null, besteAfstand = Infinity, tweedeBesteAfstand = Infinity;
-
     MEDEWERKERS.forEach(kandidaat => {
-      const afstand = levenshtein(naamLower, kandidaat.toLowerCase());
+      const afstand = levenshtein(naamLower, kandidaat.toLocaleLowerCase('nl-NL'));
       if (afstand < besteAfstand) {
         tweedeBesteAfstand = besteAfstand;
         besteAfstand = afstand;
@@ -1846,7 +1884,6 @@
     const langsteLengte = Math.max(naam.length, beste ? beste.length : 0);
     const drempel = Math.max(2, Math.round(langsteLengte * 0.3));
     const duidelijkeWinnaar = tweedeBesteAfstand - besteAfstand >= 1;
-
     const resultaat = (beste && besteAfstand <= drempel && duidelijkeWinnaar) ? beste : null;
     matchCache.set(naam, resultaat);
     return resultaat;
@@ -1976,7 +2013,7 @@
 
     // "Reparatie ophalen" ÉN "Schoonmaak" maken Probleemomschrijving, Zoek
     // Mijn en "Backup gemaakt?" optioneel — label en verplichtings-asterisk
-    // schakelen direct mee zodra het type wijzigt. "18 jaar of ouder?" is
+    // schakelen direct mee zodra het type wijzigt. "18+?" is
     // een aparte uitzondering: die is ALLEEN optioneel bij Schoonmaak (bij
     // "ophalen" blijft de leeftijdscontrole gewoon verplicht, zoals voorheen).
     const isOphalen = type === 'ophalen';
@@ -2148,116 +2185,6 @@
   // meteen of het om een chatbericht of een nieuwe klant gaat.
   function speelChatGeluid()       { speelToon([880, 1108]); }
   function speelNieuweKlantGeluid(){ speelToon([660, 660]); }
-
-  // ── NIEUW: Pushmeldingen — apart regelbaar voor aanmeldingen en chat ──
-  // Belangrijke technische beperking (Firebase Spark-plan, geen server):
-  // de browser kent maar ÉÉN toestemming per site ("Notification.permission"),
-  // niet per type melding. Deze twee schakelaars zijn dus een APP-niveau
-  // voorkeur die daarbovenop zit: één gedeelde browsertoestemming, maar
-  // "aanmeldingen" en "chat" onafhankelijk aan/uit binnen de app zelf.
-  // Deze meldingen werken zolang dit tabblad open staat (ook op de
-  // achtergrond) — niet wanneer het tabblad/de browser volledig dicht is.
-  // Dat laatste kan alleen met een Cloud Function + Firebase Blaze-plan; zie
-  // de uitleg in het antwoord voor die (optionele) vervolgstap.
-  let pushAanmeldingenAan = localStorage.getItem('amacPushAanmeldingen') === 'aan';
-  let pushChatAan         = localStorage.getItem('amacPushChat') === 'aan';
-
-  // ── BUGFIX: service worker registreren voor betrouwbare meldingen ──
-  // Root cause van "pushmeldingen werken niet": de klassieke `new
-  // Notification()`-aanroep (zie stuurBrowserMelding hieronder) werkt niet
-  // overal — met name Chrome op Android weigert dit stilzwijgend buiten een
-  // service worker. Met deze registratie gebruiken we overal waar mogelijk
-  // de breed ondersteunde showNotification()-route via de service worker,
-  // met de oude methode als terugval voor browsers die dat niet nodig hebben.
-  let notificatieSwRegistratie = null;
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('notificatie-sw.js')
-      .then((reg) => { notificatieSwRegistratie = reg; })
-      .catch((err) => console.warn('[Amac Wachtrij] Service worker voor meldingen kon niet worden geregistreerd:', err));
-  }
-
-  function updatePushKnoppen() {
-    elPushAanmeldingCheckbox.checked = pushAanmeldingenAan;
-    elPushChatCheckbox.checked = pushChatAan;
-
-    // ── Diagnose: op iPhone bestaat de Notification-API alleen als de site
-    // via "Delen → Zet op beginscherm" is geïnstalleerd — in een gewoon
-    // Safari-tabblad ontbreekt 'Notification' dus volledig. Dat is een
-    // bewuste Apple-beperking, geen bug in deze app, maar wel de meest
-    // waarschijnlijke reden dat het op een iPhone/iPad "niet werkt". ──
-    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
-    const isPWA = window.navigator.standalone === true;
-
-    if (!('Notification' in window)) {
-      elPushPermissieHint.textContent = isIOS && !isPWA
-        ? 'Op iPhone/iPad werken meldingen alleen als je deze site via "Delen → Zet op beginscherm" toevoegt.'
-        : 'Deze browser ondersteunt geen pushmeldingen.';
-    } else if (Notification.permission === 'denied') {
-      elPushPermissieHint.textContent = 'Geblokkeerd in de browserinstellingen — zet dit handmatig aan bij het slotje/i-icoon in de adresbalk.';
-    } else if (Notification.permission === 'default') {
-      elPushPermissieHint.textContent = 'Vink een optie aan om toestemming te geven voor meldingen.';
-    } else {
-      elPushPermissieHint.textContent = 'Werkt zolang dit tabblad open staat, ook op de achtergrond.';
-    }
-  }
-
-  function vraagNotificatieToestemming() {
-    if (!('Notification' in window)) return Promise.resolve(false);
-    if (Notification.permission === 'granted') return Promise.resolve(true);
-    if (Notification.permission === 'denied') return Promise.resolve(false);
-    return Notification.requestPermission().then((result) => result === 'granted');
-  }
-
-  function togglePushAanmeldingen() {
-    if (elPushAanmeldingCheckbox.checked) {
-      vraagNotificatieToestemming().then((toegestaan) => {
-        pushAanmeldingenAan = toegestaan;
-        localStorage.setItem('amacPushAanmeldingen', toegestaan ? 'aan' : 'uit');
-        updatePushKnoppen();
-      });
-    } else {
-      pushAanmeldingenAan = false;
-      localStorage.setItem('amacPushAanmeldingen', 'uit');
-      updatePushKnoppen();
-    }
-  }
-
-  function togglePushChat() {
-    if (elPushChatCheckbox.checked) {
-      vraagNotificatieToestemming().then((toegestaan) => {
-        pushChatAan = toegestaan;
-        localStorage.setItem('amacPushChat', toegestaan ? 'aan' : 'uit');
-        updatePushKnoppen();
-      });
-    } else {
-      pushChatAan = false;
-      localStorage.setItem('amacPushChat', 'uit');
-      updatePushKnoppen();
-    }
-  }
-
-  function stuurBrowserMelding(titel, body) {
-    if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    const opties = { body, icon: 'Amac_Logo.svg', tag: titel + '-' + Date.now() };
-
-    if (notificatieSwRegistratie) {
-      notificatieSwRegistratie.showNotification(titel, opties).catch((err) => {
-        console.warn('[Amac Wachtrij] showNotification via service worker mislukt, val terug op directe melding:', err);
-        toonDirecteMelding(titel, opties);
-      });
-    } else {
-      toonDirecteMelding(titel, opties);
-    }
-  }
-
-  function toonDirecteMelding(titel, opties) {
-    try {
-      const n = new Notification(titel, opties);
-      n.onclick = () => { window.focus(); n.close(); };
-    } catch (err) {
-      console.warn('[Amac Wachtrij] Pushmelding kon niet worden getoond:', err);
-    }
-  }
 
   // ── Weekendmelding: zaterdag (6) en zondag (0) ──
   function controleerWeekend() {
@@ -2495,8 +2422,8 @@
   }
 
   function zoekLabel(z) {
-    if (z === 'uitgeschakeld') return { cls: 'tag-zoek-uit', text: 'Zoek Mijn: Uitgeschakeld' };
-    if (z === 'niet_mogelijk') return { cls: 'tag-zoek-niet', text: 'Zoek Mijn: Niet mogelijk' };
+    if (z === 'uitgeschakeld') return { cls: 'tag-zoek-uit', text: 'Zoek Mijn: Uit' };
+    if (z === 'niet_mogelijk') return { cls: 'tag-zoek-niet', text: 'Zoek Mijn: Kan niet uit' };
     return { cls: 'tag-zoek-nvt', text: 'Zoek Mijn: N.v.t.' };
   }
 
@@ -2511,6 +2438,8 @@
     const gisterenStr = gisterenDatum.toDateString();
 
     const actief = queue.filter(e => e.status !== 'afgerond');
+    const wachtend = actief.filter(e => e.status !== 'in-behandeling');
+    const inBehandeling = actief.filter(e => e.status === 'in-behandeling');
     const afgerondVandaag = queue.filter(e => e.status === 'afgerond' && e.afgerondOp && new Date(e.afgerondOp).toDateString() === vandaagStr)
       .sort((a, b) => (b.afgerondOp || 0) - (a.afgerondOp || 0));
     const afgerondGisteren = queue.filter(e => e.status === 'afgerond' && e.afgerondOp && new Date(e.afgerondOp).toDateString() === gisterenStr)
@@ -2518,17 +2447,17 @@
 
     // Positienummers alleen op de actieve wachtrij herberekenen — geschiedenis
     // toont geen volgnummer meer (niet relevant voor afgeronde klanten).
-    actief.forEach((e, i) => e.positie = i + 1);
+    wachtend.forEach((e, i) => e.positie = i + 1);
 
     elTabCountActief.textContent   = actief.length;
     elTabCountVandaag.textContent  = afgerondVandaag.length;
     elTabCountGisteren.textContent = afgerondGisteren.length;
 
-    const n = actief.length;
-    elBannerCount.textContent = n + (n === 1 ? ' klant in wachtrij' : ' klanten in wachtrij');
-    const totaal = actief.reduce((som, e) => som + (e.type === 'ophalen' ? 5 : 15), 0);
+    const n = wachtend.length;
+    elBannerCount.textContent = n + (n === 1 ? ' klant' : ' klanten');
+    const totaal = wachtend.reduce((som, e) => som + (e.type === 'ophalen' ? 5 : 15), 0);
     elBannerTijd.innerHTML =
-      'Geschatte totale wachttijd: <strong>' + (totaal === 0 ? 'geen wachttijd' : totaal + ' min') + '</strong>';
+      'Wachttijd: <strong>' + (totaal === 0 ? 'geen wachttijd' : totaal + ' min') + '</strong>';
 
     elQueueTitle.innerHTML = `
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -2556,13 +2485,13 @@
       if (e.type !== 'schoonmaak') return '';
       return e.betaald
         ? '<span class="tag tag-betaald-ja">✓ Betaald</span>'
-        : '<span class="tag tag-betaald-nee">⚠ Nog niet betaald</span>';
+        : '<span class="tag tag-betaald-nee">⚠ Niet betaald</span>';
     }
 
     // ── NIEUW: "backup gemaakt?" — alleen getoond als het is gevraagd
     // (dus niet bij "ophalen", zelfde voorwaarde als bij Zoek Mijn status) ──
     function backupTag(e) {
-      if (e.backup === true)  return '<span class="tag tag-backup-ja">✓ Backup gemaakt</span>';
+      if (e.backup === true)  return '<span class="tag tag-backup-ja">✓ Backup</span>';
       if (e.backup === false) return '<span class="tag tag-backup-nee">⚠ Geen backup</span>';
       return '';
     }
@@ -2587,8 +2516,8 @@
           const z = zoekLabel(e.zoek);
           const typeTag = typeTagHtml(e.type);
           const repTag   = e.repnr   ? `<span class="tag tag-repnr">Rep.nr: ${formatRepnr(e.repnr)}</span>` : '';
-          const icareTag = e.icare   ? '<span class="tag tag-icare">✓ iCare / AppleCare</span>' : '';
-          const nlTag    = e.geenNl  ? '<span class="tag tag-nl">⚠ Spreekt geen Nederlands</span>' : '';
+          const icareTag = e.icare   ? '<span class="tag tag-icare">✓ iCare</span>' : '';
+          const nlTag    = e.geenNl  ? '<span class="tag tag-nl">⚠ Geen NL</span>' : '';
           const zoekTag  = `<span class="tag ${z.cls}">${z.text}</span>`;
           const afgerondTijd = e.afgerondOp ? new Date(e.afgerondOp).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) : '';
 
@@ -2600,7 +2529,7 @@
                   <div style="min-width:0">
                     <div class="queue-name">${e.naam}</div>
                     <div class="queue-meta">Aangemeld om ${e.tijd} · door ${e.medewerker}</div>
-                    <div class="afgerond-meta">Afgerond om ${afgerondTijd}${e.behandelaar ? ' · door ' + e.behandelaar : ''}</div>
+                    <div class="afgerond-meta">Afgerond om ${afgerondTijd}${e.behandelaar ? ' · door ' + (matchMedewerkerNaam(e.behandelaar) || e.behandelaar) : ''}</div>
                   </div>
                 </div>
                 <div class="queue-header-actions">
@@ -2618,8 +2547,8 @@
       return;
     }
 
-    // ── Weergave: actieve wachtrij (bestaande logica, ongewijzigd qua gedrag) ──
-    if (n === 0) {
+    // ── Weergave: actieve wachtrij, gescheiden in wachtend en in behandeling ──
+    if (actief.length === 0) {
       elQueueContainer.innerHTML = `
         <div class="empty-state">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -2629,71 +2558,39 @@
       return;
     }
 
-    elQueueContainer.innerHTML = actief.map(e => {
+    function renderActieveKaart(e) {
       const isEditing = e.key === editingKey;
       const z = zoekLabel(e.zoek);
       const typeTag = typeTagHtml(e.type);
-      const repTag   = e.repnr   ? `<span class="tag tag-repnr">Rep.nr: ${formatRepnr(e.repnr)}</span>` : '';
-      const icareTag = e.icare   ? '<span class="tag tag-icare">✓ iCare / AppleCare</span>' : '';
-      const nlTag    = e.geenNl  ? '<span class="tag tag-nl">⚠ Spreekt geen Nederlands</span>' : '';
-      const zoekTag  = `<span class="tag ${z.cls}">${z.text}</span>`;
+      const repTag = e.repnr ? `<span class="tag tag-repnr">Rep.nr: ${formatRepnr(e.repnr)}</span>` : '';
+      const icareTag = e.icare ? '<span class="tag tag-icare">✓ iCare</span>' : '';
+      const nlTag = e.geenNl ? '<span class="tag tag-nl">⚠ Geen NL</span>' : '';
+      const zoekTag = `<span class="tag ${z.cls}">${z.text}</span>`;
+      const behandelaarWeergave = matchMedewerkerNaam(e.behandelaar) || e.behandelaar;
 
-      // ── behandel-status en toewijzingsactie per klant ──
-      const behandelHtml = e.behandelaar
-        ? `<div class="behandel-status in-behandeling">
-             🧑‍💼 Wordt in behandeling genomen door: <strong>${e.behandelaar}</strong>
-           </div>
+      const behandelHtml = e.status === 'in-behandeling' && e.behandelaar
+        ? `<div class="behandel-status in-behandeling">🧑‍💼 In behandeling door <strong>${behandelaarWeergave}</strong></div>
            <button type="button" class="btn-vrijgeven" onclick="laatVrij('${e.key}')">Vrijgeven</button>`
-        : `<div class="behandel-status wachtend">
-             <span class="hourglass-icon">⏳</span> Wachtend
+        : `<div class="behandel-status wachtend"><span class="hourglass-icon">⏳</span> Wachtend
              <span class="wachtend-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></span>
            </div>
            <div class="behandel-field" id="behandel-field-${e.key}">
-             <input type="text" class="behandel-input" id="pick-${e.key}"
-                    placeholder="Jouw naam…" autocomplete="off" />
+             <input type="text" class="behandel-input" id="pick-${e.key}" placeholder="Jouw naam…" autocomplete="off" />
              <span class="error-msg">Vul je naam in</span>
            </div>
-           <button type="button" class="btn-behandel"
-                   onclick="neemInBehandeling('${e.key}', document.getElementById('pick-${e.key}').value)">
-             Neem in behandeling
-           </button>`;
+           <button type="button" class="btn-behandel" onclick="neemInBehandeling('${e.key}', document.getElementById('pick-${e.key}').value)">Neem in behandeling</button>`;
 
-      // ── "Wacht boven"-markering: knop + hoek-badge op de kaart ──
       const bovenActief = !!e.boven;
       const bovenBadge = bovenActief
-        ? `<div class="boven-badge" title="Deze klant wacht boven, niet beneden">
-             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
-             Wacht boven
-           </div>`
+        ? `<div class="boven-badge" title="Deze klant wacht boven, niet beneden"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>Wacht boven</div>`
         : '';
-
-      // ── bewerkmodus — inline formulier i.p.v. normale weergave ──
       const editForm = isEditing ? `
         <div class="edit-form">
-          <div class="edit-row">
-            <label>Naam</label>
-            <input type="text" class="edit-input" id="edit-naam-${e.key}" value="${escapeHtml(e.naam)}" />
-          </div>
-          ${e.type === 'ophalen' ? `
-          <div class="edit-row">
-            <label>Reparatienummer</label>
-            <input type="text" class="edit-input" id="edit-repnr-${e.key}" value="${escapeHtml(formatRepnr(e.repnr || ''))}" inputmode="numeric" maxlength="9" />
-          </div>` : ''}
-          <div class="edit-row">
-            <label>Probleemomschrijving</label>
-            <textarea class="edit-input" id="edit-probleem-${e.key}">${escapeHtml(e.probleem || '')}</textarea>
-          </div>
-          <div class="edit-checkrow">
-            <label class="checkbox-item"><input type="checkbox" id="edit-icare-${e.key}" ${e.icare ? 'checked' : ''}/> iCare / AppleCare</label>
-            <label class="checkbox-item"><input type="checkbox" id="edit-geennl-${e.key}" ${e.geenNl ? 'checked' : ''}/> Spreekt geen Nederlands</label>
-          </div>
-          <div class="edit-actions">
-            <button type="button" class="btn-save-edit" onclick="saveEdit('${e.key}')">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-              Opslaan
-            </button>
-            <button type="button" class="btn-cancel-edit" onclick="cancelEdit()">Annuleren</button>
-          </div>
+          <div class="edit-row"><label>Naam</label><input type="text" class="edit-input" id="edit-naam-${e.key}" value="${escapeHtml(e.naam)}" /></div>
+          ${e.type === 'ophalen' ? `<div class="edit-row"><label>Reparatienummer</label><input type="text" class="edit-input" id="edit-repnr-${e.key}" value="${escapeHtml(formatRepnr(e.repnr || ''))}" inputmode="numeric" maxlength="9" /></div>` : ''}
+          <div class="edit-row"><label>Probleemomschrijving</label><textarea class="edit-input" id="edit-probleem-${e.key}">${escapeHtml(e.probleem || '')}</textarea></div>
+          <div class="edit-checkrow"><label class="checkbox-item"><input type="checkbox" id="edit-icare-${e.key}" ${e.icare ? 'checked' : ''}/> iCare / AppleCare</label><label class="checkbox-item"><input type="checkbox" id="edit-geennl-${e.key}" ${e.geenNl ? 'checked' : ''}/> Geen NL</label></div>
+          <div class="edit-actions"><button type="button" class="btn-save-edit" onclick="saveEdit('${e.key}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Opslaan</button><button type="button" class="btn-cancel-edit" onclick="cancelEdit()">Annuleren</button></div>
         </div>` : '';
 
       return `
@@ -2701,36 +2598,26 @@
           ${bovenBadge}
           <div class="queue-header">
             <div style="display:flex;align-items:center;gap:10px;min-width:0">
-              <div class="queue-number">${e.positie}</div>
-              <div style="min-width:0">
-                ${isEditing ? '' : `<div class="queue-name">${e.naam}</div>`}
-                <div class="queue-meta">Aangemeld om ${e.tijd} · door ${e.medewerker}</div>
-              </div>
+              <div class="queue-number">${e.status === 'in-behandeling' ? '…' : e.positie}</div>
+              <div style="min-width:0">${isEditing ? '' : `<div class="queue-name">${e.naam}</div>`}<div class="queue-meta">Aangemeld om ${e.tijd} · door ${e.medewerker}</div></div>
             </div>
             <div class="queue-header-actions">
-              ${isEditing ? '' : `
-              <button class="btn-edit-icon" onclick="startEdit('${e.key}')" title="Kaart bewerken">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>
-              </button>
-              <button class="btn-boven${bovenActief ? ' is-actief' : ''}"
-                      onclick="toggleBoven('${e.key}', ${bovenActief})"
-                      title="Markeer of deze klant boven wacht (bijv. bij een trapprobleem)">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
-                ${bovenActief ? '✓ Boven' : 'Boven?'}
-              </button>
-              <button class="btn-remove" onclick="verwijder('${e.key}')">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-                Geholpen
-              </button>`}
+              ${isEditing ? '' : `<button class="btn-edit-icon" onclick="startEdit('${e.key}')" title="Kaart bewerken"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
+              <button class="btn-boven${bovenActief ? ' is-actief' : ''}" onclick="toggleBoven('${e.key}', ${bovenActief})" title="Markeer of deze klant boven wacht (bijv. bij een trapprobleem)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>${bovenActief ? '✓ Boven' : 'Boven?'}</button>
+              <button class="btn-remove" onclick="verwijder('${e.key}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2 2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Geholpen</button>`}
             </div>
           </div>
-          ${isEditing ? editForm : `
-          <div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${adultTag(e)}${betaaldTag(e)}${backupTag(e)}</div>
-          <div class="queue-desc">${e.probleem}</div>
-          <div class="tag-row">${icareTag}${nlTag}${zoekTag}</div>
-          <div class="behandel-row">${behandelHtml}</div>`}
+          ${isEditing ? editForm : `<div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${adultTag(e)}${betaaldTag(e)}${backupTag(e)}</div><div class="queue-desc">${e.probleem}</div><div class="tag-row">${icareTag}${nlTag}${zoekTag}</div><div class="behandel-row">${behandelHtml}</div>`}
         </div>`;
-    }).join('');
+    }
+
+    const behandelingHtml = inBehandeling.length > 0
+      ? `<div class="behandeling-sectie"><div class="behandeling-sectie-titel">🧑‍💼 Momenteel in behandeling <span class="behandeling-aantal">${inBehandeling.length}</span></div>${inBehandeling.map(renderActieveKaart).join('')}</div>`
+      : '';
+    const wachtendHtml = wachtend.length > 0
+      ? `${inBehandeling.length > 0 ? '<div class="wachtend-sectie-label">Wachtende klanten</div>' : ''}${wachtend.map(renderActieveKaart).join('')}`
+      : `<div class="empty-state"><p><strong>Geen wachtende klanten</strong></p><p>Alle actieve klanten zijn momenteel in behandeling.</p></div>`;
+    elQueueContainer.innerHTML = behandelingHtml + wachtendHtml;
 
     // ── reparatienummer-opmaak ook in de bewerkmodus ──
     if (editingKey !== null) {
@@ -2918,7 +2805,6 @@
   // want op dit punt in het bestand bestaan updateAudioKnop(),
   // controleerWeekend() en de bijbehorende variabelen al gegarandeerd.)
   updateAudioKnop();
-  updatePushKnoppen();
   controleerWeekend();
   // Elke minuut herchecken: vangt zowel de weekendovergang (bijv. vrijdag
   // 23:59 → zaterdag 00:00) als het 08:00/17:00-schema betrouwbaar op,
@@ -2967,14 +2853,6 @@
               if (prevQueueLength !== -1 && actiefAantal > prevQueueLength) {
                 startAttentieAnimatie();
                 speelNieuweKlantGeluid();
-                if (pushAanmeldingenAan) {
-                  const nieuwsteKlant = queue.filter(e => e.status !== 'afgerond')
-                    .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))[0];
-                  stuurBrowserMelding(
-                    'Nieuwe aanmelding',
-                    nieuwsteKlant ? nieuwsteKlant.naam + ' staat nu in de wachtrij.' : 'Er staat een nieuwe klant in de wachtrij.'
-                  );
-                }
               }
               prevQueueLength = actiefAantal;
 
@@ -3011,12 +2889,6 @@
                 chatAttentionActive = true;
                 updateChatBadge();
                 speelChatGeluid();
-                if (pushChatAan) {
-                  const laatsteBericht = chatBerichten[chatBerichten.length - 1];
-                  if (laatsteBericht && laatsteBericht.naam !== chatNaam) {
-                    stuurBrowserMelding('💬 ' + laatsteBericht.naam, laatsteBericht.tekst);
-                  }
-                }
               }
               if (chatPanelOpen || chatOngelezen === 0) {
                 stopChatAttention();
