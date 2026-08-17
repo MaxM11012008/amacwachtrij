@@ -365,6 +365,8 @@
     .tag-zoek-niet { background: var(--danger-light); color: var(--danger); }
     .tag-zoek-nvt { background: #f8fafc; color: var(--muted); }
     .tag-repnr { background: #f8fafc; color: var(--muted); border: 1px solid var(--border); }
+    .tag-repnr-link { text-decoration: none; cursor: pointer; transition: border-color 0.15s, color 0.15s; }
+    .tag-repnr-link:hover { border-color: var(--primary); color: var(--primary); }
 
     /* ── NIEUW: 18+ status-tag — direct herkenbaar op de klantkaart zodat
        medewerkers nooit vergeten dit te vragen/vermelden. ── */
@@ -735,6 +737,26 @@
     .overzicht-stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
     .overzicht-type-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 7px 0; border-bottom: 1px solid var(--border); }
     .overzicht-type-row:last-child { border-bottom: none; }
+
+    /* ── NIEUW: datumnavigatie in het dagoverzicht ── */
+    .dagoverzicht-datumnav {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0;
+    }
+    .btn-datumnav {
+      width: 28px; height: 28px; border-radius: 6px;
+      border: 1px solid var(--border); background: var(--card);
+      cursor: pointer; font-size: 12px; color: var(--text);
+    }
+    .btn-datumnav:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-datumnav:disabled { opacity: 0.4; cursor: not-allowed; }
+    #dagoverzicht-datum { flex: 1; padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 12px; font-family: inherit; }
+    .btn-datumnav-vandaag {
+      padding: 6px 10px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--card); font-size: 11px; font-weight: 600; color: var(--muted); cursor: pointer;
+    }
+    .btn-datumnav-vandaag:hover { border-color: var(--primary); color: var(--primary); }
+    .overzicht-mini-titel { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin: 16px 0 8px; }
 
     .periode-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
     .periode-tab {
@@ -1359,6 +1381,12 @@
       <span>📊 Dagoverzicht</span>
       <button type="button" onclick="sluitModal('dagoverzicht-overlay')" aria-label="Sluiten">✕</button>
     </div>
+    <div class="dagoverzicht-datumnav">
+      <button type="button" class="btn-datumnav" onclick="wijzigDagoverzichtDatum(-1)" title="Vorige dag">◀</button>
+      <input type="date" id="dagoverzicht-datum" onchange="renderDagoverzicht()">
+      <button type="button" class="btn-datumnav" id="btn-dagoverzicht-volgende" onclick="wijzigDagoverzichtDatum(1)" title="Volgende dag">▶</button>
+      <button type="button" class="btn-datumnav-vandaag" onclick="gaNaarVandaagDagoverzicht()">Vandaag</button>
+    </div>
     <div class="modal-body" id="dagoverzicht-body"></div>
     <div class="modal-footer">
       <button type="button" class="btn-primary" style="margin-left:0" onclick="exporteerDagoverzichtCsv()">
@@ -1726,45 +1754,95 @@
     prijsopgave: '💶 Prijsopgave',
   };
 
-  function berekenDagoverzicht() {
-    const vandaagStr = new Date().toDateString();
-    const lijst = queue.filter(e => e.status === 'afgerond' && e.afgerondOp && new Date(e.afgerondOp).toDateString() === vandaagStr);
-    const nogWachtend = queue.filter(e => e.status !== 'afgerond').length;
+  let dagoverzichtDatum = null; // 'YYYY-MM-DD', wordt gezet zodra het overzicht opent
+
+  function berekenDagoverzicht(datumStr) {
+    const [jaar, maand, dag] = datumStr.split('-').map(Number);
+    const doelStr = new Date(jaar, maand - 1, dag).toDateString();
+    const isVandaag = datumStr === huidigeDatumString();
+
+    const lijst = queue.filter(e => e.status === 'afgerond' && e.afgerondOp && new Date(e.afgerondOp).toDateString() === doelStr);
+    const nogWachtend = isVandaag ? queue.filter(e => e.status !== 'afgerond').length : 0;
 
     const perType = { ophalen: 0, ongepland: 0, schoonmaak: 0, prijsopgave: 0 };
-    let totaleMinuten = 0, telbaar = 0;
+    let totaleMinuten = 0, telbaar = 0, langsteMinuten = 0;
     lijst.forEach(e => {
       if (perType[e.type] !== undefined) perType[e.type]++;
-      if (e.timestamp && e.afgerondOp) { totaleMinuten += (e.afgerondOp - e.timestamp) / 60000; telbaar++; }
+      if (e.timestamp && e.afgerondOp) {
+        const minuten = (e.afgerondOp - e.timestamp) / 60000;
+        totaleMinuten += minuten;
+        telbaar++;
+        if (minuten > langsteMinuten) langsteMinuten = minuten;
+      }
     });
-    // Geen delen-door-nul: gemiddelde blijft 0 als er nog niemand is afgerond.
     const gemiddelde = telbaar > 0 ? Math.round(totaleMinuten / telbaar) : 0;
-    return { totaal: lijst.length, perType, gemiddelde, nogWachtend, lijst };
+
+    // Per-medewerker: hergebruikt de bestaande telMedewerkers()/behandelCache
+    // — geen nieuwe telling-logica nodig, alleen een andere datumrange.
+    const dagStart = new Date(jaar, maand - 1, dag, 0, 0, 0, 0).getTime();
+    const dagEind  = new Date(jaar, maand - 1, dag, 23, 59, 59, 999).getTime();
+    const perMedewerker = telMedewerkers(dagStart, dagEind).filter(([, c]) => c > 0);
+
+    return { totaal: lijst.length, perType, gemiddelde, langsteMinuten: Math.round(langsteMinuten), nogWachtend, perMedewerker, lijst };
   }
 
-  function toonDagoverzicht() {
-    const data = berekenDagoverzicht();
+  function renderDagoverzicht() {
+    dagoverzichtDatum = document.getElementById('dagoverzicht-datum').value || huidigeDatumString();
+    document.getElementById('btn-dagoverzicht-volgende').disabled = dagoverzichtDatum >= huidigeDatumString();
+    const isVandaag = dagoverzichtDatum === huidigeDatumString();
+    const data = berekenDagoverzicht(dagoverzichtDatum);
+
     document.getElementById('dagoverzicht-body').innerHTML = `
       <div class="overzicht-stats-grid">
         <div class="overzicht-stat-card">
           <div class="overzicht-stat-value">${data.totaal}</div>
-          <div class="overzicht-stat-label">Afgerond vandaag</div>
+          <div class="overzicht-stat-label">Afgehandelde klanten</div>
         </div>
         <div class="overzicht-stat-card">
-          <div class="overzicht-stat-value">${data.nogWachtend}</div>
+          <div class="overzicht-stat-value">${isVandaag ? data.nogWachtend : '—'}</div>
           <div class="overzicht-stat-label">Nog in wachtrij</div>
         </div>
-        <div class="overzicht-stat-card breed">
+        <div class="overzicht-stat-card">
           <div class="overzicht-stat-value">${data.totaal > 0 ? data.gemiddelde + ' min' : '—'}</div>
           <div class="overzicht-stat-label">Gemiddelde wachttijd</div>
         </div>
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${data.totaal > 0 ? data.langsteMinuten + ' min' : '—'}</div>
+          <div class="overzicht-stat-label">Langste wachttijd</div>
+        </div>
       </div>
+      <div class="overzicht-mini-titel">Per type bezoek</div>
       <div>
         ${Object.keys(TYPE_LABELS_OVERZICHT).map(t => `
           <div class="overzicht-type-row"><span>${TYPE_LABELS_OVERZICHT[t]}</span><strong>${data.perType[t] || 0}</strong></div>
         `).join('')}
-      </div>`;
+      </div>
+      ${data.perMedewerker.length > 0 ? `
+        <div class="overzicht-mini-titel">Per medewerker</div>
+        <div>
+          ${data.perMedewerker.map(([naam, c]) => `<div class="overzicht-type-row"><span>${escapeHtml(naam)}</span><strong>${c}</strong></div>`).join('')}
+        </div>` : ''}`;
+  }
+
+  function toonDagoverzicht() {
+    dagoverzichtDatum = huidigeDatumString();
+    document.getElementById('dagoverzicht-datum').value = dagoverzichtDatum;
+    renderDagoverzicht();
     document.getElementById('dagoverzicht-overlay').classList.add('open');
+  }
+
+  function wijzigDagoverzichtDatum(delta) {
+    const [j, m, d] = dagoverzichtDatum.split('-').map(Number);
+    const nieuw = new Date(j, m - 1, d + delta);
+    const nieuwStr = nieuw.getFullYear() + '-' + String(nieuw.getMonth() + 1).padStart(2, '0') + '-' + String(nieuw.getDate()).padStart(2, '0');
+    if (nieuwStr > huidigeDatumString()) return; // geen toekomstige dagen bekijken
+    document.getElementById('dagoverzicht-datum').value = nieuwStr;
+    renderDagoverzicht();
+  }
+
+  function gaNaarVandaagDagoverzicht() {
+    document.getElementById('dagoverzicht-datum').value = huidigeDatumString();
+    renderDagoverzicht();
   }
 
   function csvVeld(v) {
@@ -1786,7 +1864,8 @@
   // ── CSV-export: bewust GEEN klantnaam (AVG) — alleen niet-herleidbare
   // informatie die al elders in de app zichtbaar is. ──
   function exporteerDagoverzichtCsv() {
-    const data = berekenDagoverzicht();
+    const datumVoorExport = dagoverzichtDatum || huidigeDatumString();
+    const data = berekenDagoverzicht(datumVoorExport);
     const kolommen = ['type', 'dag_van_week', 'aanmeldtijd', 'afgerondtijd', 'wachttijd_minuten', 'medewerker', 'behandelaar'];
     const rijen = data.lijst.map(e => {
       const wachttijd = (e.timestamp && e.afgerondOp) ? Math.round((e.afgerondOp - e.timestamp) / 60000) : '';
@@ -1795,7 +1874,7 @@
       const typeLabel = TYPE_LABELS_OVERZICHT[e.type] || e.type;
       return [typeLabel, dagVanWeek, e.tijd, afgerondTijd, wachttijd, normaliseerMedewerkerNaam(e.medewerker) || e.medewerker || '', matchMedewerkerNaam(e.behandelaar) || e.behandelaar || ''].map(csvVeld).join(',');
     });
-    downloadCsv(kolommen.join(',') + '\n' + rijen.join('\n'), 'dagoverzicht-' + huidigeDatumString() + '.csv');
+    downloadCsv(kolommen.join(',') + '\n' + rijen.join('\n'), 'dagoverzicht-' + datumVoorExport + '.csv');
   }
 
   // ══════════════════════════════════════════════════════════════════
@@ -2192,6 +2271,24 @@
     elWeekendBanner.style.display = (dag === 0 || dag === 6) ? 'block' : 'none';
   }
 
+  // ── Reparatienummer → klikbare Fixably-link ──
+  // Gebruikt alleen de cijfers uit het repnr (zonder het streepje dat de app
+  // zelf voor leesbaarheid toevoegt) als order-ID in de URL. Geeft '' terug
+  // als er geen (bruikbaar) repnr is, zodat de link nergens verschijnt.
+  function fixablyRepnrTagHtml(repnr) {
+    const cijfers = repnr ? String(repnr).replace(/\D/g, '') : '';
+    if (!cijfers) return '';
+    const url = 'https://amac.fixably.com/nl/orders/' + encodeURIComponent(cijfers);
+    return `<a class="tag tag-repnr tag-repnr-link" href="${url}" target="_blank" rel="noopener noreferrer" title="Open in Fixably">Rep.nr: ${escapeHtml(formatRepnr(repnr))} ↗</a>`;
+  }
+
+  // ── Geschatte wachttijd per klant, op basis van type bezoek ──
+  // "Reparaties uitleveren" (ophalen) = 10 min, "service" (overige types) = 20 min.
+  // Eén centrale plek: gebruikt door zowel de wachtrij-banner als het dagoverzicht.
+  function berekenWachttijdMinuten(type) {
+    return type === 'ophalen' ? 10 : 20;
+  }
+
   // ── Dagelijks schema: chat + wachtrij automatisch resetten op vaste tijden ──
   // Gebruikt een datumstring (YYYY-MM-DD) opgeslagen in Firebase als "vinkje"
   // zodat de overgang maar 1x per dag wordt uitgevoerd, ongeacht hoeveel
@@ -2455,9 +2552,14 @@
 
     const n = wachtend.length;
     elBannerCount.textContent = n + (n === 1 ? ' klant' : ' klanten');
-    const totaal = wachtend.reduce((som, e) => som + (e.type === 'ophalen' ? 5 : 15), 0);
+    // ── Wachttijd: "reparaties uitleveren" (ophalen) = 10 min, "service"
+    // (overige types) = 20 min. Gedeelde functie zodat dit maar op één
+    // plek staat en de dagoverzicht-berekening er ook op kan aansluiten. ──
+    const totaal = wachtend.reduce((som, e) => som + berekenWachttijdMinuten(e.type), 0)
+      + inBehandeling.reduce((som, e) => som + berekenWachttijdMinuten(e.type), 0);
     elBannerTijd.innerHTML =
-      'Wachttijd: <strong>' + (totaal === 0 ? 'geen wachttijd' : totaal + ' min') + '</strong>';
+      'Wachttijd: <strong>' + (totaal === 0 ? 'geen wachttijd' : totaal + ' min') + '</strong>' +
+      (inBehandeling.length > 0 ? ' <span style="font-weight:400;color:var(--muted);font-size:11px">(incl. klant in behandeling)</span>' : '');
 
     elQueueTitle.innerHTML = `
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -2515,7 +2617,7 @@
         lijst.map(e => {
           const z = zoekLabel(e.zoek);
           const typeTag = typeTagHtml(e.type);
-          const repTag   = e.repnr   ? `<span class="tag tag-repnr">Rep.nr: ${formatRepnr(e.repnr)}</span>` : '';
+          const repTag   = fixablyRepnrTagHtml(e.repnr);
           const icareTag = e.icare   ? '<span class="tag tag-icare">✓ iCare</span>' : '';
           const nlTag    = e.geenNl  ? '<span class="tag tag-nl">⚠ Geen NL</span>' : '';
           const zoekTag  = `<span class="tag ${z.cls}">${z.text}</span>`;
@@ -2562,7 +2664,7 @@
       const isEditing = e.key === editingKey;
       const z = zoekLabel(e.zoek);
       const typeTag = typeTagHtml(e.type);
-      const repTag = e.repnr ? `<span class="tag tag-repnr">Rep.nr: ${formatRepnr(e.repnr)}</span>` : '';
+      const repTag = fixablyRepnrTagHtml(e.repnr);
       const icareTag = e.icare ? '<span class="tag tag-icare">✓ iCare</span>' : '';
       const nlTag = e.geenNl ? '<span class="tag tag-nl">⚠ Geen NL</span>' : '';
       const zoekTag = `<span class="tag ${z.cls}">${z.text}</span>`;
