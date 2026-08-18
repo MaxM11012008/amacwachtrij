@@ -2963,10 +2963,11 @@
   // Pas dit lijstje aan om het geluid te wijzigen: de app probeert deze
   // bestanden op volgorde en gebruikt het eerste dat succesvol laadt. Dat
   // vangt de meest voorkomende oorzaak van "geluid werkt niet" af: het
-  // bestand staat nog onder zijn originele, lange naam op de server in
-  // plaats van hernoemd naar "melding.mp3". Beide moeten in de map
-  // "sounds/" staan, relatief t.o.v. dit HTML-bestand.
+  // bestand staat niet exact op het verwachte pad. Volgorde hieronder:
+  // eerst root (waar het bestand nu daadwerkelijk staat), dan de map
+  // "sounds/" als terugval, dan de originele, lange bestandsnaam.
   const MELDING_GELUID_KANDIDATEN = [
+    'melding.mp3',
     'sounds/melding.mp3',
     'sounds/freesound_community-071612_hotel-bell-39128.mp3',
   ];
