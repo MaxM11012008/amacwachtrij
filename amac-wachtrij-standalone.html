@@ -105,6 +105,25 @@
 
     main { max-width: 900px; margin: 0 auto; padding: 20px; }
 
+    /* ══════════════════════════════════════════════════════════════════
+       NIEUW — wachtrij + same-day naast elkaar op laptop/iPad-breedte
+       De zijkolom (.sameday-zijkolom) start ALTIJD verborgen — JS toont 'm
+       pas zodra er daadwerkelijk same-day-items zijn (zie
+       renderSameDayPanel()). Zo kan er nooit een leeg vak naast de
+       wachtrij blijven staan, en pakt de wachtrij vanzelf de volledige
+       breedte zolang er niets te tonen is (geen aparte regel nodig: een
+       flex-container met één zichtbaar kind vult automatisch de ruimte).
+       ══════════════════════════════════════════════════════════════════ */
+    .wachtrij-layout { display: flex; flex-direction: column; gap: 20px; }
+    .wachtrij-hoofdkolom { flex: 1; min-width: 0; }
+    .sameday-zijkolom { display: none; }
+    .sameday-zijkolom.zichtbaar { display: block; }
+    @media (min-width: 1000px) {
+      main { max-width: 1180px; }
+      .wachtrij-layout { flex-direction: row; align-items: flex-start; }
+      .sameday-zijkolom.zichtbaar { flex: 0 0 340px; max-width: 340px; position: sticky; top: 20px; }
+    }
+
     .banner { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center; }
     .badge-stat {
       display: flex; align-items: center; gap: 6px;
@@ -235,6 +254,122 @@
       margin-left: auto;
     }
     .btn-primary:hover { background: var(--primary-hover); }
+
+    /* ══════════════════════════════════════════════════════════════════
+       NIEUW — Innameproces: rustiger, met duidelijke hiërarchie
+       ══════════════════════════════════════════════════════════════════ */
+    /* Bundelt Zoek Mijn / Backup / 18+ / iCare / Geen Nederlands in één
+       rustige, duidelijk afgebakende kaart i.p.v. vier losse blokken onder
+       elkaar. Puur visuele groepering — velden, ID's en logica blijven
+       ongewijzigd, alleen de buitenkant verandert. */
+    .innamechecklist-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .innamechecklist-titel {
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.04em;
+      margin-bottom: -2px;
+    }
+    .innamechecklist-card .field.full { gap: 5px; }
+
+    /* Hoofdactie: duidelijk zwaarder dan de rest, altijd de blikvanger
+       onderaan het formulier — vooral op een touchscreen belangrijk. */
+    .btn-aanmelden-submit {
+      width: 100%;
+      justify-content: center;
+      margin-left: 0;
+      padding: 13px 20px;
+      font-size: 14px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(26,61,124,0.28);
+      transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+    }
+    .btn-aanmelden-submit:hover { box-shadow: 0 4px 16px rgba(26,61,124,0.38); }
+    .btn-aanmelden-submit:active { transform: scale(0.99); }
+
+    /* ══════════════════════════════════════════════════════════════════
+       NIEUW — Same-day reparaties
+       ══════════════════════════════════════════════════════════════════ */
+    .btn-sameday-ja, .btn-sameday-nee {
+      width: 100%; padding: 12px; border-radius: 8px;
+      font-size: 13px; font-weight: 700; cursor: pointer; text-align: center;
+    }
+    .btn-sameday-ja { background: var(--success); color: white; border: none; }
+    .btn-sameday-ja:hover { opacity: 0.92; }
+    .btn-sameday-nee { background: var(--card); color: var(--text); border: 1px solid var(--border); }
+    .btn-sameday-nee:hover { background: var(--bg); }
+    .btn-sameday-annuleer {
+      display: block; width: 100%; margin-top: 10px; background: none; border: none;
+      color: var(--muted); font-size: 12px; cursor: pointer; text-align: center; padding: 4px;
+    }
+    .btn-sameday-annuleer:hover { color: var(--text); text-decoration: underline; }
+
+    /* ══════════════════════════════════════════════════════════════════
+       NIEUW — Same-day: drie statuspanelen i.p.v. datum-groepering
+       Elk paneel gebruikt een BESTAANDE, al-gecontroleerde kleurcombinatie
+       uit de rest van de app (geen nieuwe kleuren nodig — die haalden bij
+       controle allemaal ruim voldoende contrast):
+         Openstaand      → amber  (zelfde thema als de kolom altijd al had)
+         In behandeling  → blauw  (--primary/--primary-light, elders ook
+                                    gebruikt voor "actief bezig")
+         Afgehandeld     → groen  (--success/--success-light, elders ook
+                                    gebruikt voor "voltooid")
+       Elke groep verbergt zichzelf volledig als hij leeg is (zelfde
+       aanpak als de kolom zelf), zodat er nooit een leeg vak ontstaat.
+       ══════════════════════════════════════════════════════════════════ */
+    #sameday-panel { display: flex; flex-direction: column; gap: 10px; }
+    .sameday-statusgroep { display: none; border-radius: var(--radius); padding: 10px 12px; }
+    .sameday-statusgroep.zichtbaar { display: block; }
+    .sameday-statusgroep-open          { background: #fff7ed; border: 1px solid #fdba74; }
+    .sameday-statusgroep-behandeling   { background: var(--primary-light); border: 1px solid #c5d5f0; }
+    .sameday-statusgroep-klaar         { background: var(--success-light); border: 1px solid #bbf7d0; }
+
+    .sameday-statuskop {
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+      margin-bottom: 6px; display: flex; align-items: center; gap: 5px;
+    }
+    .sameday-statusgroep-open .sameday-statuskop        { color: #9a3412; }
+    .sameday-statusgroep-behandeling .sameday-statuskop { color: var(--primary); }
+    .sameday-statusgroep-klaar .sameday-statuskop       { color: var(--success); }
+    .sameday-statuskop .sameday-count {
+      background: rgba(0,0,0,0.08); border-radius: 999px; padding: 1px 7px; font-weight: 700;
+    }
+
+    .sameday-rij {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 0; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 12px;
+    }
+    .sameday-rij:last-child { border-bottom: none; }
+    .sameday-rij-info { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+    .sameday-naam { font-weight: 700; color: var(--text); }
+    .sameday-acties { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .btn-sameday-actie {
+      font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 5px;
+      cursor: pointer; white-space: nowrap; border: 1px solid;
+    }
+    .sameday-statusgroep-open .btn-sameday-actie { background: white; border-color: #fdba74; color: #9a3412; }
+    .sameday-statusgroep-open .btn-sameday-actie:hover { background: #fdba74; color: white; }
+    .sameday-statusgroep-behandeling .btn-sameday-actie { background: white; border-color: var(--primary); color: var(--primary); }
+    .sameday-statusgroep-behandeling .btn-sameday-actie:hover { background: var(--primary); color: white; }
+    .btn-sameday-verwijder {
+      background: none; border: none; opacity: 0.5; color: inherit;
+      cursor: pointer; font-size: 13px; padding: 2px 4px; flex-shrink: 0;
+    }
+    .btn-sameday-verwijder:hover { opacity: 1; }
+    .sameday-foutmelding {
+      background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;
+      padding: 10px 12px; font-size: 11px; color: var(--danger); line-height: 1.5;
+    }
+
+    /* "Gedaan"-knop: zelfde compacte stijl als de andere kaartknoppen, maar
+       met een groen accent zodat de voltooien-actie duidelijk herkenbaar is. */
+    .btn-gedaan:hover { background: var(--success-light); color: var(--success); border-color: var(--success); }
         .queue-item {
       background: var(--card);
       border: 1px solid var(--border);
@@ -1237,71 +1372,78 @@
             <span class="error-msg">Probleemomschrijving is verplicht</span>
           </div>
 
-          <!-- Zoek Mijn -->
-          <div class="field full" id="field-zoek">
-            <label>Zoek Mijn
-              <span class="req" id="zoek-req">*</span>
-              <span id="zoek-optioneel" style="display:none;color:var(--muted);font-weight:400">(optioneel)</span>
-            </label>
-            <div class="zoek-group">
-              <label class="zoek-option" id="zoek-uitgeschakeld" onclick="selectZoek('uitgeschakeld')">
-                <input type="radio" name="zoek" value="uitgeschakeld" /> Uit
-              </label>
-              <label class="zoek-option" id="zoek-niet_mogelijk" onclick="selectZoek('niet_mogelijk')">
-                <input type="radio" name="zoek" value="niet_mogelijk" /> Kan niet uit
-              </label>
-              <label class="zoek-option" id="zoek-nvt" onclick="selectZoek('nvt')">
-                <input type="radio" name="zoek" value="nvt" /> N.v.t.
-              </label>
-            </div>
-            <span class="error-msg">Kies een Zoek Mijn-status</span>
-          </div>
-
-          <!-- Backup gemaakt? — net zo verplicht/conditioneel als Zoek Mijn status -->
-          <div class="field full" id="field-backup">
-            <label>Backup?
-              <span class="req" id="backup-req">*</span>
-              <span id="backup-optioneel" style="display:none;color:var(--muted);font-weight:400">(optioneel)</span>
-            </label>
-            <div class="backup-group">
-              <label class="adult-chip" id="backup-ja" onclick="selectBackup(true)">
-                <input type="radio" name="backup" value="ja" /> Ja
-              </label>
-              <label class="adult-chip" id="backup-nee" onclick="selectBackup(false)">
-                <input type="radio" name="backup" value="nee" /> Nee
-              </label>
-            </div>
-            <span class="error-msg">Geef aan of er backup is</span>
-          </div>
-
-          <!-- Checkboxes + 18+ (compact, subtiel, op één rij) -->
+          <!-- NIEUW: checklist-groep — bundelt Zoek Mijn, Backup, 18+ en de
+               twee checkboxen in één rustige kaart i.p.v. vier losse blokken.
+               Functionaliteit, ID's en validatie blijven exact hetzelfde. -->
           <div class="field full">
-            <div class="checkbox-row">
-              <label class="checkbox-item">
-                <input type="checkbox" id="icare" /> iCare/AppleCare
-              </label>
-              <label class="checkbox-item">
-                <input type="checkbox" id="geen-nl" /> Geen Nederlands
-              </label>
-              <div class="adult-inline" id="field-adult">
-                <span class="adult-inline-label">18+
-                  <span class="req" id="adult-req">*</span>
-                  <span id="adult-optioneel" style="display:none;color:var(--muted);font-weight:400">(optioneel)</span>
-                </span>
-                <label class="adult-chip" id="adult-ja" onclick="selectAdult(true)">
-                  <input type="radio" name="adult" value="ja" /> Ja
+            <div class="innamechecklist-card">
+              <div class="innamechecklist-titel">✅ Checklist</div>
+
+              <!-- Zoek Mijn -->
+              <div class="field full" id="field-zoek">
+                <label>Zoek Mijn
+                  <span class="req" id="zoek-req">*</span>
+                  <span id="zoek-optioneel" style="display:none;color:var(--muted);font-weight:400">(optioneel)</span>
                 </label>
-                <label class="adult-chip" id="adult-nee" onclick="selectAdult(false)">
-                  <input type="radio" name="adult" value="nee" /> Nee
+                <div class="zoek-group">
+                  <label class="zoek-option" id="zoek-uitgeschakeld" onclick="selectZoek('uitgeschakeld')">
+                    <input type="radio" name="zoek" value="uitgeschakeld" /> Uit
+                  </label>
+                  <label class="zoek-option" id="zoek-niet_mogelijk" onclick="selectZoek('niet_mogelijk')">
+                    <input type="radio" name="zoek" value="niet_mogelijk" /> Kan niet uit
+                  </label>
+                  <label class="zoek-option" id="zoek-nvt" onclick="selectZoek('nvt')">
+                    <input type="radio" name="zoek" value="nvt" /> N.v.t.
+                  </label>
+                </div>
+                <span class="error-msg">Kies een Zoek Mijn-status</span>
+              </div>
+
+              <!-- Backup gemaakt? — net zo verplicht/conditioneel als Zoek Mijn status -->
+              <div class="field full" id="field-backup">
+                <label>Backup?
+                  <span class="req" id="backup-req">*</span>
+                  <span id="backup-optioneel" style="display:none;color:var(--muted);font-weight:400">(optioneel)</span>
                 </label>
-                <span class="error-msg">Geef aan of klant 18+ is</span>
+                <div class="backup-group">
+                  <label class="adult-chip" id="backup-ja" onclick="selectBackup(true)">
+                    <input type="radio" name="backup" value="ja" /> Ja
+                  </label>
+                  <label class="adult-chip" id="backup-nee" onclick="selectBackup(false)">
+                    <input type="radio" name="backup" value="nee" /> Nee
+                  </label>
+                </div>
+                <span class="error-msg">Geef aan of er backup is</span>
+              </div>
+
+              <!-- Checkboxes + 18+ (compact, subtiel, op één rij) -->
+              <div class="checkbox-row">
+                <label class="checkbox-item">
+                  <input type="checkbox" id="icare" /> iCare/AppleCare
+                </label>
+                <label class="checkbox-item">
+                  <input type="checkbox" id="geen-nl" /> Geen Nederlands
+                </label>
+                <div class="adult-inline" id="field-adult">
+                  <span class="adult-inline-label">18+
+                    <span class="req" id="adult-req">*</span>
+                    <span id="adult-optioneel" style="display:none;color:var(--muted);font-weight:400">(optioneel)</span>
+                  </span>
+                  <label class="adult-chip" id="adult-ja" onclick="selectAdult(true)">
+                    <input type="radio" name="adult" value="ja" /> Ja
+                  </label>
+                  <label class="adult-chip" id="adult-nee" onclick="selectAdult(false)">
+                    <input type="radio" name="adult" value="nee" /> Nee
+                  </label>
+                  <span class="error-msg">Geef aan of klant 18+ is</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
         <hr class="divider" />
-        <button type="submit" class="btn-primary">
+        <button type="submit" class="btn-primary btn-aanmelden-submit">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Klant aanmelden
         </button>
@@ -1310,31 +1452,60 @@
   </section>
 
   <!-- Wachtrij -->
-  <section>
-    <div class="section-title" id="queue-title">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      Actuele wachtrij
-    </div>
-    <!-- NIEUW: tabs voor Actief / Vandaag afgerond / Gisteren afgerond + rapportageknoppen -->
-    <div class="queue-tabs-row">
-      <div class="queue-tabs" id="queue-tabs">
-        <button type="button" class="queue-tab is-actief-tab" id="tab-actief" onclick="switchQueueTab('actief')">
-          Actief <span class="tab-count" id="tab-count-actief">0</span>
-        </button>
-        <button type="button" class="queue-tab" id="tab-vandaag" onclick="switchQueueTab('vandaag')">
-          Vandaag <span class="tab-count" id="tab-count-vandaag">0</span>
-        </button>
-        <button type="button" class="queue-tab" id="tab-gisteren" onclick="switchQueueTab('gisteren')">
-          Gisteren <span class="tab-count" id="tab-count-gisteren">0</span>
-        </button>
+  <div class="wachtrij-layout">
+    <section class="wachtrij-hoofdkolom">
+      <div class="section-title" id="queue-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Actuele wachtrij
       </div>
-      <div class="report-buttons">
-        <button type="button" class="btn-report" onclick="toonDagoverzicht()" title="Dagoverzicht bekijken en exporteren">📊 Dagoverzicht</button>
-        <button type="button" class="btn-report" onclick="toonMedewerkerOverzicht()" title="Overzicht per medewerker">👥 Medewerkers</button>
+      <!-- NIEUW: tabs voor Actief / Vandaag afgerond / Gisteren afgerond + rapportageknoppen -->
+      <div class="queue-tabs-row">
+        <div class="queue-tabs" id="queue-tabs">
+          <button type="button" class="queue-tab is-actief-tab" id="tab-actief" onclick="switchQueueTab('actief')">
+            Actief <span class="tab-count" id="tab-count-actief">0</span>
+          </button>
+          <button type="button" class="queue-tab" id="tab-vandaag" onclick="switchQueueTab('vandaag')">
+            Vandaag <span class="tab-count" id="tab-count-vandaag">0</span>
+          </button>
+          <button type="button" class="queue-tab" id="tab-gisteren" onclick="switchQueueTab('gisteren')">
+            Gisteren <span class="tab-count" id="tab-count-gisteren">0</span>
+          </button>
+        </div>
+        <div class="report-buttons">
+          <button type="button" class="btn-report" onclick="toonDagoverzicht()" title="Dagoverzicht bekijken en exporteren">📊 Dagoverzicht</button>
+          <button type="button" class="btn-report" onclick="toonMedewerkerOverzicht()" title="Overzicht per medewerker">👥 Medewerkers</button>
+        </div>
       </div>
-    </div>
-    <div id="queue-container"></div>
-  </section>
+      <div id="queue-container"></div>
+    </section>
+
+    <!-- NIEUW: same-day-overzicht — eigen zijkolom naast de wachtrij (stapelt
+         onder de wachtrij op smallere schermen). De HELE kolom (incl. titel)
+         wordt in JS verborgen zolang er geen enkel zichtbaar same-day-item
+         is — dus nooit een leeg vak met alleen een titel erin. -->
+    <aside class="sameday-zijkolom" id="sameday-zijkolom">
+      <div class="section-title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Same-day reparaties
+      </div>
+      <div id="sameday-panel">
+        <!-- NIEUW: drie vaste statusgroepen. Elke groep verbergt zichzelf
+             (klasse "zichtbaar") als hij leeg is — zie renderSameDayPanel(). -->
+        <div class="sameday-statusgroep sameday-statusgroep-open" id="sameday-groep-open">
+          <div class="sameday-statuskop">🔧 Openstaand <span class="sameday-count" id="sameday-count-open">0</span></div>
+          <div id="sameday-lijst-open"></div>
+        </div>
+        <div class="sameday-statusgroep sameday-statusgroep-behandeling" id="sameday-groep-behandeling">
+          <div class="sameday-statuskop">⚙️ In behandeling <span class="sameday-count" id="sameday-count-behandeling">0</span></div>
+          <div id="sameday-lijst-behandeling"></div>
+        </div>
+        <div class="sameday-statusgroep sameday-statusgroep-klaar" id="sameday-groep-klaar">
+          <div class="sameday-statuskop">✅ Klaar <span class="sameday-count" id="sameday-count-klaar">0</span></div>
+          <div id="sameday-lijst-klaar"></div>
+        </div>
+      </div>
+    </aside>
+  </div>
 </main>
 
 <footer>Deel geen gevoelige informatie!</footer>
@@ -1419,6 +1590,46 @@
   </div>
 </div>
 
+<!-- ── NIEUW: verplichte same-day-vraag, nu bij het VOLTOOIEN ("Gedaan") van
+     de klantkaart — alleen voor "Ongepland" (nieuwe reparaties). Bij "Ja"
+     volgt de reparatienummer-modal hieronder; bij "Nee" wordt de klant
+     direct voltooid zonder same-day-item. ── -->
+<div class="modal-overlay" id="sameday-vraag-overlay">
+  <div class="modal-card" style="max-width:380px">
+    <div class="modal-header">
+      <span>⏱️ Same-day reparatie?</span>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;margin:0 0 14px">Wordt dit apparaat dezelfde dag nog gerepareerd?</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button type="button" class="btn-sameday-ja" onclick="bevestigSameDayJa()">✅ Ja, same-day reparatie</button>
+        <button type="button" class="btn-sameday-nee" onclick="bevestigSameDayNee()">Nee, geen same-day</button>
+      </div>
+      <button type="button" class="btn-sameday-annuleer" onclick="annuleerSameDayVraag()">Annuleren</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── NIEUW: verplicht reparatienummer voor de same-day-reparatie ──
+     Verschijnt alleen na "Ja" hierboven. Zonder geldig nummer wordt de
+     klant niet voltooid (zie bevestigSameDayRepnr() in JS). ── -->
+<div class="modal-overlay" id="sameday-repnr-overlay">
+  <div class="modal-card" style="max-width:380px">
+    <div class="modal-header">
+      <span>📦 Reparatienummer</span>
+    </div>
+    <div class="modal-body">
+      <div class="field full" id="field-sameday-repnr">
+        <label>Reparatienummer <span class="req">*</span></label>
+        <input type="text" id="sameday-repnr-input" placeholder="bijv. 2019-7438" inputmode="numeric" maxlength="9" />
+        <span class="error-msg">Reparatienummer is verplicht voor same-day</span>
+      </div>
+      <button type="button" class="btn-sameday-ja" style="margin-top:6px" onclick="bevestigSameDayRepnr()">Bevestigen en voltooien</button>
+      <button type="button" class="btn-sameday-annuleer" onclick="annuleerSameDayRepnr()">Annuleren</button>
+    </div>
+  </div>
+</div>
+
 </div><!-- /#app-content -->
 
 <!-- Firebase: zorgt voor synchronisatie en authenticatie -->
@@ -1441,6 +1652,28 @@
   const dbRef = firebase.database().ref('wachtrij');
   // ── Interne teamchat: eigen Firebase-pad, los van de wachtrij-data ──
   const chatRef = firebase.database().ref('chat/berichten');
+  // ── NIEUW: same-day-reparaties — eigen, apart Firebase-pad ──
+  // Bewust los van de wachtrij-klantkaart: same-day-items moeten blijven
+  // bestaan nadat de klantkaart zelf al lang is voltooid/verwijderd.
+  const sameDayRef = firebase.database().ref('sameday');
+
+  // ── Gecachete same-day DOM-refs (efficiëntie) ──
+  // Deze werden voorheen op 15 plekken los met getElementById opgezocht —
+  // nu eenmalig, consistent met hoe de rest van de app dit al deed.
+  const elSameDayZijkolom     = document.getElementById('sameday-zijkolom');
+  const elSameDayVraagOverlay = document.getElementById('sameday-vraag-overlay');
+  const elSameDayRepnrOverlay = document.getElementById('sameday-repnr-overlay');
+  const elSameDayRepnrInput   = document.getElementById('sameday-repnr-input');
+  const elSameDayGroepOpen         = document.getElementById('sameday-groep-open');
+  const elSameDayGroepBehandeling  = document.getElementById('sameday-groep-behandeling');
+  const elSameDayGroepKlaar        = document.getElementById('sameday-groep-klaar');
+  const elSameDayLijstOpen         = document.getElementById('sameday-lijst-open');
+  const elSameDayLijstBehandeling  = document.getElementById('sameday-lijst-behandeling');
+  const elSameDayLijstKlaar        = document.getElementById('sameday-lijst-klaar');
+  const elSameDayCountOpen         = document.getElementById('sameday-count-open');
+  const elSameDayCountBehandeling  = document.getElementById('sameday-count-behandeling');
+  const elSameDayCountKlaar        = document.getElementById('sameday-count-klaar');
+
   // ── NIEUW: volledige medewerkerslijst — één centrale array, hergebruikt in
   // het aanmeldformulier (datalist) én in de "Neem in behandeling"-dropdown
   // per klant. Zo hoeft de lijst maar op één plek onderhouden te worden. ──
@@ -2131,6 +2364,12 @@
     this.value = formatRepnr(this.value);
   });
 
+  // Zelfde live-opmaak (streepje) als het hoofdformulier, nu ook voor het
+  // reparatienummer-veld in de same-day-modal.
+  elSameDayRepnrInput.addEventListener('input', function () {
+    this.value = formatRepnr(this.value);
+  });
+
   function selectZoek(val) {
     selectedZoek = val;
     document.querySelectorAll('.zoek-option').forEach(el => el.classList.remove('selected'));
@@ -2159,11 +2398,13 @@
     location.reload();
   }
 
-  // ── Geluidsmeldingen (i.p.v. pushmeldingen) ──
-  // Gegenereerd met de Web Audio API: geen los mp3-bestand nodig, dus niets
-  // om te vergeten uploaden — werkt direct na het plakken van dit bestand.
+  // ── MP3-meldingsgeluid ──
+  // Pas ALLEEN dit pad aan om het geluid te wijzigen — de rest van de app
+  // hoeft nergens anders aangepast te worden. Bestand moet op deze plek
+  // relatief t.o.v. dit HTML-bestand staan (zie map "sounds/").
+  const MELDING_GELUID = 'sounds/melding.mp3';
+
   let audioMeldingenAan = localStorage.getItem('amacAudioMeldingen') !== 'uit';
-  let audioCtx = null;
 
   // ── NIEUW: instelbaar volume (0-100), onthouden per apparaat ──
   let meldingVolume = parseInt(localStorage.getItem('amacMeldingVolume'), 10);
@@ -2199,8 +2440,8 @@
     }
   });
 
-  // ── Volumeslider: live label-update tijdens het slepen, testtoon pas
-  // zodra je loslaat (anders overlappen te veel tonen tijdens het slepen) ──
+  // ── Volumeslider: live label-update tijdens het slepen, testgeluid pas
+  // zodra je loslaat (anders overlappen te veel geluiden tijdens het slepen) ──
   elVolumeSlider.value = meldingVolume;
   elVolumeLabel.textContent = meldingVolume + '%';
   elVolumeSlider.addEventListener('input', function () {
@@ -2212,58 +2453,42 @@
     if (audioMeldingenAan) speelChatGeluid();
   });
 
-  function getAudioContext() {
-    if (!audioCtx) {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      if (!AC) return null;
-      audioCtx = new AC();
+  // Eén <audio>-element, hergebruikt (niet elke keer opnieuw aangemaakt) —
+  // preload zorgt dat het bestand al klaarstaat zodra de eerste melding komt.
+  let meldingAudioEl = null;
+  function getMeldingAudio() {
+    if (!meldingAudioEl) {
+      meldingAudioEl = new Audio(MELDING_GELUID);
+      meldingAudioEl.preload = 'auto';
     }
-    return audioCtx;
+    return meldingAudioEl;
   }
 
   // Browsers blokkeren geluid totdat de gebruiker één keer ergens op de
-  // pagina heeft geklikt/getikt — dit ontgrendelt de audio bij die eerste klik.
+  // pagina heeft geklikt/getikt — dit ontgrendelt het geluid meteen bij die
+  // eerste klik, zodat latere automatische meldingen niet alsnog falen.
   window.addEventListener('click', function ontgrendelAudio() {
-    const ctx = getAudioContext();
-    if (ctx && ctx.state === 'suspended') ctx.resume();
+    const el = getMeldingAudio();
+    el.play().then(() => { el.pause(); el.currentTime = 0; }).catch(() => {});
     window.removeEventListener('click', ontgrendelAudio);
   }, { once: true });
 
-  function speelToon(frequenties) {
+  function speelMelding() {
     if (!audioMeldingenAan || meldingVolume <= 0) return;
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    // Volume 0-100 → piekwaarde 0-1.8. Bewust ver BOVEN 1.0 aan de bovenkant:
-    // dat duwt de golfvorm bij hoge standen bewust tegen de digitale
-    // clipping-grens aan, wat een merkbaar hardere, dringendere meldingstoon
-    // geeft op 100% — geen braaf piepje, maar een toon die je ECHT hoort,
-    // precies zoals gevraagd.
-    const piek = (meldingVolume / 100) * 1.8;
-    try {
-      let tijd = ctx.currentTime;
-      const duur = 0.13;
-      frequenties.forEach((freq) => {
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.0001, tijd);
-        gain.gain.exponentialRampToValueAtTime(piek, tijd + 0.015);
-        gain.gain.exponentialRampToValueAtTime(0.0001, tijd + duur);
-        osc.connect(gain).connect(ctx.destination);
-        osc.start(tijd);
-        osc.stop(tijd + duur + 0.02);
-        tijd += duur;
-      });
-    } catch (err) {
-      console.warn('[Amac Wachtrij] Geluid afspelen mislukt:', err);
-    }
+    const el = getMeldingAudio();
+    el.volume = meldingVolume / 100;
+    el.currentTime = 0;
+    el.play().catch((err) => {
+      // Autoplay-blokkade of ontbrekend bestand — nooit de app breken,
+      // alleen loggen zodat het te diagnosticeren is.
+      console.warn('[Amac Wachtrij] Geluid kon niet afspelen:', err.message);
+    });
   }
 
-  // Twee duidelijk verschillende, korte tonen — zo hoor je zonder te kijken
-  // meteen of het om een chatbericht of een nieuwe klant gaat.
-  function speelChatGeluid()       { speelToon([880, 1108]); }
-  function speelNieuweKlantGeluid(){ speelToon([660, 660]); }
+  // Zelfde geluid voor beide meldingsmomenten — bestaande aanroepen elders
+  // in de code blijven ongewijzigd werken dankzij deze twee aliassen.
+  function speelChatGeluid()       { speelMelding(); }
+  function speelNieuweKlantGeluid(){ speelMelding(); }
 
   // ── Weekendmelding: zaterdag (6) en zondag (0) ──
   function controleerWeekend() {
@@ -2280,6 +2505,92 @@
     if (!cijfers) return '';
     const url = 'https://amac.fixably.com/nl/orders/' + encodeURIComponent(cijfers);
     return `<a class="tag tag-repnr tag-repnr-link" href="${url}" target="_blank" rel="noopener noreferrer" title="Open in Fixably">Rep.nr: ${escapeHtml(formatRepnr(repnr))} ↗</a>`;
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — Same-day-overzicht: eigen datastructuur (sameDayItems), los
+  // van de klantkaart/wachtrij. Items blijven staan tot handmatig
+  // verwijderd. Elk item heeft een eigen workflow-status ('openstaand' →
+  // 'in-behandeling' → 'afgehandeld'), onafhankelijk van de status van de
+  // oorspronkelijke klantkaart (die is dan al lang voltooid/verdwenen).
+  // Oude items (>3 dagen) worden automatisch opgeruimd, ongeacht status —
+  // zie ruimOudeSameDayItemsOp() hieronder.
+  // ══════════════════════════════════════════════════════════════════
+  let sameDayItems = [];
+
+  function renderSameDayPanel() {
+    // Items zonder status-veld (aangemaakt vóór deze update) tellen als
+    // "openstaand" — zo raakt geen bestaande data onzichtbaar.
+    const open        = sameDayItems.filter(e => !e.status || e.status === 'openstaand');
+    const behandeling = sameDayItems.filter(e => e.status === 'in-behandeling');
+    const klaar       = sameDayItems.filter(e => e.status === 'afgehandeld');
+
+    // ── BUGFIX (eerdere ronde): de hele kolom (incl. titel) moet samen
+    // tonen/verbergen, nooit alleen de inhoud — anders ontstaat een leeg
+    // vak naast de wachtrij. Datzelfde principe passen we nu ook toe per
+    // statusgroep: een lege groep laat geen leeg kadertje achter. ──
+    const totaalZichtbaar = open.length + behandeling.length + klaar.length;
+    if (totaalZichtbaar === 0) {
+      elSameDayZijkolom.classList.remove('zichtbaar');
+      return;
+    }
+    elSameDayZijkolom.classList.add('zichtbaar');
+
+    // Klant + reparatienummer + status via kleur/positie — bewust GEEN type
+    // bezoek, probleemomschrijving of reparateursnaam (voorkomt onrust/
+    // ruis, zoals gevraagd).
+    const rijHtml = (e, actieHtml) => `
+      <div class="sameday-rij">
+        <div class="sameday-rij-info">
+          <span class="sameday-naam">${escapeHtml(e.naam)}</span>
+          ${fixablyRepnrTagHtml(e.repnr) || '<span class="tag tag-repnr">Geen rep.nr</span>'}
+        </div>
+        <div class="sameday-acties">
+          ${actieHtml}
+          <button type="button" class="btn-sameday-verwijder" onclick="verwijderSameDayItem('${e.key}')" title="Verwijderen uit same-day-overzicht">✕</button>
+        </div>
+      </div>`;
+
+    elSameDayGroepOpen.classList.toggle('zichtbaar', open.length > 0);
+    elSameDayCountOpen.textContent = open.length;
+    elSameDayLijstOpen.innerHTML = open.map(e => rijHtml(e,
+      `<button type="button" class="btn-sameday-actie" onclick="startSameDayReparatie('${e.key}')">Start</button>`
+    )).join('');
+
+    elSameDayGroepBehandeling.classList.toggle('zichtbaar', behandeling.length > 0);
+    elSameDayCountBehandeling.textContent = behandeling.length;
+    elSameDayLijstBehandeling.innerHTML = behandeling.map(e => rijHtml(e,
+      `<button type="button" class="btn-sameday-actie" onclick="voltooiSameDayReparatie('${e.key}')">Klaar</button>`
+    )).join('');
+
+    elSameDayGroepKlaar.classList.toggle('zichtbaar', klaar.length > 0);
+    elSameDayCountKlaar.textContent = klaar.length;
+    elSameDayLijstKlaar.innerHTML = klaar.map(e => rijHtml(e, '')).join('');
+  }
+
+  // Zet een same-day-reparatie van "openstaand" naar "in behandeling".
+  function startSameDayReparatie(key) {
+    sameDayRef.child(key).update({ status: 'in-behandeling' }).catch((err) => {
+      console.error('[Amac Wachtrij] Same-day-status bijwerken mislukt:', err);
+      alert('Status bijwerken is niet gelukt: ' + err.message);
+    });
+  }
+
+  // Zet een same-day-reparatie van "in behandeling" naar "afgehandeld".
+  function voltooiSameDayReparatie(key) {
+    sameDayRef.child(key).update({ status: 'afgehandeld' }).catch((err) => {
+      console.error('[Amac Wachtrij] Same-day-status bijwerken mislukt:', err);
+      alert('Status bijwerken is niet gelukt: ' + err.message);
+    });
+  }
+
+  // Voorkomt dat het "sameday"-Firebase-pad onbeperkt blijft groeien: items
+  // ouder dan 3 dagen worden stilletjes verwijderd, ongeacht status.
+  function ruimOudeSameDayItemsOp() {
+    const grens = Date.now() - 3 * 24 * 60 * 60 * 1000;
+    sameDayItems.forEach((item) => {
+      if (item.aangemaaktOp < grens) sameDayRef.child(item.key).remove();
+    });
   }
 
   // ── Geschatte wachttijd per klant, op basis van type bezoek ──
@@ -2454,6 +2765,107 @@
     if (MEDEWERKERS.includes(naam)) triggerEmployeeRain(naam);
   }
 
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — Same-day-vraag, nu bij het VOLTOOIEN van de klantkaart
+  // (niet meer bij "Neem in behandeling"). Alleen relevant bij "Ongepland"
+  // (een nieuwe reparatie) — "ophalen" is al een eerder afgeronde reparatie
+  // die alleen wordt opgehaald, en schoonmaak/prijsopgave hebben geen
+  // same-day-concept.
+  //
+  // Flow: klik op "Gedaan" → (bij Ongepland) modal "Is dit same-day?" →
+  // bij "Ja" een tweede modal voor het verplichte reparatienummer → pas na
+  // bevestigen wordt de klant voltooid ÉN het same-day-item aangemaakt.
+  // Bij "Nee" of "Annuleren" gebeurt er direct (Nee) of helemaal niets
+  // (Annuleren) verder dan het gewone voltooien.
+  // ══════════════════════════════════════════════════════════════════
+  let voltooienPendingKey = null;
+
+  // Aangeroepen door de "Gedaan"-knop op elke klantkaart.
+  function startVoltooien(key) {
+    const entry = queue.find(e => e.key === key);
+    if (entry && entry.type === 'ongepland') {
+      voltooienPendingKey = key;
+      elSameDayVraagOverlay.classList.add('open');
+    } else {
+      verwijder(key); // geen same-day-relevantie, gewoon direct voltooien
+    }
+  }
+
+  function bevestigSameDayJa() {
+    elSameDayVraagOverlay.classList.remove('open');
+    elSameDayRepnrOverlay.classList.add('open');
+    elSameDayRepnrInput.value = '';
+    clearError('field-sameday-repnr');
+    setTimeout(() => elSameDayRepnrInput.focus(), 50);
+  }
+
+  function bevestigSameDayNee() {
+    elSameDayVraagOverlay.classList.remove('open');
+    if (voltooienPendingKey) verwijder(voltooienPendingKey);
+    voltooienPendingKey = null;
+  }
+
+  // Annuleren op de eerste vraag: klant blijft gewoon in behandeling staan,
+  // niets wordt voltooid of opgeslagen.
+  function annuleerSameDayVraag() {
+    elSameDayVraagOverlay.classList.remove('open');
+    voltooienPendingKey = null;
+  }
+
+  // Reparatienummer is verplicht om de same-day-reparatie toe te voegen —
+  // zonder geldig nummer wordt de klant ook niet voltooid.
+  function bevestigSameDayRepnr() {
+    const repnr = elSameDayRepnrInput.value.trim();
+    if (!repnr) {
+      showError('field-sameday-repnr');
+      elSameDayRepnrInput.focus();
+      return;
+    }
+    clearError('field-sameday-repnr');
+
+    const entry = queue.find(e => e.key === voltooienPendingKey);
+    if (entry) {
+      // Eigen, apart Firebase-pad — blijft bewust bestaan onafhankelijk van
+      // de klantkaart, want die wordt hierna direct voltooid/verwijderd.
+      // status:'openstaand' is de startstatus van elke nieuwe same-day-
+      // reparatie (zie de drie panelen in renderSameDayPanel()).
+      sameDayRef.push({
+        naam: entry.naam,
+        repnr: formatRepnr(repnr),
+        type: entry.type,
+        probleem: entry.probleem || '',
+        aangemaaktOp: Date.now(),
+        status: 'openstaand',
+      }).catch((err) => {
+        // ── BUGFIX: zonder .catch() bleef een geweigerde write (bijv. door
+        // ontbrekende Firebase-rechten) volledig onzichtbaar — de klant werd
+        // dan wel voltooid, maar het same-day-item verscheen nooit, zonder
+        // enige melding waarom. ──
+        console.error('[Amac Wachtrij] Same-day-item opslaan mislukt:', err);
+        alert('Same-day-reparatie opslaan is niet gelukt: ' + err.message + '\n\nControleer of de Firebase-beveiligingsregels schrijven naar "sameday" toestaan.\n\nDe klant wordt wel als voltooid gemarkeerd, maar zonder same-day-registratie.');
+      });
+    }
+    if (voltooienPendingKey) verwijder(voltooienPendingKey);
+    elSameDayRepnrOverlay.classList.remove('open');
+    voltooienPendingKey = null;
+  }
+
+  // Annuleren op de repnr-vraag: zonder nummer geen same-day-item, dus de
+  // hele voltooien-actie wordt teruggedraaid (klant blijft in behandeling).
+  function annuleerSameDayRepnr() {
+    elSameDayRepnrOverlay.classList.remove('open');
+    voltooienPendingKey = null;
+  }
+
+  // Handmatig verwijderen uit het same-day-overzicht — enige manier waarop
+  // een item daar weggaat vóór de automatische opschoning na enkele dagen.
+  function verwijderSameDayItem(key) {
+    sameDayRef.child(key).remove().catch((err) => {
+      console.error('[Amac Wachtrij] Same-day-item verwijderen mislukt:', err);
+      alert('Verwijderen is niet gelukt: ' + err.message);
+    });
+  }
+
   function laatVrij(key) {
     dbRef.child(key).update({
       behandelaar: null,
@@ -2608,7 +3020,7 @@
           <div class="empty-state">
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             <p><strong>Nog geen afgeronde klanten ${label.toLowerCase()}</strong></p>
-            <p>Zodra een klant op "Geholpen" wordt gezet, verschijnt die kaart hier.</p>
+            <p>Zodra een klant op "Gedaan" wordt gezet, verschijnt die kaart hier.</p>
           </div>`;
         return;
       }
@@ -2706,7 +3118,7 @@
             <div class="queue-header-actions">
               ${isEditing ? '' : `<button class="btn-edit-icon" onclick="startEdit('${e.key}')" title="Kaart bewerken"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
               <button class="btn-boven${bovenActief ? ' is-actief' : ''}" onclick="toggleBoven('${e.key}', ${bovenActief})" title="Markeer of deze klant boven wacht (bijv. bij een trapprobleem)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>${bovenActief ? '✓ Boven' : 'Boven?'}</button>
-              <button class="btn-remove" onclick="verwijder('${e.key}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2 2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>Geholpen</button>`}
+              <button class="btn-remove btn-gedaan" onclick="startVoltooien('${e.key}')" title="Markeer deze klant als voltooid"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>Gedaan</button>`}
             </div>
           </div>
           ${isEditing ? editForm : `<div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${adultTag(e)}${betaaldTag(e)}${backupTag(e)}</div><div class="queue-desc">${e.probleem}</div><div class="tag-row">${icareTag}${nlTag}${zoekTag}</div><div class="behandel-row">${behandelHtml}</div>`}
@@ -3008,6 +3420,30 @@
               elChatMessages.innerHTML =
                 '<div class="chat-empty">⚠ Chat kon niet geladen worden (' + err.message + '). Controleer de Firebase-rechten voor pad "chat".</div>';
             });
+
+            // ── NIEUW: same-day-overzicht — eigen, onafhankelijke listener ──
+            // Los van de wachtrij-listener, want same-day-items moeten blijven
+            // bestaan nadat de bijbehorende klantkaart al lang is voltooid.
+            sameDayRef.on('value', (snapshot) => {
+              const data = snapshot.val() || {};
+              sameDayItems = Object.keys(data).map(key => ({ key, ...data[key] }));
+              ruimOudeSameDayItemsOp();
+              renderSameDayPanel();
+            }, (err) => {
+              // ── BUGFIX: een geweigerde lees-toegang (bijv. ontbrekende
+              // Firebase-rechten op pad "sameday") bleef eerder volledig
+              // onzichtbaar — de kolom leek dan gewoon nooit te bestaan,
+              // zonder enige aanwijzing waarom. Nu tonen we de kolom ALSNOG,
+              // met een duidelijke foutmelding erin, zodat dit niet meer met
+              // "de functie werkt niet" te verwarren is. ──
+              console.error('[Amac Wachtrij] Same-day-overzicht kon niet geladen worden:', err);
+              elSameDayZijkolom.classList.add('zichtbaar');
+              elSameDayGroepBehandeling.classList.remove('zichtbaar');
+              elSameDayGroepKlaar.classList.remove('zichtbaar');
+              elSameDayGroepOpen.classList.add('zichtbaar');
+              elSameDayLijstOpen.innerHTML =
+                '<div class="sameday-foutmelding">⚠ Kon niet laden (' + err.message + '). Controleer de Firebase-beveiligingsregels voor pad "sameday".</div>';
+            });
           }
         } else {
           elLoginOverlay.style.display = 'flex';
@@ -3017,10 +3453,13 @@
             dbRef.off();
             statusRef.off();
             chatRef.off();
+            sameDayRef.off();
             if (rainSyncRef) rainSyncRef.off();
             dbListenerActief = false;
           }
           queue = [];
+          sameDayItems = [];
+          elSameDayZijkolom.classList.remove('zichtbaar');
           prevQueueLength = -1;
           editingKey = null;
           activeQueueTab = 'actief';
