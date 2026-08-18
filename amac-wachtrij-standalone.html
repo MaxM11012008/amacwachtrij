@@ -62,16 +62,15 @@
     .header-inner {
       max-width: 900px;
       margin: 0 auto;
-      padding: 0 20px;
-      height: 52px;
+      padding: 12px 20px;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
     .logo {
-      width: 72px;
-      height: 72px;
-      border-radius: 7px;
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -79,7 +78,6 @@
       font-weight: 800;
       font-size: 14px;
       flex-shrink: 0;
-      margin-top: 10px;
     }
     
     .logo-btn {
@@ -89,7 +87,7 @@
       cursor: pointer;
       display: flex;
       flex-shrink: 0;
-      border-radius: 7px;
+      border-radius: 10px;
       transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s, filter 0.2s;
     }
     .logo-btn:hover {
@@ -114,14 +112,27 @@
        breedte zolang er niets te tonen is (geen aparte regel nodig: een
        flex-container met één zichtbaar kind vult automatisch de ruimte).
        ══════════════════════════════════════════════════════════════════ */
-    .wachtrij-layout { display: flex; flex-direction: column; gap: 20px; }
+    .wachtrij-layout { display: flex; flex-direction: column; gap: 16px; }
     .wachtrij-hoofdkolom { flex: 1; min-width: 0; }
     .sameday-zijkolom { display: none; }
     .sameday-zijkolom.zichtbaar { display: block; }
     @media (min-width: 1000px) {
-      main { max-width: 1180px; }
-      .wachtrij-layout { flex-direction: row; align-items: flex-start; }
-      .sameday-zijkolom.zichtbaar { flex: 0 0 340px; max-width: 340px; position: sticky; top: 20px; }
+      main { max-width: 1200px; }
+      /* BUGFIX: header-inner moet exact dezelfde breedte volgen als main —
+         anders blijft de header (met het logo) op de oude, smallere breedte
+         staan terwijl de inhoud eronder (met "0 klanten") verschuift naar de
+         nieuwe, bredere layout. Resultaat: logo staat niet meer recht boven
+         "0 klanten". Door hier hetzelfde max-width toe te passen, blijven
+         beide altijd verticaal precies uitgelijnd, op elke schermbreedte. */
+      .header-inner { max-width: 1200px; }
+      .wachtrij-layout { flex-direction: row; align-items: flex-start; gap: 20px; }
+      /* Compacte, duidelijk SMALLERE zijkolom — de wachtrij blijft de
+         brede, primaire werkruimte (zie .wachtrij-hoofdkolom hierboven,
+         die automatisch de rest van de breedte opvult). */
+      /* max-height + eigen scroll: bij veel same-day-kaarten groeit de
+         kolom niet eindeloos mee met de pagina, maar scrolt hij intern —
+         essentieel voor "rustig blijven bij veel same-days". */
+      .sameday-zijkolom.zichtbaar { flex: 0 0 280px; max-width: 280px; position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; }
     }
 
     .banner { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center; }
@@ -141,6 +152,17 @@
       display: flex; align-items: center; gap: 6px;
       color: white; /* beide sectietitels staan op de donkere achtergrondfoto */
     }
+    /* NIEUW: same-day-titel als inklapbare knop — vooral handig op mobiel/
+       tablet, waar de kolom anders veel verticale ruimte inneemt onder de
+       wachtrij. Werkt op alle schermformaten hetzelfde. */
+    .sameday-inklap-knop {
+      width: 100%; background: none; border: none; cursor: pointer; padding: 0;
+      font-family: inherit;
+    }
+    .sameday-inklap-pijl { transition: transform 0.15s; }
+    .sameday-inklap-pijl.ingeklapt { transform: rotate(-90deg); }
+    #sameday-panel { transition: none; }
+    #sameday-panel.ingeklapt { display: none; }
 
     .card {
       background: var(--card);
@@ -299,6 +321,7 @@
     .btn-sameday-ja, .btn-sameday-nee {
       width: 100%; padding: 12px; border-radius: 8px;
       font-size: 13px; font-weight: 700; cursor: pointer; text-align: center;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
     .btn-sameday-ja { background: var(--success); color: white; border: none; }
     .btn-sameday-ja:hover { opacity: 0.92; }
@@ -309,6 +332,15 @@
       color: var(--muted); font-size: 12px; cursor: pointer; text-align: center; padding: 4px;
     }
     .btn-sameday-annuleer:hover { color: var(--text); text-decoration: underline; }
+    /* Toetsenbord-badge (1/2) — laat direct zien welke toets welke keuze
+       activeert, zowel voor muis-/touchgebruikers als toetsenbordgebruikers. */
+    .sameday-toets {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 20px; padding: 0 5px;
+      border-radius: 5px; font-size: 12px; font-weight: 800; font-family: inherit;
+      background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.4);
+    }
+    .btn-sameday-nee .sameday-toets { background: var(--bg); border-color: var(--border); color: var(--text); }
 
     /* ══════════════════════════════════════════════════════════════════
        NIEUW — Same-day: drie statuspanelen i.p.v. datum-groepering
@@ -341,31 +373,98 @@
       background: rgba(0,0,0,0.08); border-radius: 999px; padding: 1px 7px; font-weight: 700;
     }
 
+    /* ── Same-day-kaart: compacter dan een normale klantkaart, maar met
+       grote, duidelijk gelabelde tikvlakken (touchscreen-vriendelijk). ── */
     .sameday-rij {
-      display: flex; align-items: center; gap: 8px;
-      padding: 7px 0; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 12px;
+      display: flex; flex-direction: column; gap: 6px;
+      padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 12px;
     }
     .sameday-rij:last-child { border-bottom: none; }
-    .sameday-rij-info { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
-    .sameday-naam { font-weight: 700; color: var(--text); }
-    .sameday-acties { display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .sameday-rij-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .sameday-naam { font-weight: 700; color: var(--text); font-size: 13px; }
+    .sameday-status-badge {
+      font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
+      padding: 2px 7px; border-radius: 999px; background: rgba(0,0,0,0.08); flex-shrink: 0;
+    }
+    .sameday-rij-mid { display: flex; }
+
+    /* Technician: altijd een zichtbare, duidelijk afgebakende dropdown —
+       direct wijzigen zonder eerst de bewerkmodus te hoeven openen. */
+    .sameday-technician-rij {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(0,0,0,0.04); border-radius: 6px; padding: 4px 8px;
+      cursor: pointer;
+    }
+    .sameday-technician-quickselect {
+      flex: 1; border: none; background: none; font-size: 12px; font-weight: 600;
+      font-family: inherit; color: var(--text); cursor: pointer; padding: 3px 0;
+    }
+
+    /* Actieknoppen: ruime tikvlakken (min. ~34px hoog), duidelijke labels
+       i.p.v. kale icoontjes. De belangrijkste vervolgstap (Start/Klaar) is
+       gevuld en dus het meest opvallend; Bewerken is secundair (outline);
+       Verwijderen is bewust het minst nadrukkelijk (destructief, zelden nodig). */
+    .sameday-acties-groot { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-sameday-actie-groot, .btn-sameday-bewerk-groot, .btn-sameday-verwijder-groot {
+      min-height: 34px; padding: 7px 12px; border-radius: 6px;
+      font-size: 11px; font-weight: 700; cursor: pointer; white-space: nowrap;
+      display: flex; align-items: center; justify-content: center; gap: 4px;
+    }
+    .btn-sameday-actie-groot { flex: 1; min-width: 90px; border: none; }
+    .sameday-statusgroep-open .btn-sameday-actie-groot         { background: #9a3412; color: white; }
+    .sameday-statusgroep-open .btn-sameday-actie-groot:hover   { background: #7c2d12; }
+    .sameday-statusgroep-behandeling .btn-sameday-actie-groot        { background: var(--primary); color: white; }
+    .sameday-statusgroep-behandeling .btn-sameday-actie-groot:hover  { background: var(--primary-hover); }
+    .btn-sameday-bewerk-groot {
+      background: white; border: 1px solid var(--border); color: var(--text);
+    }
+    .btn-sameday-bewerk-groot:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-sameday-verwijder-groot {
+      background: none; border: 1px solid transparent; color: var(--muted); opacity: 0.7;
+      padding: 7px 9px;
+    }
+    .btn-sameday-verwijder-groot:hover { opacity: 1; border-color: var(--danger); color: var(--danger); }
+
+    /* Bewerkformulier: zelfde compacte, gestapelde opzet, maar dan smaller
+       (past in de zijkolom). */
+    .sameday-edit-form { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 4px 0; }
+    .sameday-edit-input {
+      width: 100%; padding: 8px 9px; border: 1px solid var(--border); border-radius: 5px;
+      font-size: 13px; font-family: inherit; color: var(--text); min-height: 36px;
+    }
+    .sameday-edit-acties { display: flex; gap: 6px; }
+    .sameday-edit-acties .btn-sameday-actie { flex: 1; text-align: center; }
     .btn-sameday-actie {
-      font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 5px;
-      cursor: pointer; white-space: nowrap; border: 1px solid;
+      font-size: 11px; font-weight: 700; padding: 8px; border-radius: 6px;
+      cursor: pointer; white-space: nowrap; border: none;
+      background: var(--primary); color: white; min-height: 36px;
     }
-    .sameday-statusgroep-open .btn-sameday-actie { background: white; border-color: #fdba74; color: #9a3412; }
-    .sameday-statusgroep-open .btn-sameday-actie:hover { background: #fdba74; color: white; }
-    .sameday-statusgroep-behandeling .btn-sameday-actie { background: white; border-color: var(--primary); color: var(--primary); }
-    .sameday-statusgroep-behandeling .btn-sameday-actie:hover { background: var(--primary); color: white; }
-    .btn-sameday-verwijder {
-      background: none; border: none; opacity: 0.5; color: inherit;
-      cursor: pointer; font-size: 13px; padding: 2px 4px; flex-shrink: 0;
-    }
+    .btn-sameday-actie:hover { background: var(--primary-hover); }
     .btn-sameday-verwijder:hover { opacity: 1; }
     .sameday-foutmelding {
       background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;
       padding: 10px 12px; font-size: 11px; color: var(--danger); line-height: 1.5;
     }
+
+    /* ── NIEUW: undo-toast — compacte melding onderin beeld, met een
+       duidelijk klikbare "Herstellen"-knop. Werkt op elk schermformaat. ── */
+    .sameday-toast {
+      position: fixed; bottom: 20px; left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: #1f2937; color: white;
+      padding: 11px 14px; border-radius: 8px;
+      display: flex; align-items: center; gap: 14px; font-size: 13px;
+      box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 1300; max-width: calc(100vw - 32px);
+    }
+    .sameday-toast.zichtbaar { opacity: 1; pointer-events: auto; transform: translateX(-50%) translateY(0); }
+    .sameday-toast button {
+      background: white; color: #1f2937; border: none; border-radius: 6px;
+      padding: 6px 12px; font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
+    }
+    .sameday-toast button:hover { background: #e5e7eb; }
 
     /* "Gedaan"-knop: zelfde compacte stijl als de andere kaartknoppen, maar
        met een groen accent zodat de voltooien-actie duidelijk herkenbaar is. */
@@ -783,6 +882,7 @@
 
     /* ── Geluidsmeldingen aan/uit ── */
     .btn-audio {
+      position: relative;
       background: rgba(255,255,255,0.15); color: white;
       border: 1px solid rgba(255,255,255,0.35);
       border-radius: 6px; width: 30px; height: 26px;
@@ -791,6 +891,15 @@
     }
     .btn-audio:hover { background: rgba(255,255,255,0.28); }
     .btn-audio.is-uit { opacity: 0.55; }
+    /* Statusstip: direct zichtbaar of het geluidsbestand goed laadt, zonder
+       dat je eerst de popover hoeft te openen. Rood = fout, groen = ok. */
+    .geluid-status-dot {
+      position: absolute; top: -2px; right: -2px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: transparent; border: 1.5px solid transparent;
+    }
+    .geluid-status-dot.status-ok    { background: #4ade80; border-color: white; }
+    .geluid-status-dot.status-fout  { background: #f87171; border-color: white; }
 
     /* ── Volumeregeling: compacte popover onder de geluidsknop ──
        Zelfde soort interactiepatroon als bekende OS-volumeknoppen: klik op
@@ -819,6 +928,11 @@
       height: 26px; /* ruimer tikgebied, ook prettig op tablet/telefoon */
     }
     .audio-volume-hint { font-size: 10px; color: var(--muted); margin-top: 8px; line-height: 1.4; }
+    .btn-test-geluid {
+      padding: 7px; border-radius: 6px; border: 1px solid var(--border);
+      background: var(--card); color: var(--text); font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .btn-test-geluid:hover { background: var(--primary-light); border-color: var(--primary); color: var(--primary); }
     .popover-section-label {
       font-size: 10px; font-weight: 700; color: var(--muted);
       text-transform: uppercase; letter-spacing: 0.05em;
@@ -855,6 +969,7 @@
       display: flex; flex-direction: column; overflow: hidden;
       box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     }
+    .modal-card.modal-card-breed { max-width: 620px; }
     .modal-header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 14px 18px; background: var(--primary); color: white;
@@ -872,6 +987,19 @@
     .overzicht-stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; }
     .overzicht-type-row { display: flex; justify-content: space-between; align-items: center; font-size: 13px; padding: 7px 0; border-bottom: 1px solid var(--border); }
     .overzicht-type-row:last-child { border-bottom: none; }
+
+    /* NIEUW: drukte-per-uur — lichte, tekstuele mini-balkjes i.p.v. een
+       chart-bibliotheek, past beter bij "rustig en snel scanbaar". */
+    .overzicht-uur-rij { display: flex; align-items: center; gap: 8px; font-size: 11px; padding: 2px 0; }
+    .overzicht-uur-label { width: 38px; color: var(--muted); flex-shrink: 0; }
+    .overzicht-uur-balk-track { flex: 1; height: 9px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+    .overzicht-uur-balk-vulling { height: 100%; background: var(--primary); border-radius: 4px; }
+    .overzicht-uur-aantal { width: 18px; text-align: right; font-weight: 700; flex-shrink: 0; }
+    .overzicht-vergelijking {
+      background: var(--bg); border-radius: 6px; padding: 8px 10px;
+      font-size: 11px; color: var(--muted); margin-bottom: 4px;
+    }
+    .overzicht-leeg { font-size: 12px; color: var(--muted); padding: 6px 0; }
 
     /* ── NIEUW: datumnavigatie in het dagoverzicht ── */
     .dagoverzicht-datumnav {
@@ -1171,6 +1299,45 @@
       10%  { opacity: 1; }
       78%  { opacity: 1; }
       100% { transform: translate3d(var(--drift, 0px), 118vh, 0) translateX(0) rotate(calc(var(--rot, 0deg) + 260deg)); opacity: 0; }
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       NIEUW — Professioneel PDF-rapport (via browser "Afdrukken naar PDF")
+       Bewust GEEN externe PDF-bibliotheek: de browser-eigen printfunctie
+       is altijd beschikbaar, werkt offline, en HTML+CSS geeft meer
+       ontwerpvrijheid dan handmatig tekst/tabellen tekenen met een
+       PDF-library. Op het scherm is dit rapport onzichtbaar; alleen bij
+       het afdrukken (window.print()) wordt de rest van de pagina verborgen
+       en dit rapport zichtbaar — zie exporteerDagoverzichtPdf() in JS.
+       ══════════════════════════════════════════════════════════════════ */
+    .pdf-rapport-container { display: none; }
+    @media print {
+      body * { visibility: hidden; }
+      .pdf-rapport-container, .pdf-rapport-container * { visibility: visible; }
+      .pdf-rapport-container {
+        display: block; position: absolute; top: 0; left: 0; width: 100%;
+        font-family: -apple-system, sans-serif; color: #1a1a1a;
+      }
+      @page { margin: 16mm; }
+      .pdf-header { display: flex; align-items: center; gap: 14px; border-bottom: 3px solid #1a3d7c; padding-bottom: 12px; margin-bottom: 6px; }
+      .pdf-logo { width: 44px; height: 44px; }
+      .pdf-titel { font-size: 19px; font-weight: 800; color: #1a3d7c; }
+      .pdf-sub { font-size: 12px; color: #555; text-transform: capitalize; }
+      .pdf-meta { font-size: 10px; color: #999; margin-bottom: 14px; }
+      .pdf-sectie-titel { font-size: 12px; font-weight: 700; color: #1a3d7c; margin: 16px 0 6px; border-bottom: 1px solid #ddd; padding-bottom: 3px; text-transform: uppercase; letter-spacing: 0.03em; }
+      .pdf-summary { font-size: 11.5px; line-height: 1.6; color: #222; }
+      .pdf-tabel { width: 100%; border-collapse: collapse; font-size: 11px; }
+      .pdf-tabel td { padding: 4px 6px; border-bottom: 1px solid #eee; }
+      .pdf-tabel td:last-child { text-align: right; font-weight: 700; }
+      .pdf-inzichten { font-size: 11px; line-height: 1.7; padding-left: 16px; margin: 0; }
+      .pdf-grafiek-rij { display: flex; align-items: center; gap: 8px; font-size: 10.5px; padding: 2px 0; }
+      .pdf-grafiek-label { width: 90px; flex-shrink: 0; color: #444; }
+      .pdf-grafiek-track { flex: 1; height: 9px; background: #eee; border-radius: 3px; overflow: hidden; }
+      .pdf-grafiek-vulling { height: 100%; background: #1a3d7c; border-radius: 3px; }
+      .pdf-grafiek-waarde { width: 22px; text-align: right; font-weight: 700; flex-shrink: 0; }
+      .pdf-footer { margin-top: 22px; font-size: 9px; color: #999; border-top: 1px solid #eee; padding-top: 6px; }
+      /* Voorkomt dat een sectie halverwege een paginabreuk afgekapt wordt */
+      .pdf-sectie-titel, .pdf-tabel { break-inside: avoid; }
     }</style>
 </head>
 <body>
@@ -1237,6 +1404,7 @@
     <div class="audio-control">
       <button class="btn-audio" id="btn-audio" onclick="toggleAudioPopover()" title="Geluidsmeldingen en volume">
         <svg id="audio-icoon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+        <span class="geluid-status-dot" id="geluid-status-dot" title="Geluidsbestand laden…"></span>
       </button>
       <div class="audio-popover" id="audio-popover">
         <div class="popover-section-label">Geluid</div>
@@ -1251,8 +1419,8 @@
         <div class="audio-volume-row">
           <input type="range" id="volume-slider" min="0" max="100" value="65" />
         </div>
-        <div class="audio-volume-hint">Op 100% klinkt de melding duidelijk hard — handig in een drukke winkel.</div>
-
+        <div class="audio-volume-hint" id="geluid-status-hint">Bezig met laden…</div>
+        <button type="button" class="btn-test-geluid" onclick="testMeldingGeluid()" style="margin-top:8px;width:100%">🔊 Test geluid</button>
       </div>
     </div>
     <button class="btn-logout" onclick="uitloggen()">
@@ -1484,24 +1652,29 @@
          wordt in JS verborgen zolang er geen enkel zichtbaar same-day-item
          is — dus nooit een leeg vak met alleen een titel erin. -->
     <aside class="sameday-zijkolom" id="sameday-zijkolom">
-      <div class="section-title">
+      <button type="button" class="section-title sameday-inklap-knop" onclick="toggleSameDayInklap()" id="sameday-inklap-knop">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Same-day reparaties
-      </div>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="sameday-inklap-pijl" id="sameday-inklap-pijl" style="margin-left:auto"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
       <div id="sameday-panel">
-        <!-- NIEUW: drie vaste statusgroepen. Elke groep verbergt zichzelf
-             (klasse "zichtbaar") als hij leeg is — zie renderSameDayPanel(). -->
-        <div class="sameday-statusgroep sameday-statusgroep-open" id="sameday-groep-open">
-          <div class="sameday-statuskop">🔧 Openstaand <span class="sameday-count" id="sameday-count-open">0</span></div>
-          <div id="sameday-lijst-open"></div>
+        <!-- NIEUW: drie vaste statusgroepen, in vaste volgorde Klaar → In
+             behandeling → Openstaand (zodat afgeronde same-days bovenaan
+             staan voor medewerkers die uitleveren, en de oudste openstaande
+             reparatie voor technicians het laatst/onderaan als "volgende"
+             te vinden is). Elke groep verbergt zichzelf (klasse "zichtbaar")
+             als hij leeg is — zie renderSameDayPanel(). -->
+        <div class="sameday-statusgroep sameday-statusgroep-klaar" id="sameday-groep-klaar">
+          <div class="sameday-statuskop">✅ Klaar <span class="sameday-count" id="sameday-count-klaar">0</span></div>
+          <div id="sameday-lijst-klaar"></div>
         </div>
         <div class="sameday-statusgroep sameday-statusgroep-behandeling" id="sameday-groep-behandeling">
           <div class="sameday-statuskop">⚙️ In behandeling <span class="sameday-count" id="sameday-count-behandeling">0</span></div>
           <div id="sameday-lijst-behandeling"></div>
         </div>
-        <div class="sameday-statusgroep sameday-statusgroep-klaar" id="sameday-groep-klaar">
-          <div class="sameday-statuskop">✅ Klaar <span class="sameday-count" id="sameday-count-klaar">0</span></div>
-          <div id="sameday-lijst-klaar"></div>
+        <div class="sameday-statusgroep sameday-statusgroep-open" id="sameday-groep-open">
+          <div class="sameday-statuskop">🔧 Openstaand <span class="sameday-count" id="sameday-count-open">0</span></div>
+          <div id="sameday-lijst-open"></div>
         </div>
       </div>
     </aside>
@@ -1547,7 +1720,7 @@
 
 <!-- ── NIEUW: Dagoverzicht-modal ── -->
 <div class="modal-overlay" id="dagoverzicht-overlay">
-  <div class="modal-card">
+  <div class="modal-card modal-card-breed">
     <div class="modal-header">
       <span>📊 Dagoverzicht</span>
       <button type="button" onclick="sluitModal('dagoverzicht-overlay')" aria-label="Sluiten">✕</button>
@@ -1560,9 +1733,13 @@
     </div>
     <div class="modal-body" id="dagoverzicht-body"></div>
     <div class="modal-footer">
-      <button type="button" class="btn-primary" style="margin-left:0" onclick="exporteerDagoverzichtCsv()">
+      <button type="button" class="btn-report" onclick="exporteerDagoverzichtCsv()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Exporteer als CSV
+        CSV
+      </button>
+      <button type="button" class="btn-primary" style="margin-left:0" onclick="exporteerDagoverzichtPdf()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Professioneel rapport (PDF)
       </button>
     </div>
   </div>
@@ -1593,7 +1770,9 @@
 <!-- ── NIEUW: verplichte same-day-vraag, nu bij het VOLTOOIEN ("Gedaan") van
      de klantkaart — alleen voor "Ongepland" (nieuwe reparaties). Bij "Ja"
      volgt de reparatienummer-modal hieronder; bij "Nee" wordt de klant
-     direct voltooid zonder same-day-item. ── -->
+     direct voltooid zonder same-day-item. Bewust GEEN annuleeroptie: de
+     medewerker moet altijd kiezen. Toetsen 1/2 zijn alleen actief zolang
+     deze modal open is (zie de keydown-listener in JS). ── -->
 <div class="modal-overlay" id="sameday-vraag-overlay">
   <div class="modal-card" style="max-width:380px">
     <div class="modal-header">
@@ -1602,17 +1781,17 @@
     <div class="modal-body">
       <p style="font-size:13px;margin:0 0 14px">Wordt dit apparaat dezelfde dag nog gerepareerd?</p>
       <div style="display:flex;flex-direction:column;gap:8px">
-        <button type="button" class="btn-sameday-ja" onclick="bevestigSameDayJa()">✅ Ja, same-day reparatie</button>
-        <button type="button" class="btn-sameday-nee" onclick="bevestigSameDayNee()">Nee, geen same-day</button>
+        <button type="button" class="btn-sameday-ja" onclick="bevestigSameDayJa()"><kbd class="sameday-toets">1</kbd> Ja, same-day reparatie</button>
+        <button type="button" class="btn-sameday-nee" onclick="bevestigSameDayNee()"><kbd class="sameday-toets">2</kbd> Nee, geen same-day</button>
       </div>
-      <button type="button" class="btn-sameday-annuleer" onclick="annuleerSameDayVraag()">Annuleren</button>
     </div>
   </div>
 </div>
 
-<!-- ── NIEUW: verplicht reparatienummer voor de same-day-reparatie ──
-     Verschijnt alleen na "Ja" hierboven. Zonder geldig nummer wordt de
-     klant niet voltooid (zie bevestigSameDayRepnr() in JS). ── -->
+<!-- ── NIEUW: reparatienummer voor de same-day-reparatie — OPTIONEEL ──
+     Verschijnt alleen na "Ja" hierboven. Zonder nummer kan gewoon worden
+     doorgegaan; het nummer kan later altijd nog via de bewerkfunctie op de
+     same-day-kaart worden toegevoegd of gewijzigd. ── -->
 <div class="modal-overlay" id="sameday-repnr-overlay">
   <div class="modal-card" style="max-width:380px">
     <div class="modal-header">
@@ -1620,15 +1799,30 @@
     </div>
     <div class="modal-body">
       <div class="field full" id="field-sameday-repnr">
-        <label>Reparatienummer <span class="req">*</span></label>
-        <input type="text" id="sameday-repnr-input" placeholder="bijv. 2019-7438" inputmode="numeric" maxlength="9" />
-        <span class="error-msg">Reparatienummer is verplicht voor same-day</span>
+        <label>Reparatienummer <span style="color:var(--muted);font-weight:400">(optioneel — kan later via bewerken)</span></label>
+        <input type="text" id="sameday-repnr-input" placeholder="bijv. 2019-7438 (mag leeg blijven)" inputmode="numeric" maxlength="9" />
       </div>
-      <button type="button" class="btn-sameday-ja" style="margin-top:6px" onclick="bevestigSameDayRepnr()">Bevestigen en voltooien</button>
+      <!-- NIEUW: technician-keuze — optioneel bij aanmaken, later altijd nog
+           te wijzigen via de bewerkfunctie op de same-day-kaart zelf. -->
+      <div class="field full">
+        <label>Technician <span style="color:var(--muted);font-weight:400">(optioneel)</span></label>
+        <select id="sameday-technician-select"></select>
+      </div>
+      <button type="button" class="btn-sameday-ja" style="margin-top:6px" onclick="bevestigSameDayRepnr()">Doorgaan</button>
       <button type="button" class="btn-sameday-annuleer" onclick="annuleerSameDayRepnr()">Annuleren</button>
     </div>
   </div>
 </div>
+
+<!-- ── NIEUW: undo-toast voor verwijderde same-day-items ── -->
+<div class="sameday-toast" id="sameday-toast">
+  <span>Same-day verwijderd</span>
+  <button type="button" onclick="herstelSameDayItem()">Herstellen</button>
+</div>
+
+<!-- ── NIEUW: PDF-rapportcontainer — normaal onzichtbaar, wordt gevuld en
+     via @media print zichtbaar gemaakt door exporteerDagoverzichtPdf() ── -->
+<div id="pdf-rapport-container" class="pdf-rapport-container"></div>
 
 </div><!-- /#app-content -->
 
@@ -1664,6 +1858,7 @@
   const elSameDayVraagOverlay = document.getElementById('sameday-vraag-overlay');
   const elSameDayRepnrOverlay = document.getElementById('sameday-repnr-overlay');
   const elSameDayRepnrInput   = document.getElementById('sameday-repnr-input');
+  const elSameDayTechnicianSelect = document.getElementById('sameday-technician-select');
   const elSameDayGroepOpen         = document.getElementById('sameday-groep-open');
   const elSameDayGroepBehandeling  = document.getElementById('sameday-groep-behandeling');
   const elSameDayGroepKlaar        = document.getElementById('sameday-groep-klaar');
@@ -1683,6 +1878,15 @@
     "Luuk","Marco","Max","Mehrin","Mike","Milou","Rêve","Rohan","Sidney",
     "Stefano","Sumeja","Sylvan","Thomas","Tuana"
   ];
+
+  // ── NIEUW: Technicians — curated sublijst, specifiek voor same-day-
+  // reparaties. Dit zijn de medewerkers die daadwerkelijk reparaties
+  // uitvoeren, dus een kleinere, gerichte lijst dan de volledige
+  // MEDEWERKERS-array (die alle balie-/verkoopmedewerkers bevat). Alle vier
+  // staan hier al toevallig ook in MEDEWERKERS, maar deze lijst is bewust
+  // los te onderhouden — voeg hier een naam toe/weg als het technician-team
+  // wijzigt, zonder de algemene medewerkerslijst te hoeven aanpassen. ──
+  const TECHNICIANS = ["Levy", "Dennie", "Milou", "Stefano"];
 
   // ── Centrale medewerkernaam-normalisatie ──
   // Ruwe invoer blijft ongewijzigd in Firebase, maar alle tellingen,
@@ -1914,6 +2118,11 @@
   // Herstelt de volledige, selecteerbare namenlijst in het aanmeldformulier.
   elMedewerkersList.innerHTML = MEDEWERKERS.map(n => `<option value="${n}">`).join('');
 
+  // NIEUW: technician-dropdown vullen vanuit de TECHNICIANS-array.
+  elSameDayTechnicianSelect.innerHTML =
+    '<option value="">— Nog niet toegewezen —</option>' +
+    TECHNICIANS.map(n => `<option value="${n}">${n}</option>`).join('');
+
   // ── State: "wachtrij gesloten" (gesynchroniseerd via Firebase) ──
   const statusRef = firebase.database().ref('status/gesloten');
   let queueClosed = false;
@@ -1989,6 +2198,20 @@
 
   let dagoverzichtDatum = null; // 'YYYY-MM-DD', wordt gezet zodra het overzicht opent
 
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — Uitgebreide data-analyse voor het dagoverzicht
+  // Elk nieuw datapunt hieronder hergebruikt bestaande velden (op
+  // behandelStartOp na, dat expliciet is toegevoegd voor "gemiddelde
+  // behandeltijd" — zie neemInBehandeling()). Bewust NIET toegevoegd:
+  // categorisatie van vrije-tekst probleemomschrijvingen ("veelvoorkomende
+  // servicevragen") — dat vereist onbetrouwbare tekstanalyse en zou
+  // persoonlijke/vrije klanttekst in een managementrapport tonen, wat niet
+  // past bij "beperk persoonsgegevens". Ook bewust NIET toegevoegd: een
+  // teller voor "hersteld/geannuleerd" — dat biedt geen navolgbaar
+  // operationeel of management-inzicht, dus puur "omdat het kan".
+  // ══════════════════════════════════════════════════════════════════
+  const WACHTTIJD_DOELSTELLING_MIN = 30; // drempel voor "% boven doelstelling" — pas hier aan indien gewenst
+
   function berekenDagoverzicht(datumStr) {
     const [jaar, maand, dag] = datumStr.split('-').map(Number);
     const doelStr = new Date(jaar, maand - 1, dag).toDateString();
@@ -1996,19 +2219,67 @@
 
     const lijst = queue.filter(e => e.status === 'afgerond' && e.afgerondOp && new Date(e.afgerondOp).toDateString() === doelStr);
     const nogWachtend = isVandaag ? queue.filter(e => e.status !== 'afgerond').length : 0;
+    // Totaal aangemeld die dag (ongeacht huidige status) — laat zien hoeveel
+    // klanten er die dag ÜBERHAUPT binnenkwamen, los van hoeveel er al
+    // afgerond zijn. Verschil met "afgehandeld" wijst op een achterstand.
+    const totaalAangemeld = queue.filter(e => e.timestamp && new Date(e.timestamp).toDateString() === doelStr).length;
 
     const perType = { ophalen: 0, ongepland: 0, schoonmaak: 0, prijsopgave: 0 };
-    let totaleMinuten = 0, telbaar = 0, langsteMinuten = 0;
+    const wachttijdenPerType = { ophalen: [], ongepland: [], schoonmaak: [], prijsopgave: [] };
+    const alleWachttijden = [];
+    let totaleMinuten = 0, telbaar = 0, langsteMinuten = 0, bovenDrempel = 0;
+    let totaleBehandelMinuten = 0, behandelTelbaar = 0;
     lijst.forEach(e => {
       if (perType[e.type] !== undefined) perType[e.type]++;
       if (e.timestamp && e.afgerondOp) {
         const minuten = (e.afgerondOp - e.timestamp) / 60000;
         totaleMinuten += minuten;
         telbaar++;
+        alleWachttijden.push(minuten);
+        if (wachttijdenPerType[e.type]) wachttijdenPerType[e.type].push(minuten);
         if (minuten > langsteMinuten) langsteMinuten = minuten;
+        if (minuten > WACHTTIJD_DOELSTELLING_MIN) bovenDrempel++;
+      }
+      // Behandeltijd (het werk zelf) is bewust een ANDER getal dan
+      // wachttijd (wachten + werk samen) — een hoge wachttijd met een lage
+      // behandeltijd wijst op te weinig capaciteit om op tijd te STARTEN;
+      // een hoge behandeltijd wijst op complexere/langere klussen.
+      if (e.behandelStartOp && e.afgerondOp) {
+        totaleBehandelMinuten += (e.afgerondOp - e.behandelStartOp) / 60000;
+        behandelTelbaar++;
       }
     });
     const gemiddelde = telbaar > 0 ? Math.round(totaleMinuten / telbaar) : 0;
+    const gemiddeldeBehandeltijd = behandelTelbaar > 0 ? Math.round(totaleBehandelMinuten / behandelTelbaar) : 0;
+    const percentageBovenDrempel = telbaar > 0 ? Math.round((bovenDrempel / telbaar) * 100) : 0;
+
+    // Mediaan i.p.v. alleen gemiddelde: één uitschieter (bijv. een klant die
+    // per ongeluk lang bleef staan) trekt het gemiddelde scheef, de mediaan
+    // laat het "typische" geval zien.
+    function mediaan(getallen) {
+      if (getallen.length === 0) return 0;
+      const s = [...getallen].sort((a, b) => a - b);
+      const mid = Math.floor(s.length / 2);
+      return Math.round(s.length % 2 !== 0 ? s[mid] : (s[mid - 1] + s[mid]) / 2);
+    }
+    const mediaanWachttijd = mediaan(alleWachttijden);
+    const wachttijdPerType = {};
+    Object.keys(wachttijdenPerType).forEach(t => {
+      wachttijdPerType[t] = wachttijdenPerType[t].length > 0 ? Math.round(wachttijdenPerType[t].reduce((a, b) => a + b, 0) / wachttijdenPerType[t].length) : null;
+    });
+
+    // Drukte per uur-blok: laat in één oogopslag het drukste moment van de
+    // dag zien — nuttig voor personeelsplanning (wanneer extra bezetting
+    // nodig is).
+    const perUur = {};
+    queue.filter(e => e.timestamp && new Date(e.timestamp).toDateString() === doelStr).forEach(e => {
+      const uur = new Date(e.timestamp).getHours();
+      perUur[uur] = (perUur[uur] || 0) + 1;
+    });
+    let druksteUur = null, druksteUurAantal = 0;
+    Object.entries(perUur).forEach(([uur, aantal]) => {
+      if (aantal > druksteUurAantal) { druksteUur = Number(uur); druksteUurAantal = aantal; }
+    });
 
     // Per-medewerker: hergebruikt de bestaande telMedewerkers()/behandelCache
     // — geen nieuwe telling-logica nodig, alleen een andere datumrange.
@@ -2016,7 +2287,59 @@
     const dagEind  = new Date(jaar, maand - 1, dag, 23, 59, 59, 999).getTime();
     const perMedewerker = telMedewerkers(dagStart, dagEind).filter(([, c]) => c > 0);
 
-    return { totaal: lijst.length, perType, gemiddelde, langsteMinuten: Math.round(langsteMinuten), nogWachtend, perMedewerker, lijst };
+    // Same-day statusverdeling + tijdsmetrics voor die specifieke dag (op
+    // basis van aanmaakmoment). Tijd-tot-start en reparatietijd gebruiken
+    // startOp/klaarOp — ontbreken deze (oudere records), dan telt dat item
+    // simpelweg niet mee in het gemiddelde (fouttolerant voor oude data).
+    const sameDayDieDag = sameDayItems.filter(e => e.aangemaaktOp && new Date(e.aangemaaktOp).toDateString() === doelStr);
+    const sameDayOpen        = sameDayDieDag.filter(e => !e.status || e.status === 'openstaand').length;
+    const sameDayBehandeling = sameDayDieDag.filter(e => e.status === 'in-behandeling').length;
+    const sameDayKlaar       = sameDayDieDag.filter(e => e.status === 'afgehandeld').length;
+
+    let totTotStart = 0, telTotStart = 0, totReparatie = 0, telReparatie = 0;
+    const perTechnician = {};
+    TECHNICIANS.forEach(t => { perTechnician[t] = 0; });
+    sameDayDieDag.forEach(e => {
+      if (e.startOp && e.aangemaaktOp) { totTotStart += (e.startOp - e.aangemaaktOp) / 60000; telTotStart++; }
+      if (e.klaarOp && e.startOp) { totReparatie += (e.klaarOp - e.startOp) / 60000; telReparatie++; }
+      if (e.technician && perTechnician[e.technician] !== undefined) perTechnician[e.technician]++;
+    });
+    const sameDayGemTotStart = telTotStart > 0 ? Math.round(totTotStart / telTotStart) : null;
+    const sameDayGemReparatietijd = telReparatie > 0 ? Math.round(totReparatie / telReparatie) : null;
+    const sameDayPerTechnician = Object.entries(perTechnician).filter(([, c]) => c > 0);
+
+    // Langst openstaande same-day — alleen zinvol als "nu" (vandaag), want
+    // dit is een actueel operationeel signaal ("dit ligt al te lang stil"),
+    // geen historisch cijfer.
+    let langstOpenstaandeSameDayUren = null;
+    if (isVandaag) {
+      const openstaandeSameDays = sameDayItems.filter(e => (!e.status || e.status === 'openstaand') && e.aangemaaktOp);
+      if (openstaandeSameDays.length > 0) {
+        const oudste = openstaandeSameDays.reduce((a, b) => (a.aangemaaktOp < b.aangemaaktOp ? a : b));
+        langstOpenstaandeSameDayUren = ((Date.now() - oudste.aangemaaktOp) / 3600000).toFixed(1);
+      }
+    }
+
+    return {
+      totaal: lijst.length, totaalAangemeld, perType, gemiddelde, gemiddeldeBehandeltijd,
+      mediaanWachttijd, wachttijdPerType, percentageBovenDrempel,
+      langsteMinuten: Math.round(langsteMinuten), nogWachtend, perMedewerker, lijst,
+      perUur, druksteUur, druksteUurAantal,
+      sameDayOpen, sameDayBehandeling, sameDayKlaar, langstOpenstaandeSameDayUren,
+      sameDayGemTotStart, sameDayGemReparatietijd, sameDayPerTechnician,
+    };
+  }
+
+  // Eenvoudige vergelijking met de vorige dag — bewust niet verder terug dan
+  // 1 dag, want de app toont doorgaans alleen Vandaag/Gisteren in de
+  // geschiedenis, dus data van langer geleden is niet betrouwbaar
+  // gegarandeerd nog aanwezig.
+  function berekenGisterenVergelijking(datumStr) {
+    const [j, m, d] = datumStr.split('-').map(Number);
+    const gisteren = new Date(j, m - 1, d - 1);
+    const gisterenStr = gisteren.getFullYear() + '-' + String(gisteren.getMonth() + 1).padStart(2, '0') + '-' + String(gisteren.getDate()).padStart(2, '0');
+    const data = berekenDagoverzicht(gisterenStr);
+    return data.totaal > 0 ? data : null;
   }
 
   function renderDagoverzicht() {
@@ -2024,32 +2347,99 @@
     document.getElementById('btn-dagoverzicht-volgende').disabled = dagoverzichtDatum >= huidigeDatumString();
     const isVandaag = dagoverzichtDatum === huidigeDatumString();
     const data = berekenDagoverzicht(dagoverzichtDatum);
+    const gisteren = isVandaag ? berekenGisterenVergelijking(dagoverzichtDatum) : null;
+
+    // Compacte tekstuele "mini-grafiek" voor drukte per uur — bewust geen
+    // losse chart-bibliotheek: dit is lichter, sneller en past beter bij
+    // "rustig en snel scanbaar" dan een volwaardige grafiek voor 1 getal per uur.
+    const uren = Object.keys(data.perUur).map(Number).sort((a, b) => a - b);
+    const maxPerUur = Math.max(1, ...uren.map(u => data.perUur[u]));
+    const uurGrafiekHtml = uren.length > 0 ? uren.map(u => `
+      <div class="overzicht-uur-rij">
+        <span class="overzicht-uur-label">${String(u).padStart(2, '0')}:00</span>
+        <div class="overzicht-uur-balk-track"><div class="overzicht-uur-balk-vulling" style="width:${Math.round(data.perUur[u] / maxPerUur * 100)}%"></div></div>
+        <span class="overzicht-uur-aantal">${data.perUur[u]}</span>
+      </div>`).join('') : '<div class="overzicht-leeg">Nog geen aanmeldingen op deze dag.</div>';
 
     document.getElementById('dagoverzicht-body').innerHTML = `
+      <div class="overzicht-mini-titel" style="margin-top:0">🛠️ Operationeel — voor medewerkers</div>
       <div class="overzicht-stats-grid">
-        <div class="overzicht-stat-card">
-          <div class="overzicht-stat-value">${data.totaal}</div>
-          <div class="overzicht-stat-label">Afgehandelde klanten</div>
-        </div>
         <div class="overzicht-stat-card">
           <div class="overzicht-stat-value">${isVandaag ? data.nogWachtend : '—'}</div>
           <div class="overzicht-stat-label">Nog in wachtrij</div>
         </div>
         <div class="overzicht-stat-card">
           <div class="overzicht-stat-value">${data.totaal > 0 ? data.gemiddelde + ' min' : '—'}</div>
-          <div class="overzicht-stat-label">Gemiddelde wachttijd</div>
+          <div class="overzicht-stat-label">Actuele/gem. wachttijd</div>
+        </div>
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${isVandaag && data.langstOpenstaandeSameDayUren !== null ? data.langstOpenstaandeSameDayUren + ' u' : '—'}</div>
+          <div class="overzicht-stat-label">Langst open same-day</div>
+        </div>
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${data.sameDayOpen}/${data.sameDayBehandeling}/${data.sameDayKlaar}</div>
+          <div class="overzicht-stat-label">Same-day: open/bezig/klaar</div>
+        </div>
+      </div>
+
+      <div class="overzicht-mini-titel">📈 Managementsamenvatting</div>
+      <div class="overzicht-stats-grid">
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${data.totaalAangemeld}</div>
+          <div class="overzicht-stat-label">Totaal aangemeld</div>
+        </div>
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${data.totaal}</div>
+          <div class="overzicht-stat-label">Afgehandeld</div>
+        </div>
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${data.totaal > 0 ? data.gemiddeldeBehandeltijd + ' min' : '—'}</div>
+          <div class="overzicht-stat-label">Gem. behandeltijd</div>
         </div>
         <div class="overzicht-stat-card">
           <div class="overzicht-stat-value">${data.totaal > 0 ? data.langsteMinuten + ' min' : '—'}</div>
           <div class="overzicht-stat-label">Langste wachttijd</div>
         </div>
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${data.totaal > 0 ? data.mediaanWachttijd + ' min' : '—'}</div>
+          <div class="overzicht-stat-label">Mediaan wachttijd</div>
+        </div>
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${data.totaal > 0 ? data.percentageBovenDrempel + '%' : '—'}</div>
+          <div class="overzicht-stat-label">Boven ${WACHTTIJD_DOELSTELLING_MIN} min</div>
+        </div>
       </div>
-      <div class="overzicht-mini-titel">Per type bezoek</div>
+
+      ${gisteren ? `
+        <div class="overzicht-vergelijking">
+          T.o.v. gisteren: ${data.totaal} vs ${gisteren.totaal} afgehandeld
+          (${data.totaal >= gisteren.totaal ? '+' : ''}${data.totaal - gisteren.totaal}),
+          gem. wachttijd ${data.gemiddelde} vs ${gisteren.gemiddelde} min.
+        </div>` : ''}
+
+      <div class="overzicht-mini-titel">Per type bezoek (aantal · gem. wachttijd)</div>
       <div>
         ${Object.keys(TYPE_LABELS_OVERZICHT).map(t => `
-          <div class="overzicht-type-row"><span>${TYPE_LABELS_OVERZICHT[t]}</span><strong>${data.perType[t] || 0}</strong></div>
+          <div class="overzicht-type-row"><span>${TYPE_LABELS_OVERZICHT[t]}</span><strong>${data.perType[t] || 0}${data.wachttijdPerType[t] !== null ? ' · ' + data.wachttijdPerType[t] + ' min' : ''}</strong></div>
         `).join('')}
       </div>
+
+      <div class="overzicht-mini-titel">Drukte per uur${data.druksteUur !== null ? ` — drukste: ${String(data.druksteUur).padStart(2, '0')}:00 (${data.druksteUurAantal})` : ''}</div>
+      <div>${uurGrafiekHtml}</div>
+
+      ${(data.sameDayGemTotStart !== null || data.sameDayGemReparatietijd !== null) ? `
+        <div class="overzicht-mini-titel">Same-day-doorlooptijden</div>
+        <div>
+          ${data.sameDayGemTotStart !== null ? `<div class="overzicht-type-row"><span>Gem. tijd tot start</span><strong>${data.sameDayGemTotStart} min</strong></div>` : ''}
+          ${data.sameDayGemReparatietijd !== null ? `<div class="overzicht-type-row"><span>Gem. reparatietijd</span><strong>${data.sameDayGemReparatietijd} min</strong></div>` : ''}
+        </div>` : ''}
+
+      ${data.sameDayPerTechnician.length > 0 ? `
+        <div class="overzicht-mini-titel">Same-days per technician</div>
+        <div>
+          ${data.sameDayPerTechnician.map(([naam, c]) => `<div class="overzicht-type-row"><span>${escapeHtml(naam)}</span><strong>${c}</strong></div>`).join('')}
+        </div>` : ''}
+
       ${data.perMedewerker.length > 0 ? `
         <div class="overzicht-mini-titel">Per medewerker</div>
         <div>
@@ -2094,20 +2484,175 @@
 
   const DAGEN_VAN_DE_WEEK = ['zondag', 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag'];
 
-  // ── CSV-export: bewust GEEN klantnaam (AVG) — alleen niet-herleidbare
-  // informatie die al elders in de app zichtbaar is. ──
+  // ── CSV-export: vijf logische, losse bestanden i.p.v. één onoverzichtelijk
+  // bestand — elk gericht op een ander analysedoel. Bewust GEEN klantnaam
+  // (AVG) — alleen niet-herleidbare informatie die al elders zichtbaar is. ──
   function exporteerDagoverzichtCsv() {
     const datumVoorExport = dagoverzichtDatum || huidigeDatumString();
     const data = berekenDagoverzicht(datumVoorExport);
-    const kolommen = ['type', 'dag_van_week', 'aanmeldtijd', 'afgerondtijd', 'wachttijd_minuten', 'medewerker', 'behandelaar'];
-    const rijen = data.lijst.map(e => {
+
+    // 1) Samenvatting — kerncijfers, klaar voor een draaitabel/dashboard.
+    downloadCsv(
+      'kpi,waarde\n' + [
+        ['datum', datumVoorExport], ['totaal_aangemeld', data.totaalAangemeld],
+        ['afgehandeld', data.totaal], ['gemiddelde_wachttijd_min', data.gemiddelde],
+        ['mediaan_wachttijd_min', data.mediaanWachttijd], ['langste_wachttijd_min', data.langsteMinuten],
+        ['pct_boven_' + WACHTTIJD_DOELSTELLING_MIN + 'min', data.percentageBovenDrempel],
+        ['gemiddelde_behandeltijd_min', data.gemiddeldeBehandeltijd],
+        ['sameday_openstaand', data.sameDayOpen], ['sameday_in_behandeling', data.sameDayBehandeling],
+        ['sameday_klaar', data.sameDayKlaar],
+      ].map(r => r.map(csvVeld).join(',')).join('\n'),
+      'dagoverzicht-samenvatting-' + datumVoorExport + '.csv'
+    );
+
+    // 2) Klantdoorstroom — één rij per afgehandelde klant, geschikt voor
+    // filtering/draaitabellen in Excel of Sheets.
+    const doorstroomKolommen = ['type', 'dag_van_week', 'aanmeldtijd', 'afgerondtijd', 'wachttijd_minuten', 'medewerker', 'behandelaar'];
+    const doorstroomRijen = data.lijst.map(e => {
       const wachttijd = (e.timestamp && e.afgerondOp) ? Math.round((e.afgerondOp - e.timestamp) / 60000) : '';
       const afgerondTijd = e.afgerondOp ? new Date(e.afgerondOp).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) : '';
       const dagVanWeek = e.afgerondOp ? DAGEN_VAN_DE_WEEK[new Date(e.afgerondOp).getDay()] : '';
       const typeLabel = TYPE_LABELS_OVERZICHT[e.type] || e.type;
       return [typeLabel, dagVanWeek, e.tijd, afgerondTijd, wachttijd, normaliseerMedewerkerNaam(e.medewerker) || e.medewerker || '', matchMedewerkerNaam(e.behandelaar) || e.behandelaar || ''].map(csvVeld).join(',');
     });
-    downloadCsv(kolommen.join(',') + '\n' + rijen.join('\n'), 'dagoverzicht-' + datumVoorExport + '.csv');
+    downloadCsv(doorstroomKolommen.join(',') + '\n' + doorstroomRijen.join('\n'), 'klantdoorstroom-' + datumVoorExport + '.csv');
+
+    // 3) Wachttijd-analyse per bezoektype.
+    const wachttijdRijen = Object.keys(TYPE_LABELS_OVERZICHT).map(t =>
+      [t, data.perType[t] || 0, data.wachttijdPerType[t] !== null ? data.wachttijdPerType[t] : ''].map(csvVeld).join(',')
+    );
+    downloadCsv('type,aantal,gemiddelde_wachttijd_min\n' + wachttijdRijen.join('\n'), 'wachttijd-analyse-' + datumVoorExport + '.csv');
+
+    // 4) Tijdblokken en drukte.
+    const uren = Object.keys(data.perUur).map(Number).sort((a, b) => a - b);
+    const uurRijen = uren.map(u => [String(u).padStart(2, '0') + ':00', data.perUur[u]].map(csvVeld).join(','));
+    downloadCsv('uur,aantal_aanmeldingen\n' + uurRijen.join('\n'), 'tijdblokken-en-drukte-' + datumVoorExport + '.csv');
+
+    // 5) Same-day-overzicht — alleen als er die dag same-days waren.
+    if (data.sameDayOpen + data.sameDayBehandeling + data.sameDayKlaar > 0) {
+      downloadCsv(
+        'status,aantal\nopenstaand,' + data.sameDayOpen + '\nin_behandeling,' + data.sameDayBehandeling + '\nklaar,' + data.sameDayKlaar +
+        (data.sameDayGemTotStart !== null ? '\ngemiddelde_tijd_tot_start_min,' + data.sameDayGemTotStart : '') +
+        (data.sameDayGemReparatietijd !== null ? '\ngemiddelde_reparatietijd_min,' + data.sameDayGemReparatietijd : ''),
+        'same-day-overzicht-' + datumVoorExport + '.csv'
+      );
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — Professioneel PDF-rapport
+  // Bouwt een volledig opgemaakt rapport (branding, samenvatting, tabellen,
+  // aandachtspunten) en gebruikt daarna de browser-eigen "Afdrukken →
+  // Opslaan als PDF"-functie. Geen klantnamen of andere persoonsgegevens
+  // in dit rapport — uitsluitend geaggregeerde aantallen en tijden.
+  // ══════════════════════════════════════════════════════════════════
+  function exporteerDagoverzichtPdf() {
+    const datumVoorExport = dagoverzichtDatum || huidigeDatumString();
+    const isVandaag = datumVoorExport === huidigeDatumString();
+    const data = berekenDagoverzicht(datumVoorExport);
+    const gisteren = isVandaag ? berekenGisterenVergelijking(datumVoorExport) : null;
+    const [j, m, d] = datumVoorExport.split('-').map(Number);
+    const datumLeesbaar = new Date(j, m - 1, d).toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const nu = new Date();
+    const gegenereerdOp = nu.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }) + ' om ' + nu.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+
+    // Korte, regelgebaseerde aandachtspunten — geen AI-gegenereerde tekst,
+    // gewoon eenvoudige, uitlegbare drempelwaarden op de berekende cijfers.
+    const inzichten = [];
+    if (data.langstOpenstaandeSameDayUren !== null && Number(data.langstOpenstaandeSameDayUren) > 4) {
+      inzichten.push(`Er staat een same-day-reparatie al ${data.langstOpenstaandeSameDayUren} uur open — controleer of deze nog op tijd afkomt.`);
+    }
+    if (gisteren && gisteren.totaal > 3 && data.totaal < gisteren.totaal * 0.7) {
+      inzichten.push(`Merkbaar minder klanten afgehandeld dan gisteren (${data.totaal} vs ${gisteren.totaal}).`);
+    }
+    if (data.druksteUur !== null) {
+      inzichten.push(`Drukste moment van de dag: rond ${String(data.druksteUur).padStart(2, '0')}:00 (${data.druksteUurAantal} aanmeldingen).`);
+    }
+    if (inzichten.length === 0) inzichten.push('Geen bijzondere aandachtspunten voor deze dag.');
+
+    const uren = Object.keys(data.perUur).map(Number).sort((a, b) => a - b);
+    const kortTypeLabel = (t) => TYPE_LABELS_OVERZICHT[t].replace(/^\S+\s/, ''); // emoji eraf voor het rapport
+
+    document.getElementById('pdf-rapport-container').innerHTML = `
+      <div class="pdf-header">
+        <img src="Amac_Logo.svg" class="pdf-logo" alt="Amac">
+        <div>
+          <div class="pdf-titel">Dagoverzicht — Amac</div>
+          <div class="pdf-sub">${datumLeesbaar}</div>
+        </div>
+      </div>
+      <div class="pdf-meta">Gegenereerd op ${gegenereerdOp}</div>
+
+      <div class="pdf-sectie-titel">Samenvatting</div>
+      <p class="pdf-summary">
+        Op ${datumLeesbaar} werden <strong>${data.totaalAangemeld}</strong> klanten aangemeld en
+        <strong>${data.totaal}</strong> afgehandeld, met een gemiddelde wachttijd van
+        <strong>${data.totaal > 0 ? data.gemiddelde + ' minuten' : 'n.v.t.'}</strong> en een gemiddelde
+        behandeltijd van <strong>${data.totaal > 0 ? data.gemiddeldeBehandeltijd + ' minuten' : 'n.v.t.'}</strong>.
+        ${(data.sameDayOpen + data.sameDayBehandeling + data.sameDayKlaar) > 0
+          ? `Er waren <strong>${data.sameDayOpen + data.sameDayBehandeling + data.sameDayKlaar}</strong> same-day-reparaties, waarvan <strong>${data.sameDayKlaar}</strong> afgerond.`
+          : 'Er waren geen same-day-reparaties op deze dag.'}
+      </p>
+
+      <div class="pdf-sectie-titel">Kerncijfers</div>
+      <table class="pdf-tabel">
+        <tr><td>Totaal aangemeld</td><td>${data.totaalAangemeld}</td></tr>
+        <tr><td>Afgehandeld</td><td>${data.totaal}</td></tr>
+        <tr><td>Nog in wachtrij (op moment van export)</td><td>${isVandaag ? data.nogWachtend : '—'}</td></tr>
+        <tr><td>Gemiddelde wachttijd</td><td>${data.totaal > 0 ? data.gemiddelde + ' min' : '—'}</td></tr>
+        <tr><td>Mediaan wachttijd</td><td>${data.totaal > 0 ? data.mediaanWachttijd + ' min' : '—'}</td></tr>
+        <tr><td>% boven ${WACHTTIJD_DOELSTELLING_MIN} min doelstelling</td><td>${data.totaal > 0 ? data.percentageBovenDrempel + '%' : '—'}</td></tr>
+        <tr><td>Gemiddelde behandeltijd</td><td>${data.totaal > 0 ? data.gemiddeldeBehandeltijd + ' min' : '—'}</td></tr>
+        <tr><td>Langste wachttijd</td><td>${data.totaal > 0 ? data.langsteMinuten + ' min' : '—'}</td></tr>
+      </table>
+
+      <div class="pdf-sectie-titel">Per type bezoek</div>
+      <table class="pdf-tabel">
+        ${Object.keys(TYPE_LABELS_OVERZICHT).map(t => `<tr><td>${kortTypeLabel(t)}</td><td>${data.perType[t] || 0}</td></tr>`).join('')}
+      </table>
+
+      <div class="pdf-sectie-titel">Same-day-statusverdeling</div>
+      ${(() => {
+        const sdMax = Math.max(1, data.sameDayOpen, data.sameDayBehandeling, data.sameDayKlaar);
+        const sdBalk = (label, waarde) => `
+          <div class="pdf-grafiek-rij">
+            <span class="pdf-grafiek-label">${label}</span>
+            <div class="pdf-grafiek-track"><div class="pdf-grafiek-vulling" style="width:${Math.round(waarde / sdMax * 100)}%"></div></div>
+            <span class="pdf-grafiek-waarde">${waarde}</span>
+          </div>`;
+        return sdBalk('Openstaand', data.sameDayOpen) + sdBalk('In behandeling', data.sameDayBehandeling) + sdBalk('Klaar', data.sameDayKlaar);
+      })()}
+      ${(data.sameDayGemTotStart !== null || data.sameDayGemReparatietijd !== null) ? `
+        <table class="pdf-tabel" style="margin-top:6px">
+          ${data.sameDayGemTotStart !== null ? `<tr><td>Gemiddelde tijd tot start</td><td>${data.sameDayGemTotStart} min</td></tr>` : ''}
+          ${data.sameDayGemReparatietijd !== null ? `<tr><td>Gemiddelde reparatietijd</td><td>${data.sameDayGemReparatietijd} min</td></tr>` : ''}
+        </table>` : ''}
+
+      ${data.perMedewerker.length > 0 ? `
+        <div class="pdf-sectie-titel">Per medewerker</div>
+        <table class="pdf-tabel">
+          ${data.perMedewerker.map(([n, c]) => `<tr><td>${escapeHtml(n)}</td><td>${c}</td></tr>`).join('')}
+        </table>` : ''}
+
+      ${uren.length > 0 ? `
+        <div class="pdf-sectie-titel">Drukte per tijdsblok</div>
+        ${(() => {
+          const uMax = Math.max(1, ...uren.map(u => data.perUur[u]));
+          return uren.map(u => `
+            <div class="pdf-grafiek-rij">
+              <span class="pdf-grafiek-label">${String(u).padStart(2, '0')}:00</span>
+              <div class="pdf-grafiek-track"><div class="pdf-grafiek-vulling" style="width:${Math.round(data.perUur[u] / uMax * 100)}%"></div></div>
+              <span class="pdf-grafiek-waarde">${data.perUur[u]}</span>
+            </div>`).join('');
+        })()}` : ''}
+
+      <div class="pdf-sectie-titel">Aandachtspunten</div>
+      <ul class="pdf-inzichten">${inzichten.map(i => `<li>${i}</li>`).join('')}</ul>
+
+      <div class="pdf-footer">Amac Wachtrij-systeem — geaggregeerde bedrijfscijfers, geen persoonlijke klantgegevens opgenomen in dit rapport.</div>
+    `;
+
+    window.print();
   }
 
   // ══════════════════════════════════════════════════════════════════
@@ -2370,6 +2915,18 @@
     this.value = formatRepnr(this.value);
   });
 
+  // ── NIEUW: Enter-toetsondersteuning in de same-day-aanmaakflow ──
+  // Zelfde patroon als elders in de app (bijv. de chat-invoer): Enter
+  // schakelt door naar het volgende veld i.p.v. een formulier te versturen.
+  // Enter na reparatienummer → springt naar technician-keuze.
+  elSameDayRepnrInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); elSameDayTechnicianSelect.focus(); }
+  });
+  // Enter na technician-keuze → bevestigt direct (zelfde als op de knop klikken).
+  elSameDayTechnicianSelect.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); bevestigSameDayRepnr(); }
+  });
+
   function selectZoek(val) {
     selectedZoek = val;
     document.querySelectorAll('.zoek-option').forEach(el => el.classList.remove('selected'));
@@ -2402,7 +2959,18 @@
   // Pas ALLEEN dit pad aan om het geluid te wijzigen — de rest van de app
   // hoeft nergens anders aangepast te worden. Bestand moet op deze plek
   // relatief t.o.v. dit HTML-bestand staan (zie map "sounds/").
-  const MELDING_GELUID = 'sounds/melding.mp3';
+  // ── MP3-meldingsgeluid ──
+  // Pas dit lijstje aan om het geluid te wijzigen: de app probeert deze
+  // bestanden op volgorde en gebruikt het eerste dat succesvol laadt. Dat
+  // vangt de meest voorkomende oorzaak van "geluid werkt niet" af: het
+  // bestand staat nog onder zijn originele, lange naam op de server in
+  // plaats van hernoemd naar "melding.mp3". Beide moeten in de map
+  // "sounds/" staan, relatief t.o.v. dit HTML-bestand.
+  const MELDING_GELUID_KANDIDATEN = [
+    'sounds/melding.mp3',
+    'sounds/freesound_community-071612_hotel-bell-39128.mp3',
+  ];
+  let meldingGeluidIndex = 0;
 
   let audioMeldingenAan = localStorage.getItem('amacAudioMeldingen') !== 'uit';
 
@@ -2456,20 +3024,64 @@
   // Eén <audio>-element, hergebruikt (niet elke keer opnieuw aangemaakt) —
   // preload zorgt dat het bestand al klaarstaat zodra de eerste melding komt.
   let meldingAudioEl = null;
+
+  // ── BUGFIX: geluid "werkt niet" zonder duidelijke reden ──
+  // Voorheen faalde een ontbrekend/verkeerd geluidsbestand volledig
+  // onzichtbaar (alleen een console.warn). Nu detecteren we een laadfout
+  // expliciet via het 'error'-event van het <audio>-element, tonen dat
+  // direct via een statusstip op de knop zelf (geen popover nodig om het te
+  // zien) én in de instellingen-popover, én proberen we automatisch de
+  // volgende kandidaat-bestandsnaam als de eerste niet gevonden wordt.
   function getMeldingAudio() {
     if (!meldingAudioEl) {
-      meldingAudioEl = new Audio(MELDING_GELUID);
+      meldingAudioEl = new Audio(MELDING_GELUID_KANDIDATEN[meldingGeluidIndex]);
       meldingAudioEl.preload = 'auto';
+      meldingAudioEl.addEventListener('canplaythrough', () => zetGeluidStatus('ok'), { once: true });
+      meldingAudioEl.addEventListener('error', () => {
+        if (meldingGeluidIndex < MELDING_GELUID_KANDIDATEN.length - 1) {
+          // Volgende kandidaat-bestandsnaam proberen, zonder de gebruiker
+          // lastig te vallen met een tussentijdse foutmelding.
+          meldingGeluidIndex++;
+          meldingAudioEl = null;
+          getMeldingAudio();
+        } else {
+          zetGeluidStatus('fout');
+        }
+      }, { once: true });
     }
     return meldingAudioEl;
   }
+
+  function zetGeluidStatus(status) {
+    const hint = document.getElementById('geluid-status-hint');
+    const dot = document.getElementById('geluid-status-dot');
+    if (status === 'fout') {
+      if (hint) {
+        hint.textContent = '⚠ Geen van de geluidsbestanden gevonden. Controleer of het bestand in de map "sounds/" staat, met exact de juiste naam.';
+        hint.style.color = 'var(--danger)';
+      }
+      if (dot) { dot.classList.remove('status-ok'); dot.classList.add('status-fout'); dot.title = 'Geluidsbestand niet gevonden — klik voor details'; }
+    } else {
+      if (hint) {
+        hint.textContent = 'Op 100% klinkt de melding duidelijk hard — handig in een drukke winkel.';
+        hint.style.color = '';
+      }
+      if (dot) { dot.classList.remove('status-fout'); dot.classList.add('status-ok'); dot.title = 'Geluidsbestand geladen'; }
+    }
+  }
+
+  // Meteen bij het laden van de pagina proberen te laden (niet pas bij de
+  // eerste melding) — zo weet je al vóór er iets misgaat of het bestand klopt.
+  getMeldingAudio();
 
   // Browsers blokkeren geluid totdat de gebruiker één keer ergens op de
   // pagina heeft geklikt/getikt — dit ontgrendelt het geluid meteen bij die
   // eerste klik, zodat latere automatische meldingen niet alsnog falen.
   window.addEventListener('click', function ontgrendelAudio() {
     const el = getMeldingAudio();
-    el.play().then(() => { el.pause(); el.currentTime = 0; }).catch(() => {});
+    el.play().then(() => { el.pause(); el.currentTime = 0; }).catch((err) => {
+      console.warn('[Amac Wachtrij] Geluid ontgrendelen mislukt:', err.message);
+    });
     window.removeEventListener('click', ontgrendelAudio);
   }, { once: true });
 
@@ -2480,8 +3092,21 @@
     el.currentTime = 0;
     el.play().catch((err) => {
       // Autoplay-blokkade of ontbrekend bestand — nooit de app breken,
-      // alleen loggen zodat het te diagnosticeren is.
+      // maar nu ook zichtbaar via zetGeluidStatus() als het om een
+      // laadfout gaat (dat event vuurt los van deze catch).
       console.warn('[Amac Wachtrij] Geluid kon niet afspelen:', err.message);
+    });
+  }
+
+  // Losse, expliciete testknop in de instellingen-popover — direct
+  // hoorbare/zichtbare feedback, ongeacht de aan/uit-stand van meldingen.
+  function testMeldingGeluid() {
+    const el = getMeldingAudio();
+    el.volume = meldingVolume / 100 || 0.65;
+    el.currentTime = 0;
+    el.play().catch((err) => {
+      zetGeluidStatus('fout');
+      console.warn('[Amac Wachtrij] Testgeluid mislukt:', err.message);
     });
   }
 
@@ -2518,12 +3143,32 @@
   // ══════════════════════════════════════════════════════════════════
   let sameDayItems = [];
 
+  // ── NIEUW: same-day-kolom in-/uitklappen ──
+  // Vooral nuttig op mobiel/tablet, waar de gestapelde kolom anders veel
+  // verticale ruimte onder de wachtrij inneemt. Onthoudt niets tussen
+  // sessies (bewust simpel gehouden) — staat bij elk bezoek weer standaard
+  // uitgeklapt.
+  let sameDayIngeklapt = false;
+  function toggleSameDayInklap() {
+    sameDayIngeklapt = !sameDayIngeklapt;
+    document.getElementById('sameday-panel').classList.toggle('ingeklapt', sameDayIngeklapt);
+    document.getElementById('sameday-inklap-pijl').classList.toggle('ingeklapt', sameDayIngeklapt);
+  }
+
   function renderSameDayPanel() {
+    // ── Sortering: altijd op aanmeldtijd, oudste bovenaan binnen de status ──
+    // Expliciet gesorteerd op het aangemaaktOp-tijdstempel (niet impliciet
+    // vertrouwd op Firebase-key- of rendervolgorde), zodat de oudste
+    // openstaande reparatie betrouwbaar en op elk apparaat hetzelfde
+    // bovenaan staat — cruciaal voor technicians die willen weten wat het
+    // eerst moet.
+    const sorteerOpAanmeldtijd = (a, b) => (a.aangemaaktOp || 0) - (b.aangemaaktOp || 0);
+
     // Items zonder status-veld (aangemaakt vóór deze update) tellen als
     // "openstaand" — zo raakt geen bestaande data onzichtbaar.
-    const open        = sameDayItems.filter(e => !e.status || e.status === 'openstaand');
-    const behandeling = sameDayItems.filter(e => e.status === 'in-behandeling');
-    const klaar       = sameDayItems.filter(e => e.status === 'afgehandeld');
+    const open        = sameDayItems.filter(e => !e.status || e.status === 'openstaand').sort(sorteerOpAanmeldtijd);
+    const behandeling = sameDayItems.filter(e => e.status === 'in-behandeling').sort(sorteerOpAanmeldtijd);
+    const klaar       = sameDayItems.filter(e => e.status === 'afgehandeld').sort(sorteerOpAanmeldtijd);
 
     // ── BUGFIX (eerdere ronde): de hele kolom (incl. titel) moet samen
     // tonen/verbergen, nooit alleen de inhoud — anders ontstaat een leeg
@@ -2536,49 +3181,165 @@
     }
     elSameDayZijkolom.classList.add('zichtbaar');
 
-    // Klant + reparatienummer + status via kleur/positie — bewust GEEN type
-    // bezoek, probleemomschrijving of reparateursnaam (voorkomt onrust/
-    // ruis, zoals gevraagd).
-    const rijHtml = (e, actieHtml) => `
-      <div class="sameday-rij">
-        <div class="sameday-rij-info">
-          <span class="sameday-naam">${escapeHtml(e.naam)}</span>
-          ${fixablyRepnrTagHtml(e.repnr) || '<span class="tag tag-repnr">Geen rep.nr</span>'}
-        </div>
-        <div class="sameday-acties">
-          ${actieHtml}
-          <button type="button" class="btn-sameday-verwijder" onclick="verwijderSameDayItem('${e.key}')" title="Verwijderen uit same-day-overzicht">✕</button>
-        </div>
-      </div>`;
+    // Klant + reparatienummer + status via badge én kleur + technician
+    // (altijd zichtbaar, met een snelle inline-dropdown om 'm direct te
+    // wijzigen zonder de volledige bewerkmodus te hoeven openen) — bewust
+    // GEEN type bezoek of probleemomschrijving (voorkomt onrust/ruis).
+    //
+    // ── NIEUW: bewerkbaarheid ── Zelfde patroon als de gewone klantkaarten
+    // (editingKey/startEdit/saveEdit/cancelEdit): sameDayEditingKey bepaalt
+    // of DEZE rij als bewerkformulier of als normale weergave rendert.
+    const rijHtml = (e, actieHtml, statusLabel) => {
+      if (e.key === sameDayEditingKey) {
+        return `
+          <div class="sameday-rij">
+            <div class="sameday-edit-form">
+              <input type="text" class="sameday-edit-input" id="sameday-edit-naam-${e.key}" value="${escapeHtml(e.naam)}" placeholder="Naam klant" />
+              <input type="text" class="sameday-edit-input" id="sameday-edit-repnr-${e.key}" value="${escapeHtml(formatRepnr(e.repnr || ''))}" placeholder="Reparatienummer (optioneel)" inputmode="numeric" maxlength="9" />
+              <select class="sameday-edit-input" id="sameday-edit-technician-${e.key}">
+                <option value="">— Nog niet toegewezen —</option>
+                ${TECHNICIANS.map(t => `<option value="${t}" ${e.technician === t ? 'selected' : ''}>${t}</option>`).join('')}
+              </select>
+              <div class="sameday-edit-acties">
+                <button type="button" class="btn-sameday-actie" onclick="saveEditSameDay('${e.key}')">Opslaan</button>
+                <button type="button" class="btn-sameday-verwijder-groot" onclick="cancelEditSameDay()">Annuleren</button>
+              </div>
+            </div>
+          </div>`;
+      }
+      return `
+        <div class="sameday-rij">
+          <div class="sameday-rij-top">
+            <span class="sameday-naam">${escapeHtml(e.naam)}</span>
+            <span class="sameday-status-badge">${statusLabel}</span>
+          </div>
+          <div class="sameday-rij-mid">
+            ${fixablyRepnrTagHtml(e.repnr) || '<span class="tag tag-repnr">Geen rep.nr</span>'}
+          </div>
+          <!-- Technician: altijd zichtbaar als snelle dropdown, direct te
+               wijzigen zonder de kaart eerst in bewerkmodus te zetten. -->
+          <label class="sameday-technician-rij">
+            <span>👤</span>
+            <select class="sameday-technician-quickselect" onchange="wijzigTechnicianSnel('${e.key}', this.value)">
+              <option value="">— Nog niet toegewezen —</option>
+              ${TECHNICIANS.map(t => `<option value="${t}" ${e.technician === t ? 'selected' : ''}>${t}</option>`).join('')}
+            </select>
+          </label>
+          <div class="sameday-acties-groot">
+            ${actieHtml}
+            <button type="button" class="btn-sameday-bewerk-groot" onclick="startEditSameDay('${e.key}')" title="Naam en reparatienummer bewerken">✎ Bewerken</button>
+            <button type="button" class="btn-sameday-verwijder-groot" onclick="verwijderSameDayItem('${e.key}')" title="Definitief verwijderen uit het overzicht">✕</button>
+          </div>
+        </div>`;
+    };
 
     elSameDayGroepOpen.classList.toggle('zichtbaar', open.length > 0);
     elSameDayCountOpen.textContent = open.length;
     elSameDayLijstOpen.innerHTML = open.map(e => rijHtml(e,
-      `<button type="button" class="btn-sameday-actie" onclick="startSameDayReparatie('${e.key}')">Start</button>`
+      `<button type="button" class="btn-sameday-actie-groot" onclick="startSameDayReparatie('${e.key}')">▶ Start</button>`,
+      'Openstaand'
     )).join('');
 
     elSameDayGroepBehandeling.classList.toggle('zichtbaar', behandeling.length > 0);
     elSameDayCountBehandeling.textContent = behandeling.length;
     elSameDayLijstBehandeling.innerHTML = behandeling.map(e => rijHtml(e,
-      `<button type="button" class="btn-sameday-actie" onclick="voltooiSameDayReparatie('${e.key}')">Klaar</button>`
+      `<button type="button" class="btn-sameday-actie-groot" onclick="voltooiSameDayReparatie('${e.key}')">✓ Klaar</button>`,
+      'In behandeling'
     )).join('');
 
     elSameDayGroepKlaar.classList.toggle('zichtbaar', klaar.length > 0);
     elSameDayCountKlaar.textContent = klaar.length;
-    elSameDayLijstKlaar.innerHTML = klaar.map(e => rijHtml(e, '')).join('');
+    elSameDayLijstKlaar.innerHTML = klaar.map(e => rijHtml(e, '', 'Klaar')).join('');
+
+    // ── NIEUW: Enter-toetsondersteuning + live repnr-opmaak in het
+    // bewerkformulier — alleen aankoppelen als er daadwerkelijk een kaart
+    // in bewerking is (dat element bestaat dan pas net, na de innerHTML
+    // hierboven). Naam → Enter → repnr → Enter → technician → Enter → opslaan.
+    if (sameDayEditingKey !== null) {
+      const naamEl = document.getElementById('sameday-edit-naam-' + sameDayEditingKey);
+      const repnrEl = document.getElementById('sameday-edit-repnr-' + sameDayEditingKey);
+      const technicianEl = document.getElementById('sameday-edit-technician-' + sameDayEditingKey);
+      if (repnrEl) {
+        repnrEl.addEventListener('input', function () { this.value = formatRepnr(this.value); });
+      }
+      if (naamEl && repnrEl) {
+        naamEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); repnrEl.focus(); } });
+      }
+      if (repnrEl && technicianEl) {
+        repnrEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); technicianEl.focus(); } });
+      }
+      if (technicianEl) {
+        technicianEl.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); saveEditSameDay(sameDayEditingKey); } });
+      }
+    }
+  }
+
+  // ── NIEUW: bewerken van een same-day-kaart (naam, repnr, technician) ──
+  // Zelfde optimistische-update-patroon als saveEdit() voor de gewone
+  // klantkaarten: direct lokaal bijwerken + tonen, Firebase-write erna met
+  // zichtbare foutmelding als die onverhoopt mislukt.
+  let sameDayEditingKey = null;
+
+  // ── NIEUW: technician direct wijzigen vanaf de kaart zelf ──
+  // Sneller dan eerst de volledige bewerkmodus openen — vooral handig omdat
+  // de technician regelmatig pas ná het aanmaken bekend wordt of wisselt.
+  function wijzigTechnicianSnel(key, technician) {
+    const item = sameDayItems.find(e => e.key === key);
+    if (item) item.technician = technician; // optimistisch, voelt meteen aan
+    sameDayRef.child(key).update({ technician }).catch((err) => {
+      console.error('[Amac Wachtrij] Technician wijzigen mislukt:', err);
+      alert('Technician wijzigen is niet gelukt: ' + err.message);
+    });
+  }
+
+  function startEditSameDay(key) {
+    sameDayEditingKey = key;
+    renderSameDayPanel();
+  }
+
+  function cancelEditSameDay() {
+    sameDayEditingKey = null;
+    renderSameDayPanel();
+  }
+
+  function saveEditSameDay(key) {
+    const naamEl = document.getElementById('sameday-edit-naam-' + key);
+    const repnrEl = document.getElementById('sameday-edit-repnr-' + key);
+    const technicianEl = document.getElementById('sameday-edit-technician-' + key);
+
+    const naam = naamEl.value.trim();
+    if (!naam) { naamEl.focus(); return; } // naam mag nooit leeg worden
+
+    const updates = {
+      naam,
+      repnr: formatRepnr(repnrEl.value.trim()),
+      technician: technicianEl.value || '',
+    };
+
+    const item = sameDayItems.find(e => e.key === key);
+    if (item) Object.assign(item, updates);
+    sameDayEditingKey = null;
+    renderSameDayPanel();
+
+    sameDayRef.child(key).update(updates).catch((err) => {
+      console.error('[Amac Wachtrij] Same-day-item bewerken mislukt:', err);
+      alert('Opslaan is niet gelukt: ' + err.message);
+    });
   }
 
   // Zet een same-day-reparatie van "openstaand" naar "in behandeling".
+  // NIEUW: startOp vastgelegd — nodig voor "gemiddelde tijd tot start".
   function startSameDayReparatie(key) {
-    sameDayRef.child(key).update({ status: 'in-behandeling' }).catch((err) => {
+    sameDayRef.child(key).update({ status: 'in-behandeling', startOp: Date.now() }).catch((err) => {
       console.error('[Amac Wachtrij] Same-day-status bijwerken mislukt:', err);
       alert('Status bijwerken is niet gelukt: ' + err.message);
     });
   }
 
   // Zet een same-day-reparatie van "in behandeling" naar "afgehandeld".
+  // NIEUW: klaarOp vastgelegd — nodig voor "gemiddelde reparatietijd".
   function voltooiSameDayReparatie(key) {
-    sameDayRef.child(key).update({ status: 'afgehandeld' }).catch((err) => {
+    sameDayRef.child(key).update({ status: 'afgehandeld', klaarOp: Date.now() }).catch((err) => {
       console.error('[Amac Wachtrij] Same-day-status bijwerken mislukt:', err);
       alert('Status bijwerken is niet gelukt: ' + err.message);
     });
@@ -2758,9 +3519,16 @@
     }
     clearError(veldId);
     const naam = medewerkerNaam.trim();
+    // NIEUW: behandelStartOp — apart tijdstempel van "wanneer begon de
+    // daadwerkelijke behandeling", los van de aanmeldtijd. Hiermee kan het
+    // dagoverzicht straks "gemiddelde behandeltijd" tonen (hoe lang duurt
+    // het werk zelf) los van "gemiddelde wachttijd" (hoe lang moest de
+    // klant wachten vóórdat iemand begon) — twee verschillende, elk
+    // bruikbare operationele inzichten.
     dbRef.child(key).update({
       behandelaar: naam,
-      status: 'in-behandeling'
+      status: 'in-behandeling',
+      behandelStartOp: Date.now(),
     });
     if (MEDEWERKERS.includes(naam)) triggerEmployeeRain(naam);
   }
@@ -2773,10 +3541,10 @@
   // same-day-concept.
   //
   // Flow: klik op "Gedaan" → (bij Ongepland) modal "Is dit same-day?" →
-  // bij "Ja" een tweede modal voor het verplichte reparatienummer → pas na
+  // bij "Ja" een tweede modal voor het (optionele) reparatienummer → pas na
   // bevestigen wordt de klant voltooid ÉN het same-day-item aangemaakt.
-  // Bij "Nee" of "Annuleren" gebeurt er direct (Nee) of helemaal niets
-  // (Annuleren) verder dan het gewone voltooien.
+  // Bij "Nee" gebeurt dat direct, zonder same-day-item. GEEN annuleeroptie
+  // op de ja/nee-vraag: de medewerker moet altijd kiezen.
   // ══════════════════════════════════════════════════════════════════
   let voltooienPendingKey = null;
 
@@ -2795,6 +3563,7 @@
     elSameDayVraagOverlay.classList.remove('open');
     elSameDayRepnrOverlay.classList.add('open');
     elSameDayRepnrInput.value = '';
+    elSameDayTechnicianSelect.value = '';
     clearError('field-sameday-repnr');
     setTimeout(() => elSameDayRepnrInput.focus(), 50);
   }
@@ -2805,22 +3574,22 @@
     voltooienPendingKey = null;
   }
 
-  // Annuleren op de eerste vraag: klant blijft gewoon in behandeling staan,
-  // niets wordt voltooid of opgeslagen.
-  function annuleerSameDayVraag() {
-    elSameDayVraagOverlay.classList.remove('open');
-    voltooienPendingKey = null;
-  }
+  // ── NIEUW: toetsen 1/2 als snelkoppeling voor Ja/Nee ──
+  // Alleen actief zolang de same-day-vraag-modal daadwerkelijk open is —
+  // zo verstoren deze toetsen nergens anders in de app iets. Enter blijft
+  // ongemoeid (er is geen "standaard" keuze om te bevestigen; de medewerker
+  // kiest bewust 1 of 2, of klikt/tikt op de knop).
+  window.addEventListener('keydown', function (e) {
+    if (!elSameDayVraagOverlay.classList.contains('open')) return;
+    if (e.key === '1') { e.preventDefault(); bevestigSameDayJa(); }
+    else if (e.key === '2') { e.preventDefault(); bevestigSameDayNee(); }
+  });
 
-  // Reparatienummer is verplicht om de same-day-reparatie toe te voegen —
-  // zonder geldig nummer wordt de klant ook niet voltooid.
+  // Reparatienummer is NIET meer verplicht — de medewerker kan gewoon
+  // doorgaan als het nummer nog niet bekend is, en het later via de
+  // bewerkfunctie op de same-day-kaart alsnog toevoegen.
   function bevestigSameDayRepnr() {
-    const repnr = elSameDayRepnrInput.value.trim();
-    if (!repnr) {
-      showError('field-sameday-repnr');
-      elSameDayRepnrInput.focus();
-      return;
-    }
+    const repnr = elSameDayRepnrInput.value.trim(); // mag leeg zijn
     clearError('field-sameday-repnr');
 
     const entry = queue.find(e => e.key === voltooienPendingKey);
@@ -2831,7 +3600,8 @@
       // reparatie (zie de drie panelen in renderSameDayPanel()).
       sameDayRef.push({
         naam: entry.naam,
-        repnr: formatRepnr(repnr),
+        repnr: repnr ? formatRepnr(repnr) : '',
+        technician: elSameDayTechnicianSelect.value || '',
         type: entry.type,
         probleem: entry.probleem || '',
         aangemaaktOp: Date.now(),
@@ -2857,13 +3627,50 @@
     voltooienPendingKey = null;
   }
 
-  // Handmatig verwijderen uit het same-day-overzicht — enige manier waarop
-  // een item daar weggaat vóór de automatische opschoning na enkele dagen.
+  // ── NIEUW: herstelbaar verwijderen (undo-toast) ──
+  // Het verwijderen zelf is direct en synct meteen naar alle apparaten
+  // (zo hoort het), maar dit apparaat bewaart de volledige data even lokaal
+  // zodat "Herstellen" de kaart exact kan terugzetten — zelfde naam, repnr,
+  // technician, status én tijdstempel. Omdat de sortering op aangemaaktOp
+  // draait (zie hierboven), komt een herstelde kaart vanzelf weer op de
+  // juiste chronologische plek terecht, zonder dat daar aparte logica voor
+  // nodig is.
+  let laatstVerwijderdSameDay = null;
+  let sameDayToastTimer = null;
+
   function verwijderSameDayItem(key) {
+    const item = sameDayItems.find(e => e.key === key);
+    if (!item) return;
+    const { key: _weg, ...data } = item;
+    laatstVerwijderdSameDay = { key, data };
+
     sameDayRef.child(key).remove().catch((err) => {
       console.error('[Amac Wachtrij] Same-day-item verwijderen mislukt:', err);
       alert('Verwijderen is niet gelukt: ' + err.message);
+      laatstVerwijderdSameDay = null;
     });
+
+    clearTimeout(sameDayToastTimer);
+    document.getElementById('sameday-toast').classList.add('zichtbaar');
+    sameDayToastTimer = setTimeout(() => {
+      document.getElementById('sameday-toast').classList.remove('zichtbaar');
+      laatstVerwijderdSameDay = null; // hersteltermijn voorbij — definitief weg
+    }, 8000);
+  }
+
+  // Zet exact dezelfde data terug onder dezelfde Firebase-key — dat is
+  // precies wat er nodig is voor "dezelfde plaats in de juiste sortering",
+  // want de sortering kijkt naar het (ongewijzigde) aangemaaktOp-veld.
+  function herstelSameDayItem() {
+    if (!laatstVerwijderdSameDay) return;
+    const { key, data } = laatstVerwijderdSameDay;
+    sameDayRef.child(key).set(data).catch((err) => {
+      console.error('[Amac Wachtrij] Same-day-item herstellen mislukt:', err);
+      alert('Herstellen is niet gelukt: ' + err.message);
+    });
+    clearTimeout(sameDayToastTimer);
+    document.getElementById('sameday-toast').classList.remove('zichtbaar');
+    laatstVerwijderdSameDay = null;
   }
 
   function laatVrij(key) {
