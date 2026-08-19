@@ -68,9 +68,9 @@
       gap: 12px;
     }
     .logo {
-      width: 60px;
-      height: 60px;
-      border-radius: 10px;
+      width: 72px;
+      height: 72px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -126,13 +126,20 @@
          beide altijd verticaal precies uitgelijnd, op elke schermbreedte. */
       .header-inner { max-width: 1200px; }
       .wachtrij-layout { flex-direction: row; align-items: flex-start; gap: 20px; }
-      /* Compacte, duidelijk SMALLERE zijkolom — de wachtrij blijft de
-         brede, primaire werkruimte (zie .wachtrij-hoofdkolom hierboven,
-         die automatisch de rest van de breedte opvult). */
-      /* max-height + eigen scroll: bij veel same-day-kaarten groeit de
-         kolom niet eindeloos mee met de pagina, maar scrolt hij intern —
-         essentieel voor "rustig blijven bij veel same-days". */
-      .sameday-zijkolom.zichtbaar { flex: 0 0 280px; max-width: 280px; position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; }
+      /* Zijkolom in PROPORTIE i.p.v. een vaste pixelbreedte: 32% van de
+         beschikbare ruimte, met een boven- en ondergrens. De wachtrij houdt
+         daarmee ~2/3 (blijft de primaire werkruimte), maar de same-day-kolom
+         oogt niet langer als een smal, aangeplakt strookje — en de verhouding
+         blijft kloppen op elke schermbreedte i.p.v. alleen bij 1200px.
+         max-height + eigen scroll: bij veel same-day-kaarten groeit de
+         kolom niet eindeloos mee met de pagina, maar scrolt hij intern. */
+      .sameday-zijkolom.zichtbaar {
+        flex: 0 0 32%;
+        min-width: 300px;
+        max-width: 400px;
+        position: sticky; top: 20px;
+        max-height: calc(100vh - 40px); overflow-y: auto;
+      }
     }
 
     .banner { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; align-items: center; }
@@ -152,17 +159,6 @@
       display: flex; align-items: center; gap: 6px;
       color: white; /* beide sectietitels staan op de donkere achtergrondfoto */
     }
-    /* NIEUW: same-day-titel als inklapbare knop — vooral handig op mobiel/
-       tablet, waar de kolom anders veel verticale ruimte inneemt onder de
-       wachtrij. Werkt op alle schermformaten hetzelfde. */
-    .sameday-inklap-knop {
-      width: 100%; background: none; border: none; cursor: pointer; padding: 0;
-      font-family: inherit;
-    }
-    .sameday-inklap-pijl { transition: transform 0.15s; }
-    .sameday-inklap-pijl.ingeklapt { transform: rotate(-90deg); }
-    #sameday-panel { transition: none; }
-    #sameday-panel.ingeklapt { display: none; }
 
     .card {
       background: var(--card);
@@ -388,16 +384,41 @@
     }
     .sameday-rij-mid { display: flex; }
 
-    /* Technician: altijd een zichtbare, duidelijk afgebakende dropdown —
-       direct wijzigen zonder eerst de bewerkmodus te hoeven openen. */
-    .sameday-technician-rij {
-      display: flex; align-items: center; gap: 6px;
-      background: rgba(0,0,0,0.04); border-radius: 6px; padding: 4px 8px;
-      cursor: pointer;
+    /* Technician-dropdown: label + select in één afgebakend veld. Eigen
+       pijl-icoon (achtergrond-SVG) i.p.v. de standaard browserpijl, die op
+       iOS/Safari anders oogt dan op desktop — zo ziet het er overal hetzelfde
+       uit. Toegewezen state krijgt een gevulde, duidelijk herkenbare stijl. */
+    .sameday-technician-veld {
+      display: flex; align-items: center; gap: 8px;
+      border: 1px solid var(--border); border-radius: 6px;
+      background: var(--card); padding: 0 10px;
+      min-height: 36px; cursor: pointer;
+      transition: border-color 0.12s, background 0.12s;
     }
-    .sameday-technician-quickselect {
-      flex: 1; border: none; background: none; font-size: 12px; font-weight: 600;
-      font-family: inherit; color: var(--text); cursor: pointer; padding: 3px 0;
+    .sameday-technician-veld:hover { border-color: var(--primary); }
+    .sameday-technician-label {
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.04em;
+      flex-shrink: 0; pointer-events: none;
+    }
+    .sameday-technician-select {
+      flex: 1; min-width: 0; border: none; background: transparent;
+      font-size: 12.5px; font-weight: 600; font-family: inherit;
+      color: var(--muted); cursor: pointer; padding: 7px 0;
+      appearance: none; -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23755350' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right center;
+      padding-right: 16px;
+    }
+    /* Toegewezen: blauw gevuld veld — direct te onderscheiden van de nog
+       niet-toegewezen kaarten, zonder de dropdown te hoeven openen. */
+    .sameday-technician-veld.is-toegewezen {
+      background: var(--primary-light); border-color: var(--primary);
+    }
+    .sameday-technician-veld.is-toegewezen .sameday-technician-label { color: var(--primary); }
+    .sameday-technician-veld.is-toegewezen .sameday-technician-select {
+      color: var(--primary); font-weight: 700;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231a3d7c' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
     }
 
     /* Actieknoppen: ruime tikvlakken (min. ~34px hoog), duidelijke labels
@@ -1652,17 +1673,16 @@
          wordt in JS verborgen zolang er geen enkel zichtbaar same-day-item
          is — dus nooit een leeg vak met alleen een titel erin. -->
     <aside class="sameday-zijkolom" id="sameday-zijkolom">
-      <button type="button" class="section-title sameday-inklap-knop" onclick="toggleSameDayInklap()" id="sameday-inklap-knop">
+      <!-- Zelfde .section-title-opbouw als "Actuele wachtrij" hiernaast, zodat
+           beide kolomtitels exact even hoog zijn en de kaarten eronder
+           daardoor op dezelfde lijn beginnen. -->
+      <div class="section-title">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Same-day reparaties
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="sameday-inklap-pijl" id="sameday-inklap-pijl" style="margin-left:auto"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
+      </div>
       <div id="sameday-panel">
-        <!-- NIEUW: drie vaste statusgroepen, in vaste volgorde Klaar → In
-             behandeling → Openstaand (zodat afgeronde same-days bovenaan
-             staan voor medewerkers die uitleveren, en de oudste openstaande
-             reparatie voor technicians het laatst/onderaan als "volgende"
-             te vinden is). Elke groep verbergt zichzelf (klasse "zichtbaar")
+        <!-- Vaste volgorde van boven naar beneden: Klaar → In behandeling →
+             Openstaand. Elke groep verbergt zichzelf (klasse "zichtbaar")
              als hij leeg is — zie renderSameDayPanel(). -->
         <div class="sameday-statusgroep sameday-statusgroep-klaar" id="sameday-groep-klaar">
           <div class="sameday-statuskop">✅ Klaar <span class="sameday-count" id="sameday-count-klaar">0</span></div>
@@ -3144,17 +3164,30 @@
   // ══════════════════════════════════════════════════════════════════
   let sameDayItems = [];
 
-  // ── NIEUW: same-day-kolom in-/uitklappen ──
-  // Vooral nuttig op mobiel/tablet, waar de gestapelde kolom anders veel
-  // verticale ruimte onder de wachtrij inneemt. Onthoudt niets tussen
-  // sessies (bewust simpel gehouden) — staat bij elk bezoek weer standaard
-  // uitgeklapt.
-  let sameDayIngeklapt = false;
-  function toggleSameDayInklap() {
-    sameDayIngeklapt = !sameDayIngeklapt;
-    document.getElementById('sameday-panel').classList.toggle('ingeklapt', sameDayIngeklapt);
-    document.getElementById('sameday-inklap-pijl').classList.toggle('ingeklapt', sameDayIngeklapt);
+  // ── Same-day-kaart uitlijnen met de normale klantkaarten ──
+  // BUGFIX: eerder werd alleen de hoogte van de tabs-rij gecompenseerd, maar
+  // niet het "Momenteel in behandeling"-label dat daarboven nog bij komt
+  // zodra er een klant in behandeling is — dat label bestaat niet altijd
+  // (afhankelijk van de data), dus een vaste aanname klopte niet altijd.
+  // Nu wordt de WERKELIJKE positie van de eerste klantkaart gemeten en
+  // vergeleken met de same-day-kolom — dat klopt altijd, ongeacht welke
+  // labels er wel of niet boven de kaart staan.
+  function synchroniseerSameDayUitlijning() {
+    const paneel = document.getElementById('sameday-panel');
+    const zijkolom = document.getElementById('sameday-zijkolom');
+    if (!paneel || !zijkolom) return;
+    paneel.style.marginTop = ''; // eerst resetten, anders beïnvloedt de vorige meting de nieuwe
+    if (window.innerWidth < 1000) return; // kolommen staan dan niet naast elkaar
+
+    const eersteKaart = document.querySelector('#queue-container .queue-item');
+    if (!eersteKaart) return; // lege wachtrij: niets om op uit te lijnen
+    // BUGFIX: meet vanaf het PANEEL zelf, niet vanaf de kolom-top. Het paneel
+    // begint onder de sectietitel; meten vanaf de kolom telde die titelhoogte
+    // dubbel, waardoor de same-day-kaarten juist te ver naar beneden zakten.
+    const verschil = eersteKaart.getBoundingClientRect().top - paneel.getBoundingClientRect().top;
+    if (verschil > 0) paneel.style.marginTop = verschil + 'px';
   }
+  window.addEventListener('resize', synchroniseerSameDayUitlijning);
 
   function renderSameDayPanel() {
     // ── Sortering: altijd op aanmeldtijd, oudste bovenaan binnen de status ──
@@ -3217,12 +3250,17 @@
           <div class="sameday-rij-mid">
             ${fixablyRepnrTagHtml(e.repnr) || '<span class="tag tag-repnr">Geen rep.nr</span>'}
           </div>
-          <!-- Technician: altijd zichtbaar als snelle dropdown, direct te
-               wijzigen zonder de kaart eerst in bewerkmodus te zetten. -->
-          <label class="sameday-technician-rij">
-            <span>👤</span>
-            <select class="sameday-technician-quickselect" onchange="wijzigTechnicianSnel('${e.key}', this.value)">
-              <option value="">— Nog niet toegewezen —</option>
+          <!-- Technician-dropdown. Verbeteringen t.o.v. de vorige versie:
+               · duidelijk label ervoor, zodat je niet hoeft te raden wat het is
+               · toegewezen state is visueel gemarkeerd (gevulde stijl), niet
+                 toegewezen blijft neutraal — in één oogopslag te zien
+               · vol tikvlak van 36px met eigen pijl-icoon i.p.v. de
+                 inconsistente browserstijl op iPad/iPhone
+               · slaat direct op bij wijzigen, geen extra bevestigstap -->
+          <label class="sameday-technician-veld${e.technician ? ' is-toegewezen' : ''}">
+            <span class="sameday-technician-label">Technician</span>
+            <select class="sameday-technician-select" onchange="wijzigTechnicianSnel('${e.key}', this.value)">
+              <option value="">Niet toegewezen</option>
               ${TECHNICIANS.map(t => `<option value="${t}" ${e.technician === t ? 'selected' : ''}>${t}</option>`).join('')}
             </select>
           </label>
@@ -3954,6 +3992,11 @@
         });
       }
     }
+
+    // Elke render kan het "Momenteel in behandeling"-label laten
+    // verschijnen/verdwijnen — dus de uitlijning met de same-day-kolom
+    // moet hier opnieuw gemeten worden, niet alleen bij het inloggen.
+    synchroniseerSameDayUitlijning();
   }
 
     // ── Attentie-animatie ──
@@ -4146,6 +4189,9 @@
         if (user) {
           elLoginOverlay.style.display = 'none';
           elAppContent.style.display   = '';
+          // Pas nu meetbaar (app-content was tot dit punt display:none) —
+          // vandaar dat deze aanroep hier staat en niet bij page-load.
+          synchroniseerSameDayUitlijning();
 
           if (!dbListenerActief) {
             dbListenerActief = true;
