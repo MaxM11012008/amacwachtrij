@@ -152,12 +152,24 @@
     }
     .badge-blue { background: var(--primary-light); color: var(--primary); border-color: #c5d5f0; }
     .badge-amber { background: var(--warning-light); color: var(--warning); border-color: #fde68a; }
+    /* NIEUW: 'wacht boven'-samenvatting — zelfde kleurthema als de
+       bestaande boven-badge op de kaart zelf, zodat het herkenbaar is. */
+    .badge-boven { background: var(--warning); color: white; border-color: var(--warning); font-weight: 700; }
+    /* Twee live-KPI-kleuren, consistent met hun betekenis elders in de app
+       — rood = directe actie nodig, groen = positief/klaar. */
+    .badge-danger { background: var(--danger); color: white; border-color: var(--danger); font-weight: 700; }
+    .badge-groen  { background: var(--success); color: white; border-color: var(--success); font-weight: 700; }
     .badge-gray { background: #f8fafc; color: var(--muted); border-color: var(--border); }
 
     .section-title {
       font-size: 13px; font-weight: 700; margin-bottom: 12px;
       display: flex; align-items: center; gap: 6px;
       color: white; /* beide sectietitels staan op de donkere achtergrondfoto */
+    }
+    .sameday-escalatie-samenvatting {
+      font-size: 10px; font-weight: 700; color: white;
+      background: #7c3aed; padding: 2px 8px; border-radius: 999px;
+      margin-left: auto;
     }
 
     .card {
@@ -211,30 +223,18 @@
     .radio-label-main { font-size: 13px; font-weight: 600; }
     .radio-label-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
 
-    /* ── Visuele hiërarchie type-bezoek: "ophalen"/"ongepland" zijn de twee
-       meest gebruikte opties en blijven daarom de volwaardige, prominente
-       kaarten. "Schoonmaak"/"PO" komen minder vaak voor en zijn daarom
-       bewust compacter en subtieler — dat maakt het geheel in één oogopslag
-       scanbaar: het oog valt eerst vanzelf op de twee grote, gangbare opties. */
-    .radio-option.optie-primair { padding: 12px 16px; }
-    .radio-option.optie-primair .radio-label-main { font-size: 14px; }
-
-    .radio-group-label {
-      width: 100%;
-      font-size: 10.5px; font-weight: 700; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.05em;
-      margin: 2px 0 -2px;
+    /* ── Type bezoek: drie gelijke opties naast elkaar ──
+       Ongepland → Schoonmaak → Reparatie ophalen, alle drie even belangrijk
+       (geen prominente/secundaire hiërarchie meer nodig sinds Prijsopgave
+       is verweggehaald). Iets compacter dan voorheen zodat alle drie
+       comfortabel in één rij passen; wrapt netjes naar 2+1 op een smalle
+       telefoon i.p.v. onleesbaar te verschrompelen. */
+    .radio-group.type-bezoek-gelijk .radio-option {
+      flex: 1 1 140px; min-width: 100px;
+      padding: 10px 10px; gap: 6px;
     }
-    .radio-option.optie-secundair {
-      flex: 0 1 auto; min-width: 0;
-      padding: 6px 12px; gap: 6px;
-    }
-    .radio-option.optie-secundair .radio-label-main { font-size: 11.5px; font-weight: 500; color: var(--muted); }
-    .radio-option.optie-secundair .radio-label-sub { display: none; } /* label is zelfverklarend op dit schaalniveau */
-    .radio-option.optie-secundair input[type="radio"] { transform: scale(0.85); margin-top: 0; }
-    .radio-option.optie-secundair:hover { background: var(--bg); }
-    .radio-option.optie-secundair.selected { border-color: var(--primary); background: var(--primary-light); }
-    .radio-option.optie-secundair.selected .radio-label-main { color: var(--primary); font-weight: 600; }
+    .radio-group.type-bezoek-gelijk .radio-label-main { font-size: 12px; line-height: 1.3; }
+    .radio-group.type-bezoek-gelijk .radio-label-sub { font-size: 10px; line-height: 1.3; }
 
     .zoek-group { display: flex; flex-wrap: wrap; gap: 6px; }
     .zoek-option {
@@ -247,7 +247,11 @@
       transition: border-color 0.15s, background 0.15s;
     }
     .zoek-option:hover { background: var(--primary-light); }
+    /* NIEUW: vinkje bij een geselecteerde chip — kleur alleen (rand +
+       lichte achtergrond) was bij snel scannen tijdens drukte te subtiel
+       om in één oogopslag zeker te weten of een keuze al gemaakt is. */
     .zoek-option.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+    .zoek-option.selected::before { content: '✓ '; font-weight: 700; }
     .zoek-option input[type="radio"] { accent-color: var(--primary); }
 
     .checkbox-row { display: flex; flex-wrap: wrap; gap: 16px; }
@@ -328,6 +332,34 @@
       color: var(--muted); font-size: 12px; cursor: pointer; text-align: center; padding: 4px;
     }
     .btn-sameday-annuleer:hover { color: var(--text); text-decoration: underline; }
+
+    /* ── NIEUW: bevestigingsmodal definitief verwijderen ──
+       Bewust ONGELIJKE knoppen: Annuleren is de veilige, prominente optie
+       (gevuld, primaire kleur); Verwijderen is klein, outline en rood — zo
+       kan een medewerker 'm niet per ongeluk aantikken op dezelfde manier
+       als de veilige knop. ── */
+    .btn-verwijder-annuleer {
+      width: 100%; padding: 12px; border-radius: 8px;
+      background: var(--primary); color: white; border: none;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .btn-verwijder-annuleer:hover { background: var(--primary-hover); }
+    .btn-verwijder-bevestig {
+      width: 100%; padding: 9px; border-radius: 8px;
+      background: none; color: var(--danger); border: 1px solid var(--danger);
+      font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .btn-verwijder-bevestig:hover { background: var(--danger-light); }
+
+    /* ── NIEUW: opslaan-bevestiging — kort, rustig, verdwijnt vanzelf ── */
+    .opslaan-toast {
+      position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(12px);
+      background: var(--success); color: white; padding: 9px 18px; border-radius: 999px;
+      font-size: 13px; font-weight: 700; box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+      opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 1300;
+    }
+    .opslaan-toast.zichtbaar { opacity: 1; transform: translateX(-50%) translateY(0); }
     /* Toetsenbord-badge (1/2) — laat direct zien welke toets welke keuze
        activeert, zowel voor muis-/touchgebruikers als toetsenbordgebruikers. */
     .sameday-toets {
@@ -357,6 +389,10 @@
     .sameday-statusgroep-open          { background: #fff7ed; border: 1px solid #fdba74; }
     .sameday-statusgroep-behandeling   { background: var(--primary-light); border: 1px solid #c5d5f0; }
     .sameday-statusgroep-klaar         { background: var(--success-light); border: 1px solid #bbf7d0; }
+    /* Uitgeleverd = afgerond werk. Bewust rustig grijs: het vraagt geen
+       actie meer, dus het mag geen aandacht wegtrekken van de groepen die
+       dat wél doen. */
+    .sameday-statusgroep-uitgeleverd   { background: #f8fafc; border: 1px solid var(--border); }
 
     .sameday-statuskop {
       font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
@@ -365,6 +401,7 @@
     .sameday-statusgroep-open .sameday-statuskop        { color: #9a3412; }
     .sameday-statusgroep-behandeling .sameday-statuskop { color: var(--primary); }
     .sameday-statusgroep-klaar .sameday-statuskop       { color: var(--success); }
+    .sameday-statusgroep-uitgeleverd .sameday-statuskop { color: var(--muted); }
     .sameday-statuskop .sameday-count {
       background: rgba(0,0,0,0.08); border-radius: 999px; padding: 1px 7px; font-weight: 700;
     }
@@ -376,44 +413,70 @@
       padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 12px;
     }
     .sameday-rij:last-child { border-bottom: none; }
+    /* Escalatie — nog "openstaand" na de ingestelde drempel (standaard 2u).
+       BEWUST NIET ROOD: rood betekent elders in de app al "onder 18" en
+       "afwijking genoteerd" — hergebruik van dezelfde kleur voor een derde,
+       ongerelateerde betekenis maakt kleur juist verwarrender i.p.v.
+       duidelijker. Violet + klok-icoon is uniek voor "tijd-gebaseerd
+       signaal", nergens anders in de app gebruikt. */
+    .sameday-rij.is-escalatie {
+      border-left: 3px solid #7c3aed;
+      padding-left: 8px;
+      background: #f5f3ff;
+      border-radius: 0 6px 6px 0;
+    }
     .sameday-rij-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
     .sameday-naam { font-weight: 700; color: var(--text); font-size: 13px; }
+    .sameday-rij-top-rechts { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    /* NIEUW: technician-naam nu ook bovenaan, direct naast de statusbadge —
+       snel scanbaar wie eraan werkt zonder de hele kaart te hoeven lezen. */
+    .sameday-technician-mini {
+      font-size: 10px; font-weight: 700; color: var(--primary);
+      background: var(--primary-light); padding: 2px 7px; border-radius: 999px;
+    }
     .sameday-status-badge {
       font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em;
       padding: 2px 7px; border-radius: 999px; background: rgba(0,0,0,0.08); flex-shrink: 0;
     }
+    .sameday-status-badge.is-escalatie-badge { background: #7c3aed; color: white; }
+    /* Repnr ontbreekt al langer dan de ingestelde drempel — apart icoon
+       (📋) i.p.v. hetzelfde ⚠ als escalatie, want het zijn twee
+       verschillende problemen die niet hetzelfde symbool horen te delen. */
+    .tag-repnr-mist-lang { border-color: var(--warning); color: var(--warning); font-weight: 700; }
     .sameday-rij-mid { display: flex; }
 
-    /* Technician-dropdown: label + select in één afgebakend veld. Eigen
-       pijl-icoon (achtergrond-SVG) i.p.v. de standaard browserpijl, die op
-       iOS/Safari anders oogt dan op desktop — zo ziet het er overal hetzelfde
-       uit. Toegewezen state krijgt een gevulde, duidelijk herkenbare stijl. */
+    /* Technician-dropdown: nu bewust RUSTIGER gestyled dan de Start/Klaar-
+       knop — de naam staat al bovenaan zichtbaar (zie .sameday-technician-
+       mini), dus dit veld is hier alleen nog om 'm te WIJZIGEN, niet de
+       primaire manier om 'm af te lezen. Kleiner, lichter contrast. */
     .sameday-technician-veld {
-      display: flex; align-items: center; gap: 8px;
+      display: flex; align-items: center; gap: 6px;
       border: 1px solid var(--border); border-radius: 6px;
-      background: var(--card); padding: 0 10px;
-      min-height: 36px; cursor: pointer;
+      background: transparent; padding: 0 8px;
+      min-height: 30px; cursor: pointer;
       transition: border-color 0.12s, background 0.12s;
+      opacity: 0.85;
     }
-    .sameday-technician-veld:hover { border-color: var(--primary); }
+    .sameday-technician-veld:hover { border-color: var(--primary); opacity: 1; }
     .sameday-technician-label {
-      font-size: 10px; font-weight: 700; color: var(--muted);
+      font-size: 9px; font-weight: 700; color: var(--muted);
       text-transform: uppercase; letter-spacing: 0.04em;
       flex-shrink: 0; pointer-events: none;
     }
     .sameday-technician-select {
       flex: 1; min-width: 0; border: none; background: transparent;
-      font-size: 12.5px; font-weight: 600; font-family: inherit;
-      color: var(--muted); cursor: pointer; padding: 7px 0;
+      font-size: 11.5px; font-weight: 600; font-family: inherit;
+      color: var(--muted); cursor: pointer; padding: 6px 0;
       appearance: none; -webkit-appearance: none;
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23755350' stroke-width='3'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
       background-repeat: no-repeat; background-position: right center;
       padding-right: 16px;
     }
-    /* Toegewezen: blauw gevuld veld — direct te onderscheiden van de nog
-       niet-toegewezen kaarten, zonder de dropdown te hoeven openen. */
+    /* Toegewezen: subtiel accent — de écht opvallende bevestiging staat nu
+       al bovenaan de kaart (.sameday-technician-mini), dus dit veld hoeft
+       dat niet nogmaals zwaar te herhalen. */
     .sameday-technician-veld.is-toegewezen {
-      background: var(--primary-light); border-color: var(--primary);
+      border-color: var(--primary);
     }
     .sameday-technician-veld.is-toegewezen .sameday-technician-label { color: var(--primary); }
     .sameday-technician-veld.is-toegewezen .sameday-technician-select {
@@ -559,16 +622,92 @@
        uitzonderingsstatus" (zie .btn-toggle-closed.is-closed) — zelfde taal, dus
        direct herkenbaar voor medewerkers. */
     .queue-header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; flex-wrap: wrap; justify-content: flex-end; }
-    .btn-boven {
+
+    /* ── NIEUW: duidelijke hiërarchie op de klantkaart ──
+       Voorheen waren Bewerken/Boven?/Gedaan visueel identiek — geen enkele
+       was duidelijk "de volgende stap". Nu: Gedaan is de enige gevulde,
+       opvallende knop (het is de daadwerkelijke primaire actie van een
+       actieve kaart); Bewerken en Boven? zijn bewust subtielere,
+       outline-knoppen met tekstlabel (was bij Bewerken alleen een
+       icoon zonder leesbare tekst). ── */
+    .btn-secundair-actie {
       display: flex; align-items: center; gap: 4px;
       background: none; border: 1px solid var(--border);
-      border-radius: 5px; padding: 5px 10px;
+      border-radius: 5px; padding: 5px 10px; min-height: 30px;
       font-size: 11px; color: var(--muted); cursor: pointer;
       transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
     }
-    .btn-boven:hover { background: var(--warning-light); color: var(--warning); border-color: var(--warning); }
-    .btn-boven.is-actief {
+    .btn-secundair-actie:hover { background: var(--warning-light); color: var(--warning); border-color: var(--warning); }
+    .btn-secundair-actie.is-actief {
       background: var(--warning-light); color: var(--warning); border-color: var(--warning); font-weight: 700;
+    }
+    .btn-primaire-kaartactie {
+      display: flex; align-items: center; gap: 4px;
+      background: var(--success); border: 1px solid var(--success);
+      border-radius: 5px; padding: 5px 12px; min-height: 30px;
+      font-size: 11px; font-weight: 700; color: white; cursor: pointer;
+      transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+    }
+    .btn-primaire-kaartactie:hover { background: #0f6b30; border-color: #0f6b30; }
+
+    /* ── NIEUW: "niet ingenomen" ──
+       Bewust een ingetogen outline-knop, NIET rood en NIET naast "Gedaan"
+       geplakt: het is een legitieme, veelvoorkomende uitkomst (geen fout
+       en geen destructieve actie), maar mag ook nooit per ongeluk in
+       plaats van "Gedaan" worden aangetikt. Vandaar het scheidingsstreepje. */
+    .actie-scheiding {
+      width: 1px; height: 20px; background: var(--border);
+      margin: 0 2px; flex-shrink: 0;
+    }
+    .btn-niet-ingenomen {
+      display: flex; align-items: center; gap: 4px;
+      background: none; border: 1px solid var(--border);
+      border-radius: 5px; padding: 5px 10px; min-height: 30px;
+      font-size: 11px; color: var(--muted); cursor: pointer;
+      transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+    }
+    .btn-niet-ingenomen:hover { background: #fff7ed; color: #9a3412; border-color: #fdba74; }
+
+    /* Redenenlijst in de modal */
+    .ni-reden {
+      display: flex; align-items: center; gap: 9px;
+      width: 100%; text-align: left;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 7px; padding: 9px 11px; margin-bottom: 5px;
+      font-size: 12.5px; font-family: inherit; color: var(--text);
+      cursor: pointer; transition: all 0.12s; min-height: 40px;
+    }
+    .ni-reden:hover { border-color: var(--primary); background: var(--primary-light); }
+    /* Selectie: rand + vulling + een expliciet vinkje — kleur is dus nooit
+       de enige drager van de "gekozen"-betekenis. */
+    .ni-reden.is-gekozen {
+      border-color: var(--primary); background: var(--primary-light);
+      color: var(--primary); font-weight: 700;
+    }
+    .ni-reden.is-gekozen::after { content: '✓'; margin-left: auto; font-weight: 800; }
+    .ni-toets {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 20px; height: 20px; border-radius: 4px; flex-shrink: 0;
+      background: var(--bg); border: 1px solid var(--border);
+      font-size: 10.5px; font-weight: 800; color: var(--muted);
+    }
+    .ni-reden.is-gekozen .ni-toets { background: var(--primary); border-color: var(--primary); color: white; }
+    .niet-ingenomen-teller {
+      display: flex; justify-content: space-between;
+      font-size: 10px; color: var(--muted); margin-top: 3px;
+    }
+    .btn-niet-ingenomen-opslaan {
+      width: 100%; margin-top: 12px; padding: 12px; border-radius: 8px;
+      background: var(--primary); color: white; border: none;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .btn-niet-ingenomen-opslaan:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-niet-ingenomen-opslaan:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* Statusbadge op de kaart zelf */
+    .tag-niet-ingenomen {
+      background: #fff7ed; color: #9a3412;
+      border: 1px solid #fdba74; font-weight: 700;
     }
     .boven-badge {
       position: absolute; top: -9px; right: 14px;
@@ -608,7 +747,6 @@
        verzadigde tekstkleur), eigen kleur zodat het type in één oogopslag
        te onderscheiden is van de bestaande twee. ── */
     .tag-type-schoonmaak  { background: #ecfeff; color: #0e7490; }
-    .tag-type-prijsopgave { background: #fdf4ff; color: #a21caf; }
     .tag-betaald-ja  { background: var(--success-light); color: var(--success); }
     .tag-betaald-nee { background: var(--warning-light); color: var(--warning); }
     .tag-backup-ja   { background: var(--success-light); color: var(--success); }
@@ -627,6 +765,13 @@
        medewerkers nooit vergeten dit te vragen/vermelden. ── */
     .tag-adult-yes { background: var(--success-light); color: var(--success); }
     .tag-adult-no  { background: var(--danger-light); color: var(--danger); font-weight: 700; }
+    /* NIEUW: afwijking-notitie — bewust anders (rode rand, geen gevulde
+       achtergrond) zodat 'm meteen opvalt tussen de andere, rustigere tags. */
+    .tag-afwijking {
+      background: var(--card); color: var(--danger); font-weight: 700;
+      border: 1.5px solid var(--danger); max-width: 260px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
 
     /* ── NIEUW: tabs boven de wachtrij — "Actief" / "Vandaag afgerond" /
        "Gisteren afgerond". Simpele tab-bar i.p.v. aparte pagina's, zodat
@@ -643,6 +788,19 @@
     .queue-tab.is-actief-tab { background: var(--primary); border-color: var(--primary); color: white; }
     .queue-tab .tab-count { background: rgba(0,0,0,0.08); border-radius: 999px; padding: 1px 7px; font-size: 11px; }
     .queue-tab.is-actief-tab .tab-count { background: rgba(255,255,255,0.25); }
+
+    /* ── NIEUW: periode-keuzeknoppen (Week/Maand/All-time) — zelfde
+       herkenbare patroon als de wachtrij-tabs, ruime tikvlakken voor
+       touch, gelijk verdeeld zodat alle drie even prominent zijn. */
+    .periode-keuze-rij { display: flex; gap: 8px; padding: 14px 18px 0; }
+    .periode-keuze-knop {
+      flex: 1; padding: 10px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--muted); font-size: 13px; font-weight: 700;
+      cursor: pointer; transition: all 0.15s; min-height: 40px;
+    }
+    .periode-keuze-knop:hover { border-color: var(--primary); color: var(--primary); }
+    .periode-keuze-knop.is-actief { background: var(--primary); border-color: var(--primary); color: white; }
 
     /* ── NIEUW: afgeronde kaarten (geschiedenis) — visueel gedimd en zonder
        actieknoppen, zodat nooit verward met de actieve wachtrij. ── */
@@ -679,8 +837,18 @@
     .adult-chip input { display: none; } /* radio zelf verborgen — de chip fungeert als de klikbare knop */
     .adult-chip:hover { background: var(--bg); }
     .adult-chip.selected-yes { border-color: var(--success); background: var(--success-light); color: var(--success); }
+    .adult-chip.selected-yes::before { content: '✓ '; font-weight: 700; }
     .adult-chip.selected-no  { border-color: var(--danger);  background: var(--danger-light);  color: var(--danger); }
+    .adult-chip.selected-no::before { content: '✓ '; font-weight: 700; }
     .adult-inline.has-error .adult-inline-label { color: var(--danger); }
+
+    /* Op smalle schermen (iPhone) was de chip-tekst (11-12px) net aan de
+       ondergrens van comfortabel lezen tijdens snelle balie-invoer. Iets
+       groter + iets ruimer tikvlak, zonder de compacte layout te breken. */
+    @media (max-width: 480px) {
+      .zoek-option { font-size: 13px; padding: 7px 12px; }
+      .adult-chip { font-size: 12.5px; padding: 6px 13px; }
+    }
 
     /* ── Weekendmelding: permanent, opvallend, helemaal bovenin ──
        Bewust GEEN sluitknop — moet het hele weekend zichtbaar blijven, dus
@@ -788,14 +956,6 @@
     .behandel-field.has-error .error-msg { display: block; }
 
     /* ── Klantkaart bewerken ── */
-    .btn-edit-icon {
-      display: flex; align-items: center; justify-content: center;
-      background: none; border: 1px solid var(--border);
-      border-radius: 5px; width: 26px; height: 26px;
-      color: var(--muted); cursor: pointer;
-      transition: all 0.15s; flex-shrink: 0;
-    }
-    .btn-edit-icon:hover { background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
     .queue-item.is-editing { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,61,124,0.12); }
     .edit-form { display: flex; flex-direction: column; gap: 10px; margin-top: 2px; }
     .edit-row { display: flex; flex-direction: column; gap: 4px; }
@@ -922,6 +1082,60 @@
     .geluid-status-dot.status-ok    { background: #4ade80; border-color: white; }
     .geluid-status-dot.status-fout  { background: #f87171; border-color: white; }
 
+    /* ── NIEUW: "meer"-menu — bundelt leaderboard/instellingen/audio ──
+       Deze drie waren losse, gelijkwaardige iconen die de header onnodig
+       verdichtten (vooral op iPhone). Ze zitten nu achter één ⋯-knop; de
+       individuele popovers erbinnen werken exact zoals voorheen. */
+    .header-meer-control { position: relative; }
+    .btn-header-meer {
+      background: rgba(255,255,255,0.15); color: white;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 6px; width: 30px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s; flex-shrink: 0;
+    }
+    .btn-header-meer:hover { background: rgba(255,255,255,0.28); }
+    .header-meer-menu {
+      display: none;
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      padding: 8px; z-index: 970;
+      flex-direction: column; gap: 4px;
+    }
+    .header-meer-menu.open { display: flex; }
+    /* Binnen het meer-menu tonen de drie controls zich als een horizontale
+       rij met een klein label, i.p.v. losse iconen zonder context. */
+    .header-meer-menu .leaderboard-control,
+    .header-meer-menu .instellingen-control,
+    .header-meer-menu .audio-control {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .header-meer-menu .leaderboard-control::after,
+    .header-meer-menu .instellingen-control::after,
+    .header-meer-menu .audio-control::after {
+      font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap;
+    }
+    .header-meer-menu .leaderboard-control::after { content: 'Leaderboard'; }
+    .header-meer-menu .instellingen-control::after { content: 'Drempelwaarden'; }
+    .header-meer-menu .audio-control::after { content: 'Geluid'; }
+    .header-meer-menu .btn-leaderboard,
+    .header-meer-menu .btn-instellingen,
+    .header-meer-menu .btn-audio {
+      background: var(--bg); color: var(--text); border-color: var(--border);
+    }
+    .header-meer-menu .btn-leaderboard:hover,
+    .header-meer-menu .btn-instellingen:hover,
+    .header-meer-menu .btn-audio:hover { background: var(--primary-light); color: var(--primary); }
+    /* De popovers zelf (leaderboard-popover, instellingen-popover,
+       audio-popover) openen nu vanuit een positie BINNEN het meer-menu —
+       links uitlijnen i.p.v. rechts, anders vallen ze deels buiten beeld. */
+    .header-meer-menu .leaderboard-popover,
+    .header-meer-menu .instellingen-popover,
+    .header-meer-menu .audio-popover {
+      left: 0; right: auto;
+    }
+
     /* ── Volumeregeling: compacte popover onder de geluidsknop ──
        Zelfde soort interactiepatroon als bekende OS-volumeknoppen: klik op
        het speaker-icoon → klein paneeltje met aan/uit + schuifregelaar. Dit
@@ -974,6 +1188,7 @@
     }
     .btn-report:hover { border-color: var(--primary); color: var(--primary); }
     .queue-tabs-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+
     .queue-tabs-row .queue-tabs { margin-bottom: 0; flex: 1; }
     .report-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
 
@@ -1022,6 +1237,75 @@
     }
     .overzicht-leeg { font-size: 12px; color: var(--muted); padding: 6px 0; }
 
+    /* ── NIEUW: heatmap dag×uur — laat structurele drukte-patronen zien ──
+       Kleurintensiteit is bewust NIET het enige signaal: elke cel toont
+       ook het exacte aantal als getal, dus ook bij kleurenblindheid of op
+       een slecht scherm blijft de informatie leesbaar. */
+    /* ── Heatmap: compact, GitHub-contributiegrafiek-stijl ──
+       BUGFIX/HERONTWERP: de vorige versie gebruikte aspect-ratio:1 op
+       brede 1fr-kolommen, waardoor de cellen in een brede modal vierkant
+       én dus tientallen pixels hoog werden — veel te groot. Nu een vaste,
+       compacte hoogte (14px), geen cijfers meer IN de cel (dat maakte het
+       onrustig bij veel kleine getalletjes), en afgeronde stipjes i.p.v.
+       harde blokken voor een rustiger, moderner beeld. Het exacte aantal
+       blijft altijd opvraagbaar via hover (title) en voor screenreaders
+       (aria-label) — er gaat dus geen informatie verloren, alleen de
+       constante visuele ruis van cijfers in elke cel. */
+    .heatmap-grid {
+      display: grid;
+      grid-template-columns: 30px repeat(8, 1fr);
+      gap: 3px;
+      margin-bottom: 8px;
+      max-width: 420px;
+    }
+    .heatmap-hoek { }
+    .heatmap-uurlabel, .heatmap-daglabel {
+      font-size: 8.5px; font-weight: 700; color: var(--muted);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .heatmap-daglabel { justify-content: flex-start; text-transform: capitalize; }
+    .heatmap-cel {
+      height: 14px; border-radius: 4px;
+      background: var(--bg);
+      transition: transform 0.1s;
+    }
+    .heatmap-cel:hover { transform: scale(1.25); }
+    /* Legenda: maakt de kleurschaal expliciet i.p.v. dat de gebruiker moet
+       gokken wat een donkere vs. lichte cel betekent. */
+    .heatmap-legenda {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 9px; color: var(--muted); margin-bottom: 4px;
+    }
+    .heatmap-legenda-cellen { display: flex; gap: 2px; }
+    .heatmap-legenda-cel { width: 11px; height: 11px; border-radius: 3px; }
+
+    /* ── NIEUW: lichte SVG-lijngrafiek voor de volumetrend ── */
+    .periode-lijngrafiek { width: 100%; height: 40px; display: block; margin-bottom: 2px; }
+    .periode-lijngrafiek-as {
+      display: flex; justify-content: space-between;
+      font-size: 9px; color: var(--muted); margin-bottom: 10px;
+    }
+
+    /* ── NIEUW: bullet-chart voor per-technician-cijfers ──
+       Balk = eigen aantal, verticale streep = gemiddelde van alle
+       technicians — context i.p.v. een kale, ranking-achtige lijst. */
+    .bullet-chart-groep { display: flex; flex-direction: column; gap: 8px; }
+    .bullet-chart-rij { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+    .bullet-chart-label { width: 60px; flex-shrink: 0; font-weight: 600; color: var(--text); }
+    .bullet-chart-track {
+      position: relative; flex: 1; height: 12px;
+      background: var(--bg); border-radius: 3px; overflow: visible;
+    }
+    .bullet-chart-balk {
+      height: 100%; background: var(--primary); border-radius: 3px;
+      transition: width 0.2s;
+    }
+    .bullet-chart-gemlijn {
+      position: absolute; top: -2px; bottom: -2px; width: 2px;
+      background: var(--text); opacity: 0.5;
+    }
+    .bullet-chart-waarde { width: 20px; text-align: right; font-weight: 700; flex-shrink: 0; }
+
     /* ── NIEUW: datumnavigatie in het dagoverzicht ── */
     .dagoverzicht-datumnav {
       display: flex; align-items: center; gap: 6px;
@@ -1041,6 +1325,14 @@
     }
     .btn-datumnav-vandaag:hover { border-color: var(--primary); color: var(--primary); }
     .overzicht-mini-titel { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin: 16px 0 8px; }
+    /* NIEUW: kleine link in het dagoverzicht naar de drempel-instellingen —
+       voorheen geen enkel ruimtelijk verband tussen instelling en effect. */
+    .btn-drempel-link {
+      background: none; border: none; color: var(--primary);
+      font-size: 10px; font-weight: 700; text-transform: none;
+      letter-spacing: 0; cursor: pointer; padding: 2px 4px;
+    }
+    .btn-drempel-link:hover { text-decoration: underline; }
 
     .periode-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
     .periode-tab {
@@ -1074,6 +1366,39 @@
     }
     .btn-leaderboard:hover { background: rgba(255,255,255,0.28); }
     .leaderboard-control { position: relative; }
+
+    /* NIEUW: instellingen-knop + popover — zelfde patroon als leaderboard */
+    .btn-instellingen {
+      background: rgba(255,255,255,0.15); color: white;
+      border: 1px solid rgba(255,255,255,0.35);
+      border-radius: 6px; width: 30px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s; flex-shrink: 0;
+    }
+    .btn-instellingen:hover { background: rgba(255,255,255,0.28); }
+    .instellingen-control { position: relative; }
+    .instellingen-popover {
+      display: none;
+      position: absolute; top: calc(100% + 8px); right: 0;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      padding: 12px 14px; width: 230px; z-index: 960;
+    }
+    .instellingen-popover.open { display: block; }
+    .instellingen-veld {
+      display: flex; flex-direction: column; gap: 3px;
+      font-size: 11px; color: var(--muted); margin-bottom: 8px;
+    }
+    .instellingen-veld input {
+      padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px;
+      font-size: 13px; font-family: inherit; color: var(--text);
+    }
+    .btn-instellingen-opslaan {
+      width: 100%; background: var(--primary); color: white; border: none;
+      border-radius: 6px; padding: 7px; font-size: 12px; font-weight: 600; cursor: pointer;
+    }
+    .btn-instellingen-opslaan:hover { background: var(--primary-hover); }
+    .instellingen-status { font-size: 10px; color: var(--muted); margin-top: 6px; min-height: 14px; }
     .leaderboard-popover {
       display: none;
       position: absolute; top: calc(100% + 8px); right: 0;
@@ -1333,32 +1658,158 @@
        ══════════════════════════════════════════════════════════════════ */
     .pdf-rapport-container { display: none; }
     @media print {
-      body * { visibility: hidden; }
-      .pdf-rapport-container, .pdf-rapport-container * { visibility: visible; }
-      .pdf-rapport-container {
-        display: block; position: absolute; top: 0; left: 0; width: 100%;
-        font-family: -apple-system, sans-serif; color: #1a1a1a;
+      /* ══════════════════════════════════════════════════════════════
+         PRINT / PDF — rustige, printervriendelijke opmaak
+         Uitgangspunt: zwarte tekst op wit, geen decoratie, geen volvlakken.
+         Kleur wordt uitsluitend gebruikt waar die betekenis draagt
+         (databalken en heatmap-intensiteit) — nooit als versiering.
+         ══════════════════════════════════════════════════════════════ */
+
+      /* Achtergrondkleuren die WEL betekenis dragen (databalken, heatmap)
+         moeten afgedrukt worden; browsers laten die standaard weg. */
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+      /* De app heeft een achtergrondFOTO op <html>. Die hoort absoluut niet
+         in een rapport en zou de leesbaarheid volledig verpesten. Expliciet
+         uitzetten, samen met elke andere decoratieve achtergrond. */
+      html, body {
+        background: #fff !important;
+        background-image: none !important;
+        height: auto !important; overflow: visible !important;
+        margin: 0 !important; padding: 0 !important;
       }
-      @page { margin: 16mm; }
-      .pdf-header { display: flex; align-items: center; gap: 14px; border-bottom: 3px solid #1a3d7c; padding-bottom: 12px; margin-bottom: 6px; }
-      .pdf-logo { width: 44px; height: 44px; }
-      .pdf-titel { font-size: 19px; font-weight: 800; color: #1a3d7c; }
-      .pdf-sub { font-size: 12px; color: #555; text-transform: capitalize; }
-      .pdf-meta { font-size: 10px; color: #999; margin-bottom: 14px; }
-      .pdf-sectie-titel { font-size: 12px; font-weight: 700; color: #1a3d7c; margin: 16px 0 6px; border-bottom: 1px solid #ddd; padding-bottom: 3px; text-transform: uppercase; letter-spacing: 0.03em; }
-      .pdf-summary { font-size: 11.5px; line-height: 1.6; color: #222; }
+
+      /* Alles verbergen behalve het rapport. display:none (niet
+         visibility:hidden) — anders blijft de app-hoogte meetellen en
+         ontstaan er lege pagina's achteraan. */
+      body > * { display: none !important; }
+      body > .pdf-rapport-container { display: block !important; }
+
+      .pdf-rapport-container {
+        position: static !important; width: 100% !important;
+        background: #fff !important;
+        font-family: -apple-system, 'Segoe UI', sans-serif;
+        color: #111 !important;
+      }
+
+      @page { margin: 15mm; size: A4 portrait; }
+
+      /* ── Kop: geen blauw volvlak meer, maar een rustige lijn ── */
+      .pdf-header {
+        display: flex; align-items: center; gap: 14px;
+        background: none !important; color: #111 !important;
+        padding: 0 0 12px; margin: 0 0 4px;
+        border-bottom: 2px solid #333;
+      }
+      .pdf-logo { width: 38px; height: 38px; background: none !important; padding: 0; }
+      .pdf-titel { font-size: 19px; font-weight: 800; color: #111 !important; letter-spacing: -0.2px; }
+      .pdf-sub { font-size: 12px; color: #444 !important; margin-top: 2px; }
+      .pdf-meta { font-size: 9.5px; color: #555; margin-bottom: 16px; text-align: right; }
+
+      /* ── Koppen: duidelijke hiërarchie zonder kleurvlakken ── */
+      .pdf-sectie-titel {
+        font-size: 11.5px; font-weight: 800; color: #111;
+        margin: 20px 0 9px; padding: 0 0 4px;
+        border-bottom: 1px solid #999;
+        text-transform: uppercase; letter-spacing: 0.07em;
+        break-after: avoid; page-break-after: avoid;
+      }
+
+      /* ── Samenvatting: witte kaart met rand i.p.v. blauwe vulling ── */
+      .pdf-summary {
+        font-size: 11.5px; line-height: 1.65; color: #111;
+        background: #fff !important; border: 1px solid #bbb;
+        border-left: 3px solid #333;
+        padding: 11px 13px; border-radius: 3px; margin: 0 0 6px;
+      }
+
+      /* ── KPI-kaarten: wit met rand, groot en rustig leesbaar ── */
+      .pdf-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; margin-bottom: 6px; }
+      .pdf-kpi-kaart {
+        background: #fff !important; border: 1px solid #bbb;
+        border-radius: 4px; padding: 9px 8px; text-align: center;
+      }
+      .pdf-kpi-waarde { font-size: 18px; font-weight: 800; color: #111; line-height: 1.15; }
+      .pdf-kpi-label { font-size: 8.5px; color: #444; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.04em; }
+
+      /* ── Tabellen: geen zebra-vlakken, alleen rustige scheidingslijnen ── */
       .pdf-tabel { width: 100%; border-collapse: collapse; font-size: 11px; }
-      .pdf-tabel td { padding: 4px 6px; border-bottom: 1px solid #eee; }
+      .pdf-tabel td { padding: 6px 8px; border-bottom: 1px solid #ddd; background: none !important; color: #111; }
       .pdf-tabel td:last-child { text-align: right; font-weight: 700; }
-      .pdf-inzichten { font-size: 11px; line-height: 1.7; padding-left: 16px; margin: 0; }
-      .pdf-grafiek-rij { display: flex; align-items: center; gap: 8px; font-size: 10.5px; padding: 2px 0; }
-      .pdf-grafiek-label { width: 90px; flex-shrink: 0; color: #444; }
-      .pdf-grafiek-track { flex: 1; height: 9px; background: #eee; border-radius: 3px; overflow: hidden; }
-      .pdf-grafiek-vulling { height: 100%; background: #1a3d7c; border-radius: 3px; }
-      .pdf-grafiek-waarde { width: 22px; text-align: right; font-weight: 700; flex-shrink: 0; }
-      .pdf-footer { margin-top: 22px; font-size: 9px; color: #999; border-top: 1px solid #eee; padding-top: 6px; }
-      /* Voorkomt dat een sectie halverwege een paginabreuk afgekapt wordt */
-      .pdf-sectie-titel, .pdf-tabel { break-inside: avoid; }
+      .pdf-inzichten { font-size: 11px; line-height: 1.75; padding-left: 16px; margin: 0; color: #111; }
+      .pdf-inzichten li { margin-bottom: 4px; }
+
+      /* ── Databalken: kleur draagt hier WEL betekenis (de waarde), en de
+         waarde staat er altijd als getal naast — dus ook zwart-wit leesbaar. ── */
+      .pdf-grafiek-rij { display: flex; align-items: center; gap: 9px; font-size: 10.5px; padding: 3px 0; color: #111; }
+      .pdf-grafiek-label { width: 150px; flex-shrink: 0; color: #222; }
+      .pdf-grafiek-track { flex: 1; height: 11px; background: #fff !important; border: 1px solid #888; border-radius: 2px; overflow: hidden; }
+      .pdf-grafiek-vulling { height: 100%; background: #444 !important; }
+      .pdf-grafiek-waarde { width: 28px; text-align: right; font-weight: 700; flex-shrink: 0; color: #111; }
+
+      .pdf-footer {
+        margin-top: 22px; font-size: 8.5px; color: #555;
+        border-top: 1px solid #999; padding-top: 8px; line-height: 1.55;
+      }
+
+      /* ── Heatmap: rasterlijnen altijd zichtbaar, ook zonder kleurvulling ── */
+      .pdf-heatmap-grid {
+        display: grid; grid-template-columns: 30px repeat(8, 1fr) 36px;
+        gap: 2.5px; margin-bottom: 6px; max-width: 470px;
+      }
+      .pdf-heatmap-label {
+        font-size: 8.5px; font-weight: 700; color: #333;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .pdf-heatmap-daglabel { justify-content: flex-start; text-transform: capitalize; }
+      .pdf-heatmap-cel { height: 15px; border-radius: 2px; border: 1px solid #ccc; }
+      .pdf-heatmap-totaal {
+        font-size: 8.5px; font-weight: 800; color: #111;
+        display: flex; align-items: center; justify-content: flex-end; padding-right: 2px;
+      }
+      .pdf-heatmap-legenda {
+        display: flex; align-items: center; gap: 4px;
+        font-size: 8.5px; color: #444; margin-bottom: 14px;
+      }
+      .pdf-heatmap-legenda-cel { width: 11px; height: 11px; border-radius: 2px; border: 1px solid #ccc; display: inline-block; }
+
+      .pdf-lijngrafiek { width: 100%; height: 48px; display: block; margin-bottom: 3px; }
+      .pdf-lijngrafiek-as { display: flex; justify-content: space-between; font-size: 8.5px; color: #555; margin-bottom: 12px; }
+
+      /* ── Pagina-einden: houd bij elkaar wat bij elkaar hoort ──
+         Bewust GEEN geforceerde page-breaks: die veroorzaken juist de
+         halflege pagina's. Alleen "niet afbreken binnen dit blok". */
+      .pdf-sectie-titel, .pdf-tabel, .pdf-kpi-grid, .pdf-heatmap-grid,
+      .pdf-summary, .pdf-grafiek-rij, .pdf-heatmap-legenda, .pdf-lijngrafiek {
+        break-inside: avoid; page-break-inside: avoid;
+      }
+      .pdf-tabel tr { break-inside: avoid; page-break-inside: avoid; }
+      /* Voorkomt een losse kop onderaan een pagina zonder inhoud eronder. */
+      .pdf-sectie-titel + * { break-before: avoid; page-break-before: avoid; }
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       NIEUW — Zichtbare focus voor toetsenbordbediening
+       Was vrijwel volledig afwezig: bij tabben door een formulier tijdens
+       drukte zag je nergens waar de focus stond, wat direct tot
+       invoerfouten kan leiden. :focus-visible toont dit ALLEEN bij
+       toetsenbord-/switch-navigatie, niet bij een gewone muisklik — dus
+       geen extra visuele ruis voor muis- en touchgebruikers.
+       ══════════════════════════════════════════════════════════════════ */
+    button:focus-visible, input:focus-visible, select:focus-visible,
+    textarea:focus-visible, a:focus-visible, [tabindex]:focus-visible,
+    .radio-option:focus-within, .zoek-option:focus-within, .adult-chip:focus-within,
+    .checkbox-item:focus-within {
+      outline: 3px solid var(--primary);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+    /* Op de donkere header/modal-headers heeft de standaard blauwe outline
+       te weinig contrast — daar een witte outline. */
+    header button:focus-visible, .modal-header button:focus-visible,
+    .chat-panel-header button:focus-visible, .btn-sameday-ja:focus-visible,
+    .btn-verwijder-annuleer:focus-visible {
+      outline-color: white;
     }</style>
 </head>
 <body>
@@ -1410,38 +1861,78 @@
     <div></div>
     <div class="header-time" id="clock"></div>
 
-    <!-- NIEUW: Mini-leaderboard -->
-    <div class="leaderboard-control">
-      <button class="btn-leaderboard" id="btn-leaderboard" onclick="toggleLeaderboardPopover()" title="Leaderboard deze week">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3a2 2 0 0 1-2 4h-1"/><path d="M7 5H4a2 2 0 0 0 2 4h1"/></svg>
+    <!-- NIEUW: "meer"-menu — bundelt leaderboard, instellingen en audio
+         (minder frequent gebruikte, gelijkwaardige iconen die de header
+         onnodig verdicht maakten). Sync-status en uitloggen blijven WEL
+         los zichtbaar, want die zijn direct statusrelevant. De individuele
+         knoppen/popovers binnenin blijven functioneel ongewijzigd. -->
+    <div class="header-meer-control">
+      <button class="btn-header-meer" id="btn-header-meer" onclick="toggleHeaderMeerMenu()" title="Meer opties" aria-label="Meer opties">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
       </button>
-      <div class="leaderboard-popover" id="leaderboard-popover">
-        <div class="popover-section-label">🏆 Meeste klanten geholpen — deze week</div>
-        <div id="leaderboard-body"></div>
-        <div class="leaderboard-hint">Telt vanaf maandag 00:00 · reset vanzelf elke week</div>
+      <div class="header-meer-menu" id="header-meer-menu">
+
+        <!-- NIEUW: Mini-leaderboard -->
+        <div class="leaderboard-control">
+          <button class="btn-leaderboard" id="btn-leaderboard" onclick="toggleLeaderboardPopover()" title="Leaderboard deze week">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v5a5 5 0 0 1-10 0V4z"/><path d="M17 5h3a2 2 0 0 1-2 4h-1"/><path d="M7 5H4a2 2 0 0 0 2 4h1"/></svg>
+          </button>
+          <div class="leaderboard-popover" id="leaderboard-popover">
+            <div class="popover-section-label">🏆 Meeste klanten geholpen — deze week</div>
+            <div id="leaderboard-body"></div>
+            <div class="leaderboard-hint">Telt vanaf maandag 00:00 · reset vanzelf elke week</div>
+          </div>
+        </div>
+
+        <!-- NIEUW: instelbare drempels — geldt voor iedereen, wordt via Firebase
+             gedeeld (geen rollen-systeem in deze app, dus voor elke ingelogde
+             medewerker aanpasbaar). -->
+        <div class="instellingen-control">
+          <button class="btn-instellingen" id="btn-instellingen" onclick="toggleInstellingenPopover()" title="Drempelwaarden instellen">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+          <div class="instellingen-popover" id="instellingen-popover">
+            <div class="popover-section-label">⚙️ Drempelwaarden</div>
+            <label class="instellingen-veld">
+              Wachttijd-doelstelling (min)
+              <input type="number" id="instelling-wachttijd" min="1" max="180">
+            </label>
+            <label class="instellingen-veld">
+              Same-day: repnr-signaal na (uur)
+              <input type="number" id="instelling-repnr-uren" min="1" max="24" step="0.5">
+            </label>
+            <label class="instellingen-veld">
+              Same-day: escalatie na (uur)
+              <input type="number" id="instelling-escalatie-uren" min="1" max="24" step="0.5">
+            </label>
+            <button type="button" class="btn-instellingen-opslaan" onclick="slaInstellingenOp()">Opslaan</button>
+            <div class="instellingen-status" id="instellingen-status"></div>
+          </div>
+        </div>
+
+        <div class="audio-control">
+          <button class="btn-audio" id="btn-audio" onclick="toggleAudioPopover()" title="Geluidsmeldingen en volume">
+            <svg id="audio-icoon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+            <span class="geluid-status-dot" id="geluid-status-dot" title="Geluidsbestand laden…"></span>
+          </button>
+          <div class="audio-popover" id="audio-popover">
+            <div class="popover-section-label">Geluid</div>
+            <label class="audio-popover-toggle">
+              <input type="checkbox" id="audio-checkbox" onchange="toggleAudioMeldingen()" />
+              Geluidsmeldingen aan
+            </label>
+            <div class="audio-volume-label">
+              <span>Volume</span>
+              <span id="volume-label">65%</span>
+            </div>
+            <div class="audio-volume-row">
+              <input type="range" id="volume-slider" min="0" max="100" value="65" />
+            </div>
+            <div class="audio-volume-hint" id="geluid-status-hint">Bezig met laden…</div>
+        <button type="button" class="btn-test-geluid" onclick="testMeldingGeluid()" style="margin-top:8px;width:100%">🔊 Test geluid</button>
       </div>
     </div>
 
-    <div class="audio-control">
-      <button class="btn-audio" id="btn-audio" onclick="toggleAudioPopover()" title="Geluidsmeldingen en volume">
-        <svg id="audio-icoon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
-        <span class="geluid-status-dot" id="geluid-status-dot" title="Geluidsbestand laden…"></span>
-      </button>
-      <div class="audio-popover" id="audio-popover">
-        <div class="popover-section-label">Geluid</div>
-        <label class="audio-popover-toggle">
-          <input type="checkbox" id="audio-checkbox" onchange="toggleAudioMeldingen()" />
-          Geluidsmeldingen aan
-        </label>
-        <div class="audio-volume-label">
-          <span>Volume</span>
-          <span id="volume-label">65%</span>
-        </div>
-        <div class="audio-volume-row">
-          <input type="range" id="volume-slider" min="0" max="100" value="65" />
-        </div>
-        <div class="audio-volume-hint" id="geluid-status-hint">Bezig met laden…</div>
-        <button type="button" class="btn-test-geluid" onclick="testMeldingGeluid()" style="margin-top:8px;width:100%">🔊 Test geluid</button>
       </div>
     </div>
     <button class="btn-logout" onclick="uitloggen()">
@@ -1461,6 +1952,27 @@
     <div class="badge-stat badge-amber">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
       <span id="banner-tijd">Wachttijd: <strong>geen wachttijd</strong></span>
+    </div>
+    <!-- NIEUW: samenvattende "wacht boven"-teller — een klant die boven
+         wacht kan makkelijk over het hoofd gezien worden als de kaart
+         tussen andere kaarten verdwijnt na scrollen. Dit staat altijd
+         bovenaan zichtbaar, los van scrollpositie, en verschijnt alleen
+         als het daadwerkelijk relevant is. -->
+    <div class="badge-stat badge-boven" id="badge-boven" style="display:none">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+      <span id="banner-boven-tekst"></span>
+    </div>
+    <!-- NIEUW: drie aanvullende live-KPI's, elk alleen zichtbaar als
+         relevant — samen met de bovenstaande 3 badges dit zijn de 6
+         KPI's die "wat moet ik nu doen" direct beantwoorden, zonder de
+         balie te overweldigen met altijd-zichtbare nullen. -->
+    <div class="badge-stat badge-danger" id="badge-langste-wachttijd" style="display:none">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span id="banner-langste-wachttijd"></span>
+    </div>
+    <div class="badge-stat badge-groen" id="badge-klaar-uitlevering" style="display:none">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+      <span id="banner-klaar-uitlevering"></span>
     </div>
     <button class="btn-toggle-closed" id="btn-toggle-closed" onclick="toggleWachtrijGesloten()">
       <svg id="toggle-lock-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path id="lock-shackle" d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
@@ -1504,34 +2016,26 @@
           <!-- Type bezoek -->
           <div class="field full" id="field-type">
             <label>Type bezoek <span class="req">*</span></label>
-            <div class="radio-group">
-              <label class="radio-option optie-primair" id="opt-ophalen" onclick="selectType('ophalen')">
-                <input type="radio" name="type" value="ophalen" />
-                <div>
-                  <div class="radio-label-main">📦 Reparatie ophalen</div>
-                  <div class="radio-label-sub">Klant haalt product op</div>
-                </div>
-              </label>
-              <label class="radio-option optie-primair" id="opt-ongepland" onclick="selectType('ongepland')">
+            <div class="radio-group type-bezoek-gelijk">
+              <label class="radio-option" id="opt-ongepland" onclick="selectType('ongepland')">
                 <input type="radio" name="type" value="ongepland" />
                 <div>
                   <div class="radio-label-main">🔧 Ongepland — ter reparatie/service</div>
                   <div class="radio-label-sub">Klant brengt product voor reparatie of service</div>
                 </div>
               </label>
-              <div class="radio-group-label">Overige bezoekredenen</div>
-              <label class="radio-option optie-secundair" id="opt-schoonmaak" onclick="selectType('schoonmaak')">
+              <label class="radio-option" id="opt-schoonmaak" onclick="selectType('schoonmaak')">
                 <input type="radio" name="type" value="schoonmaak" />
                 <div>
                   <div class="radio-label-main">🧼 Schoonmaak</div>
                   <div class="radio-label-sub">Klant komt voor het laten schoonmaken van het apparaat</div>
                 </div>
               </label>
-              <label class="radio-option optie-secundair" id="opt-prijsopgave" onclick="selectType('prijsopgave')">
-                <input type="radio" name="type" value="prijsopgave" />
+              <label class="radio-option" id="opt-ophalen" onclick="selectType('ophalen')">
+                <input type="radio" name="type" value="ophalen" />
                 <div>
-                  <div class="radio-label-main">💶 Prijsopgave</div>
-                  <div class="radio-label-sub">Klant vraagt om een prijsopgave</div>
+                  <div class="radio-label-main">📦 Reparatie ophalen</div>
+                  <div class="radio-label-sub">Klant haalt product op</div>
                 </div>
               </label>
             </div>
@@ -1663,8 +2167,10 @@
         <div class="report-buttons">
           <button type="button" class="btn-report" onclick="toonDagoverzicht()" title="Dagoverzicht bekijken en exporteren">📊 Dagoverzicht</button>
           <button type="button" class="btn-report" onclick="toonMedewerkerOverzicht()" title="Overzicht per medewerker">👥 Medewerkers</button>
+          <button type="button" class="btn-report" onclick="toonPeriodeOverzicht()" title="Week-, maand- en all-time rapporten">📊 Rapporten</button>
         </div>
       </div>
+
       <div id="queue-container"></div>
     </section>
 
@@ -1679,13 +2185,26 @@
       <div class="section-title">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         Same-day reparaties
+        <!-- NIEUW: samenvattend escalatie-getal, alleen zichtbaar als er
+             daadwerkelijk kaarten > 2u openstaand zijn — voorkomt dat je
+             door de hele kolom moet scrollen om dat te ontdekken. -->
+        <span class="sameday-escalatie-samenvatting" id="sameday-escalatie-samenvatting" style="display:none"></span>
       </div>
       <div id="sameday-panel">
         <!-- Vaste volgorde van boven naar beneden: Klaar → In behandeling →
              Openstaand. Elke groep verbergt zichzelf (klasse "zichtbaar")
              als hij leeg is — zie renderSameDayPanel(). -->
+        <!-- NIEUW: Uitgeleverd — de daadwerkelijke overdracht aan de klant.
+             Voorheen eindigde de flow bij "Klaar", waardoor nergens werd
+             vastgelegd of het apparaat ook echt was meegegeven. Staat
+             bovenaan als afgeronde eindstatus, standaard ingeklapt-gevoel
+             door de rustige grijze styling. -->
+        <div class="sameday-statusgroep sameday-statusgroep-uitgeleverd" id="sameday-groep-uitgeleverd">
+          <div class="sameday-statuskop">📦 Uitgeleverd <span class="sameday-count" id="sameday-count-uitgeleverd">0</span></div>
+          <div id="sameday-lijst-uitgeleverd"></div>
+        </div>
         <div class="sameday-statusgroep sameday-statusgroep-klaar" id="sameday-groep-klaar">
-          <div class="sameday-statuskop">✅ Klaar <span class="sameday-count" id="sameday-count-klaar">0</span></div>
+          <div class="sameday-statuskop">✅ Klaar — wacht op klant <span class="sameday-count" id="sameday-count-klaar">0</span></div>
           <div id="sameday-lijst-klaar"></div>
         </div>
         <div class="sameday-statusgroep sameday-statusgroep-behandeling" id="sameday-groep-behandeling">
@@ -1753,13 +2272,40 @@
     </div>
     <div class="modal-body" id="dagoverzicht-body"></div>
     <div class="modal-footer">
-      <button type="button" class="btn-report" onclick="exporteerDagoverzichtCsv()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        CSV
-      </button>
-      <button type="button" class="btn-primary" style="margin-left:0" onclick="exporteerDagoverzichtPdf()">
+      <button type="button" class="btn-primary" style="margin-left:0;width:100%;justify-content:center" onclick="exporteerDagoverzichtPdf()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-        Professioneel rapport (PDF)
+        Exporteren / printen als PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── NIEUW: periode-overzicht (week/maand/weekdag-trend) ──
+     Aparte modal, want dit aggregeert meerdere dagen tegelijk — bewust
+     beperkt tot 7/30 dagen (geen kwartaal) om het rekenwerk licht te
+     houden, aangezien elke dag apart via berekenDagoverzicht() wordt
+     doorgerekend uit de al-geladen data (geen extra Firebase-calls). -->
+<div class="modal-overlay" id="periode-overzicht-overlay">
+  <div class="modal-card modal-card-breed">
+    <div class="modal-header">
+      <span>📊 Rapporten</span>
+      <button type="button" onclick="sluitModal('periode-overzicht-overlay')" aria-label="Sluiten">✕</button>
+    </div>
+    <!-- NIEUW: drie duidelijke, direct klikbare periode-knoppen i.p.v. een
+         dropdown met overlappende opties (7 dagen/deze week/weekdag waren
+         verwarrend dicht bij elkaar). Elke knop toont meteen zijn eigen
+         weergave; de PDF-knop onderaan exporteert altijd de actief
+         gekozen periode — geen aparte stap nodig. -->
+    <div class="periode-keuze-rij">
+      <button type="button" class="periode-keuze-knop is-actief" id="periode-knop-week" onclick="kiesPeriode('week')">Week</button>
+      <button type="button" class="periode-keuze-knop" id="periode-knop-maand" onclick="kiesPeriode('maand')">Maand</button>
+      <button type="button" class="periode-keuze-knop" id="periode-knop-alltime" onclick="kiesPeriode('alltime')">All-time</button>
+    </div>
+    <div class="modal-body" id="periode-overzicht-body"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn-primary" style="margin-left:0;width:100%;justify-content:center" onclick="exporteerPeriodePdf()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Exporteren / printen als PDF
       </button>
     </div>
   </div>
@@ -1834,17 +2380,77 @@
   </div>
 </div>
 
+<!-- ── NIEUW: bevestiging bij definitief verwijderen — dit was voorheen één
+     klik zonder enige wrijving, terwijl het de enige écht onomkeerbare
+     actie in de hele app is. Annuleren staat als eerste/prominent (en is
+     de standaard-focus), Verwijderen is bewust klein en rood. ── -->
+<div class="modal-overlay" id="verwijder-bevestig-overlay">
+  <div class="modal-card" style="max-width:360px">
+    <div class="modal-header">
+      <span>⚠ Definitief verwijderen?</span>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;line-height:1.5;margin:0 0 16px">Deze klantkaart wordt permanent verwijderd. Dit kan <strong>niet ongedaan gemaakt worden</strong>.</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <button type="button" class="btn-verwijder-annuleer" id="btn-verwijder-annuleer" onclick="annuleerDefinitiefVerwijderen()">Annuleren</button>
+        <button type="button" class="btn-verwijder-bevestig" onclick="bevestigDefinitiefVerwijderen()">Ja, definitief verwijderen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NIEUW: "niet ingenomen"-registratie voor ongeplande service ──
+     Vaste volgorde en vaste reason codes; de sneltoetslabels [1]–[0]
+     corresponderen exact met de toetsen die de keydown-listener afvangt
+     (zie startNietIngenomen / kiesNietIngenomenReden in JS). -->
+<div class="modal-overlay" id="niet-ingenomen-overlay">
+  <div class="modal-card" style="max-width:460px">
+    <div class="modal-header">
+      <span>Waarom is de service niet ingenomen?</span>
+      <button type="button" onclick="sluitNietIngenomen()" aria-label="Sluiten">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--muted);margin:0 0 12px;line-height:1.5">
+        Kies de belangrijkste reden. Dit helpt Amac om service, voorraad en planning te verbeteren.
+      </p>
+      <div id="niet-ingenomen-redenen"></div>
+
+      <div class="field full" id="field-niet-ingenomen-toelichting" style="display:none;margin-top:10px">
+        <label>Toelichting <span class="req">*</span></label>
+        <textarea id="niet-ingenomen-toelichting" rows="2" maxlength="300"
+          placeholder="Beschrijf kort waarom de service niet is ingenomen."
+          oninput="valideerNietIngenomenToelichting()"></textarea>
+        <div class="niet-ingenomen-teller">
+          <span id="niet-ingenomen-teller-tekst">0 / 300 tekens (minimaal 5)</span>
+          <span style="color:var(--muted)">Geen klantgegevens invullen</span>
+        </div>
+      </div>
+
+      <button type="button" class="btn-niet-ingenomen-opslaan" id="btn-niet-ingenomen-opslaan"
+        onclick="slaNietIngenomenOp()" disabled>Opslaan als niet ingenomen</button>
+      <button type="button" class="btn-sameday-annuleer" onclick="sluitNietIngenomen()">Annuleren</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── NIEUW: korte, verdwijnende bevestiging na het opslaan van een
+     bewerkte kaart — zonder dit was er geen zichtbaar signaal dat een
+     wijziging daadwerkelijk is opgeslagen. ── -->
+<div class="opslaan-toast" id="opslaan-toast">✓ Opgeslagen</div>
+
 <!-- ── NIEUW: undo-toast voor verwijderde same-day-items ── -->
 <div class="sameday-toast" id="sameday-toast">
   <span>Same-day verwijderd</span>
   <button type="button" onclick="herstelSameDayItem()">Herstellen</button>
 </div>
 
-<!-- ── NIEUW: PDF-rapportcontainer — normaal onzichtbaar, wordt gevuld en
-     via @media print zichtbaar gemaakt door exporteerDagoverzichtPdf() ── -->
-<div id="pdf-rapport-container" class="pdf-rapport-container"></div>
-
 </div><!-- /#app-content -->
+
+<!-- ── PDF-rapportcontainer — bewust BUITEN #app-content, als directe child
+     van body. Daardoor kan de print-CSS simpelweg alle andere directe
+     body-children verbergen (body > *) zonder dat de interne opmaak van het
+     rapport zelf geraakt wordt — zie @media print. ── -->
+<div id="pdf-rapport-container" class="pdf-rapport-container"></div>
 
 <!-- Firebase: zorgt voor synchronisatie en authenticatie -->
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -1863,13 +2469,98 @@
     appId: "1:626596420864:web:3e5bda059b72382b98e7e5"
   };
   firebase.initializeApp(firebaseConfig);
+
   const dbRef = firebase.database().ref('wachtrij');
+  // ── NIEUW: statusgeschiedenis — apart, append-only pad ──
+  // Voorheen sloeg de app alleen de EINDSTATUS op (afgerond), niet de
+  // tussenliggende overgangen (wachtend → in behandeling → afgerond). Dat
+  // was het belangrijkste gat uit de export-analyse: zonder dit is geen
+  // enkele procesanalyse ("hoe lang bleef iets in élke fase") mogelijk.
+  const statusHistorieRef = firebase.database().ref('statushistorie');
+  let statusEventVolgnummer = 0; // event_sequence — simpele oplopende teller per sessie
+
+  function logStatusEvent(queueRecordId, statusVan, statusNaar, reden) {
+    statusEventVolgnummer++;
+    statusHistorieRef.push({
+      queue_record_id: queueRecordId,
+      status_from: statusVan,
+      status_to: statusNaar,
+      changed_at: Date.now(),
+      change_reason: reden || '',
+      event_sequence: statusEventVolgnummer,
+    }).catch((err) => console.warn('[Amac Wachtrij] Statusgeschiedenis loggen mislukt:', err));
+  }
   // ── Interne teamchat: eigen Firebase-pad, los van de wachtrij-data ──
   const chatRef = firebase.database().ref('chat/berichten');
   // ── NIEUW: same-day-reparaties — eigen, apart Firebase-pad ──
   // Bewust los van de wachtrij-klantkaart: same-day-items moeten blijven
   // bestaan nadat de klantkaart zelf al lang is voltooid/verwijderd.
   const sameDayRef = firebase.database().ref('sameday');
+  // ── NIEUW: audit-log voor verwijder/herstel-acties ──
+  // Eigen, apart Firebase-pad. Bewust ALLEEN toegevoegd via .push() en NOOIT
+  // via .update()/.remove() vanuit de app — dat is wat het een audit trail
+  // maakt i.p.v. een gewone datatabel. Bevat GEEN klantnamen, alleen: actie,
+  // tijdstip, welke medewerker (sessienaam), en het type record.
+  const auditRef = firebase.database().ref('auditlog');
+  const AUDIT_SCHEMA_VERSION = 2;
+
+  // ── Wie voerde de actie uit? ──
+  // GEEN prompt/alert/confirm meer: de naam wordt automatisch afgeleid van
+  // de Behandelaar die op dát moment op de klantkaart staat. Bij same-day
+  // is dat de toegewezen technician. Ontbreekt beide, dan een neutrale,
+  // eerlijke fallback — liever "Niet toegewezen" dan de medewerker
+  // onderbreken met een vraag midden in een klantgesprek.
+  function bepaalActor(record) {
+    if (!record) return { naam: 'Systeem', toegewezen: false };
+    const naam = record.behandelaar || record.technician || '';
+    if (naam && String(naam).trim() !== '') return { naam: String(naam).trim(), toegewezen: true };
+    return { naam: 'Niet toegewezen', toegewezen: false };
+  }
+
+  // Dubbele logregels voorkomen bij dubbelklikken, realtime-sync of
+  // meerdere geopende apparaten: dezelfde actie op hetzelfde record binnen
+  // een korte tijdspanne wordt maar één keer weggeschreven.
+  const recenteLogSleutels = new Map();
+  function isDubbeleLog(sleutel) {
+    const nu = Date.now();
+    // opruimen van oude sleutels, zodat de map niet blijft groeien
+    recenteLogSleutels.forEach((tijd, k) => { if (nu - tijd > 5000) recenteLogSleutels.delete(k); });
+    if (recenteLogSleutels.has(sleutel)) return true;
+    recenteLogSleutels.set(sleutel, nu);
+    return false;
+  }
+
+  // Stille, automatische activiteitenlog. Faalt deze schrijfactie, dan
+  // wordt dat alleen in de console gemeld — de gebruiker merkt er niets
+  // van en zijn taak wordt nooit geblokkeerd door een niet-kritische
+  // logfout.
+  function logAuditActie(actie, details, opties) {
+    const o = opties || {};
+    const record = o.record || null;
+    const actor = o.actorNaam ? { naam: o.actorNaam, toegewezen: true } : bepaalActor(record);
+    const recordId = o.queueRecordId || (record && record.key) || '';
+
+    if (isDubbeleLog(actie + '|' + recordId + '|' + (details || ''))) return;
+
+    auditRef.push({
+      schema_version: AUDIT_SCHEMA_VERSION,
+      queue_record_id: recordId,
+      activity_type: actie,
+      activity_label: details || '',
+      actor_name: actor.naam,
+      actor_toegewezen: actor.toegewezen, // false = er was nog geen Behandelaar
+      previous_value: o.previousValue !== undefined ? o.previousValue : '',
+      new_value: o.newValue !== undefined ? o.newValue : '',
+      source: o.source || 'queue',
+      tijdstip: Date.now(),
+      // Velden hieronder blijven staan voor compatibiliteit met logregels
+      // die vóór schema 2 zijn weggeschreven.
+      actie,
+      details: details || '',
+      medewerker: actor.naam,
+    }).catch((err) => console.warn('[Amac Wachtrij] Activiteitenlog schrijven mislukt (niet-kritiek):', err));
+  }
+
 
   // ── Gecachete same-day DOM-refs (efficiëntie) ──
   // Deze werden voorheen op 15 plekken los met getElementById opgezocht —
@@ -1888,6 +2579,9 @@
   const elSameDayCountOpen         = document.getElementById('sameday-count-open');
   const elSameDayCountBehandeling  = document.getElementById('sameday-count-behandeling');
   const elSameDayCountKlaar        = document.getElementById('sameday-count-klaar');
+  const elSameDayGroepUitgeleverd  = document.getElementById('sameday-groep-uitgeleverd');
+  const elSameDayLijstUitgeleverd  = document.getElementById('sameday-lijst-uitgeleverd');
+  const elSameDayCountUitgeleverd  = document.getElementById('sameday-count-uitgeleverd');
 
   // ── NIEUW: volledige medewerkerslijst — één centrale array, hergebruikt in
   // het aanmeldformulier (datalist) én in de "Neem in behandeling"-dropdown
@@ -1961,13 +2655,13 @@
       'Lucas': { items: ['🚀', '⭐'], size: [18, 28], speed: [4.2, 6.2], density: 20 },
       'Luuk': { items: ['☄️', '💥'], size: [18, 30], speed: [4.0, 5.8], density: 20 },
       'Marco': { items: ['📦', '🚚'], size: [18, 28], speed: [4.4, 6.0], density: 20 },
-      'Max': { items: ['🫡', '😐'], size: [18, 28], speed: [4.0, 5.8], density: 20 },
+      'Max': { items: ['⚽', '🏆'], size: [18, 28], speed: [4.0, 5.8], density: 20 },
       'Mehrin': { items: ['🎀', '💗'], size: [18, 28], speed: [4.6, 6.6], density: 18 },
       'Mike': { items: ['🎸', '🔥'], size: [18, 28], speed: [4.0, 5.8], density: 20 },
       'Milou': { items: ['🦄', '💜'], size: [20, 30], speed: [4.5, 6.5], density: 18 },
       'Rêve': { items: ['🌙', '💤'], size: [18, 28], speed: [4.6, 6.8], density: 16 },
       'Rohan': { items: ['🧩', '⚙️'], size: [18, 28], speed: [4.3, 6.2], density: 20 },
-      'Sidney': { items: ['🤣', '🥺'], size: [18, 28], speed: [4.2, 6.2], density: 18 },
+      'Sidney': { items: ['🎯', '✨'], size: [18, 28], speed: [4.2, 6.2], density: 18 },
       'Stefano': { items: ['🍕', '⭐'], size: [18, 28], speed: [4.2, 6.0], density: 20 },
       'Sumeja': { items: ['🌷', '💐'], size: [18, 28], speed: [4.6, 6.6], density: 18 },
       'Sylvan': { items: ['🌲', '🍃'], size: [18, 28], speed: [4.4, 6.2], density: 16 },
@@ -2081,6 +2775,12 @@
   const elAppContent     = document.getElementById('app-content');
   const elBannerCount    = document.getElementById('banner-count');
   const elBannerTijd     = document.getElementById('banner-tijd');
+  const elBadgeBoven     = document.getElementById('badge-boven');
+  const elBannerBovenTekst = document.getElementById('banner-boven-tekst');
+  const elBadgeLangsteWachttijd = document.getElementById('badge-langste-wachttijd');
+  const elBannerLangsteWachttijd = document.getElementById('banner-langste-wachttijd');
+  const elBadgeKlaarUitlevering = document.getElementById('badge-klaar-uitlevering');
+  const elBannerKlaarUitlevering = document.getElementById('banner-klaar-uitlevering');
   const elQueueTitle     = document.getElementById('queue-title');
   const elQueueContainer = document.getElementById('queue-container');
   const elBannerBadge    = elBannerCount.closest('.badge-stat');
@@ -2180,6 +2880,7 @@
   let selectedBackup = null;
   // NIEUW: welke tab wordt getoond boven de wachtrij
   let activeQueueTab = 'actief';
+  // ── NIEUW: filters in één actie wissen ──
   function switchQueueTab(tab) {
     activeQueueTab = tab;
     document.querySelectorAll('.queue-tab').forEach(el => el.classList.remove('is-actief-tab'));
@@ -2213,7 +2914,6 @@
     ophalen: '📦 Reparatie ophalen',
     ongepland: '🔧 Ongepland',
     schoonmaak: '🧼 Schoonmaak',
-    prijsopgave: '💶 Prijsopgave',
   };
 
   let dagoverzichtDatum = null; // 'YYYY-MM-DD', wordt gezet zodra het overzicht opent
@@ -2230,7 +2930,15 @@
   // teller voor "hersteld/geannuleerd" — dat biedt geen navolgbaar
   // operationeel of management-inzicht, dus puur "omdat het kan".
   // ══════════════════════════════════════════════════════════════════
-  const WACHTTIJD_DOELSTELLING_MIN = 30; // drempel voor "% boven doelstelling" — pas hier aan indien gewenst
+  // NIEUW: instelbare drempels — gedeeld via Firebase (zoals de rest van de
+  // app), zodat één wijziging voor alle apparaten/medewerkers geldt. Geen
+  // rollen-systeem in deze app (gedeeld inlogaccount), dus dit is voor
+  // iedereen die is ingelogd aan te passen — bewust eenvoudig gehouden.
+  let INSTELLINGEN = {
+    wachttijdDoelstellingMin: 30,
+    sameDayRepnrUren: 1,
+    sameDayEscalatieUren: 2,
+  };
 
   function berekenDagoverzicht(datumStr) {
     const [jaar, maand, dag] = datumStr.split('-').map(Number);
@@ -2244,8 +2952,8 @@
     // afgerond zijn. Verschil met "afgehandeld" wijst op een achterstand.
     const totaalAangemeld = queue.filter(e => e.timestamp && new Date(e.timestamp).toDateString() === doelStr).length;
 
-    const perType = { ophalen: 0, ongepland: 0, schoonmaak: 0, prijsopgave: 0 };
-    const wachttijdenPerType = { ophalen: [], ongepland: [], schoonmaak: [], prijsopgave: [] };
+    const perType = { ophalen: 0, ongepland: 0, schoonmaak: 0 };
+    const wachttijdenPerType = { ophalen: [], ongepland: [], schoonmaak: [] };
     const alleWachttijden = [];
     let totaleMinuten = 0, telbaar = 0, langsteMinuten = 0, bovenDrempel = 0;
     let totaleBehandelMinuten = 0, behandelTelbaar = 0;
@@ -2258,7 +2966,7 @@
         alleWachttijden.push(minuten);
         if (wachttijdenPerType[e.type]) wachttijdenPerType[e.type].push(minuten);
         if (minuten > langsteMinuten) langsteMinuten = minuten;
-        if (minuten > WACHTTIJD_DOELSTELLING_MIN) bovenDrempel++;
+        if (minuten > INSTELLINGEN.wachttijdDoelstellingMin) bovenDrempel++;
       }
       // Behandeltijd (het werk zelf) is bewust een ANDER getal dan
       // wachttijd (wachten + werk samen) — een hoge wachttijd met een lage
@@ -2288,6 +2996,28 @@
       wachttijdPerType[t] = wachttijdenPerType[t].length > 0 ? Math.round(wachttijdenPerType[t].reduce((a, b) => a + b, 0) / wachttijdenPerType[t].length) : null;
     });
 
+    // NIEUW: wachttijd-verdeling in vaste tijdsblokken — laat zien HOEVEEL
+    // klanten in elk blok vielen, niet alleen het gemiddelde. Vaste
+    // blokgrenzen (nooit variabel), zodat vergelijking tussen dagen/weken
+    // altijd hetzelfde betekent.
+    const WACHTTIJD_BLOKKEN = [
+      { label: '0-5 min', min: 0, max: 5 },
+      { label: '6-10 min', min: 6, max: 10 },
+      { label: '11-20 min', min: 11, max: 20 },
+      { label: '21-30 min', min: 21, max: 30 },
+      { label: '30+ min', min: 31, max: Infinity },
+    ];
+    // BUGFIX: wachttijden zijn fractioneel (niet afgerond, bijv. 5,7 min),
+    // maar de blokgrenzen waren gehele getallen mét gaten ertussen (5-6,
+    // 10-11, 20-21, 30-31) — een wachttijd van bijv. 5,5 minuten viel dan
+    // in GÉÉN enkel blok, waardoor de som van de blokken niet klopte met
+    // het totaal. Nu wordt elke wachttijd eerst afgerond, zodat hij
+    // gegarandeerd in precies één blok valt.
+    const wachttijdVerdeling = WACHTTIJD_BLOKKEN.map(blok => ({
+      label: blok.label,
+      aantal: alleWachttijden.filter(m => { const afgerond = Math.round(m); return afgerond >= blok.min && afgerond <= blok.max; }).length,
+    }));
+
     // Drukte per uur-blok: laat in één oogopslag het drukste moment van de
     // dag zien — nuttig voor personeelsplanning (wanneer extra bezetting
     // nodig is).
@@ -2314,7 +3044,11 @@
     const sameDayDieDag = sameDayItems.filter(e => e.aangemaaktOp && new Date(e.aangemaaktOp).toDateString() === doelStr);
     const sameDayOpen        = sameDayDieDag.filter(e => !e.status || e.status === 'openstaand').length;
     const sameDayBehandeling = sameDayDieDag.filter(e => e.status === 'in-behandeling').length;
-    const sameDayKlaar       = sameDayDieDag.filter(e => e.status === 'afgehandeld').length;
+    // Uitgeleverd telt hier mee als "klaar": de reparatie is inhoudelijk
+    // afgerond. Zonder dit zou een uitgeleverde reparatie ineens uit de
+    // dagcijfers verdwijnen zodra hij aan de klant is meegegeven.
+    const sameDayKlaar       = sameDayDieDag.filter(e => e.status === 'afgehandeld' || e.status === 'uitgeleverd').length;
+    const sameDayUitgeleverd = sameDayDieDag.filter(e => e.status === 'uitgeleverd').length;
 
     let totTotStart = 0, telTotStart = 0, totReparatie = 0, telReparatie = 0;
     const perTechnician = {};
@@ -2340,13 +3074,39 @@
       }
     }
 
+    // NIEUW: backlog bij sluiting — vastgelegd op het moment van de
+    // automatische dagsluiting (zie controleerDagelijksSchema). Voor de
+    // huidige dag (nog niet gesloten) of dagen van vóór deze functie
+    // bestond, is dit cijfer simpelweg niet beschikbaar (null).
+    // ── NIEUW: niet-ingenomen ongeplande services ──
+    // Percentage berekend t.o.v. álle ongeplande services die dag (dus
+    // ingenomen + niet-ingenomen samen) — dat is het enige zinvolle
+    // noemertal: "van elke 10 ongeplande services ging er X niet door".
+    const nietIngenomenDieDag = queue.filter(e => e.status === 'niet-ingenomen' && e.nietIngenomenOp
+      && new Date(e.nietIngenomenOp).toDateString() === doelStr);
+    const ongeplandTotaalDieDag = (perType.ongepland || 0) + nietIngenomenDieDag.length;
+    const nietIngenomenAantal = nietIngenomenDieDag.length;
+    const nietIngenomenPercentage = ongeplandTotaalDieDag > 0
+      ? Math.round((nietIngenomenAantal / ongeplandTotaalDieDag) * 100) : 0;
+    const nietIngenomenPerReden = {};
+    nietIngenomenDieDag.forEach(e => {
+      const label = e.nietIngenomenRedenLabel || 'Onbekend';
+      nietIngenomenPerReden[label] = (nietIngenomenPerReden[label] || 0) + 1;
+    });
+    const nietIngenomenRedenLijst = Object.entries(nietIngenomenPerReden).sort((a, b) => b[1] - a[1]);
+
+    const backlogBijSluiting = (dagStatistieken[datumStr] && typeof dagStatistieken[datumStr].backlogBijSluiting === 'number')
+      ? dagStatistieken[datumStr].backlogBijSluiting : null;
+
     return {
       totaal: lijst.length, totaalAangemeld, perType, gemiddelde, gemiddeldeBehandeltijd,
       mediaanWachttijd, wachttijdPerType, percentageBovenDrempel,
       langsteMinuten: Math.round(langsteMinuten), nogWachtend, perMedewerker, lijst,
       perUur, druksteUur, druksteUurAantal,
-      sameDayOpen, sameDayBehandeling, sameDayKlaar, langstOpenstaandeSameDayUren,
+      sameDayOpen, sameDayBehandeling, sameDayKlaar, sameDayUitgeleverd, langstOpenstaandeSameDayUren,
       sameDayGemTotStart, sameDayGemReparatietijd, sameDayPerTechnician,
+      backlogBijSluiting, wachttijdVerdeling,
+      nietIngenomenAantal, nietIngenomenPercentage, nietIngenomenRedenLijst, ongeplandTotaalDieDag,
     };
   }
 
@@ -2362,12 +3122,45 @@
     return data.totaal > 0 ? data : null;
   }
 
+  // ── NIEUW: vergelijking met de afgelopen 7 dagen ──
+  // Geeft een stabieler trendbeeld dan alleen "gisteren" (één toevallige
+  // dag kan een uitschieter zijn). Bewust defensief: als er minder dan 3
+  // dagen met echte activiteit in die periode zitten, tonen we liever
+  // niets dan een gemiddelde dat op te weinig data berust — een misleidend
+  // getal is erger dan geen getal.
+  function berekenWeekVergelijking(datumStr) {
+    const [j, m, d] = datumStr.split('-').map(Number);
+    const basisDatum = new Date(j, m - 1, d);
+    let totaalSom = 0, wachttijdSom = 0, dagenMetData = 0;
+
+    for (let terug = 1; terug <= 7; terug++) {
+      const dag = new Date(basisDatum);
+      dag.setDate(dag.getDate() - terug);
+      const dagStr = dag.getFullYear() + '-' + String(dag.getMonth() + 1).padStart(2, '0') + '-' + String(dag.getDate()).padStart(2, '0');
+      const data = berekenDagoverzicht(dagStr);
+      if (data.totaal > 0) {
+        totaalSom += data.totaal;
+        wachttijdSom += data.gemiddelde;
+        dagenMetData++;
+      }
+    }
+
+    if (dagenMetData < 3) return null; // te weinig historie voor een betrouwbaar gemiddelde
+
+    return {
+      gemiddeldTotaal: Math.round(totaalSom / dagenMetData),
+      gemiddeldeWachttijd: Math.round(wachttijdSom / dagenMetData),
+      dagenMetData,
+    };
+  }
+
   function renderDagoverzicht() {
     dagoverzichtDatum = document.getElementById('dagoverzicht-datum').value || huidigeDatumString();
     document.getElementById('btn-dagoverzicht-volgende').disabled = dagoverzichtDatum >= huidigeDatumString();
     const isVandaag = dagoverzichtDatum === huidigeDatumString();
     const data = berekenDagoverzicht(dagoverzichtDatum);
     const gisteren = isVandaag ? berekenGisterenVergelijking(dagoverzichtDatum) : null;
+    const week = isVandaag ? berekenWeekVergelijking(dagoverzichtDatum) : null;
 
     // Compacte tekstuele "mini-grafiek" voor drukte per uur — bewust geen
     // losse chart-bibliotheek: dit is lichter, sneller en past beter bij
@@ -2382,7 +3175,17 @@
       </div>`).join('') : '<div class="overzicht-leeg">Nog geen aanmeldingen op deze dag.</div>';
 
     document.getElementById('dagoverzicht-body').innerHTML = `
-      <div class="overzicht-mini-titel" style="margin-top:0">🛠️ Operationeel — voor medewerkers</div>
+      <div class="overzicht-mini-titel" style="margin-top:0;display:flex;justify-content:space-between;align-items:center">
+        <span>🛠️ Operationeel — voor medewerkers</span>
+        <button type="button" class="btn-drempel-link" onclick="sluitModal('dagoverzicht-overlay');document.getElementById('header-meer-menu').classList.add('open');toggleInstellingenPopover()">⚙️ Drempels aanpassen</button>
+      </div>
+      <!-- Drie KPI's zijn hier bewust weggehaald: "Langst open same-day" en
+           "Same-day: open/bezig/klaar" (die staan al live in de same-day-
+           kolom naast de wachtrij) en "Backlog bij sluiting". De
+           onderliggende berekeningen blijven volledig bestaan en worden
+           gebruikt in het PDF-rapport (zie exporteerDagoverzichtPdf).
+           Twee kaarten passen exact in het standaard 2-koloms grid, dus
+           geen losse kaart op een halve regel. -->
       <div class="overzicht-stats-grid">
         <div class="overzicht-stat-card">
           <div class="overzicht-stat-value">${isVandaag ? data.nogWachtend : '—'}</div>
@@ -2391,14 +3194,6 @@
         <div class="overzicht-stat-card">
           <div class="overzicht-stat-value">${data.totaal > 0 ? data.gemiddelde + ' min' : '—'}</div>
           <div class="overzicht-stat-label">Actuele/gem. wachttijd</div>
-        </div>
-        <div class="overzicht-stat-card">
-          <div class="overzicht-stat-value">${isVandaag && data.langstOpenstaandeSameDayUren !== null ? data.langstOpenstaandeSameDayUren + ' u' : '—'}</div>
-          <div class="overzicht-stat-label">Langst open same-day</div>
-        </div>
-        <div class="overzicht-stat-card">
-          <div class="overzicht-stat-value">${data.sameDayOpen}/${data.sameDayBehandeling}/${data.sameDayKlaar}</div>
-          <div class="overzicht-stat-label">Same-day: open/bezig/klaar</div>
         </div>
       </div>
 
@@ -2426,7 +3221,7 @@
         </div>
         <div class="overzicht-stat-card">
           <div class="overzicht-stat-value">${data.totaal > 0 ? data.percentageBovenDrempel + '%' : '—'}</div>
-          <div class="overzicht-stat-label">Boven ${WACHTTIJD_DOELSTELLING_MIN} min</div>
+          <div class="overzicht-stat-label">Boven ${INSTELLINGEN.wachttijdDoelstellingMin} min</div>
         </div>
       </div>
 
@@ -2435,6 +3230,11 @@
           T.o.v. gisteren: ${data.totaal} vs ${gisteren.totaal} afgehandeld
           (${data.totaal >= gisteren.totaal ? '+' : ''}${data.totaal - gisteren.totaal}),
           gem. wachttijd ${data.gemiddelde} vs ${gisteren.gemiddelde} min.
+        </div>` : ''}
+      ${week ? `
+        <div class="overzicht-vergelijking">
+          T.o.v. gemiddelde van de afgelopen ${week.dagenMetData} dagen: ${data.totaal} vs ${week.gemiddeldTotaal} afgehandeld,
+          gem. wachttijd ${data.gemiddelde} vs ${week.gemiddeldeWachttijd} min.
         </div>` : ''}
 
       <div class="overzicht-mini-titel">Per type bezoek (aantal · gem. wachttijd)</div>
@@ -2447,6 +3247,38 @@
       <div class="overzicht-mini-titel">Drukte per uur${data.druksteUur !== null ? ` — drukste: ${String(data.druksteUur).padStart(2, '0')}:00 (${data.druksteUurAantal})` : ''}</div>
       <div>${uurGrafiekHtml}</div>
 
+      ${data.totaal > 0 ? (() => {
+        const maxBlok = Math.max(1, ...data.wachttijdVerdeling.map(b => b.aantal));
+        return `
+      <div class="overzicht-mini-titel">Wachttijd-verdeling</div>
+      <div>
+        ${data.wachttijdVerdeling.map(b => `
+          <div class="overzicht-uur-rij">
+            <span class="overzicht-uur-label">${b.label}</span>
+            <div class="overzicht-uur-balk-track"><div class="overzicht-uur-balk-vulling" style="width:${Math.round(b.aantal / maxBlok * 100)}%"></div></div>
+            <span class="overzicht-uur-aantal">${b.aantal}</span>
+          </div>`).join('')}
+      </div>`;
+      })() : ''}
+
+      ${data.nietIngenomenAantal > 0 ? (() => {
+        const maxReden = Math.max(1, ...data.nietIngenomenRedenLijst.map(r => r[1]));
+        return `
+      <div class="overzicht-mini-titel">Niet ingenomen — ongeplande service</div>
+      <div class="overzicht-type-row">
+        <span>Van ${data.ongeplandTotaalDieDag} ongeplande services niet ingenomen</span>
+        <strong>${data.nietIngenomenAantal} (${data.nietIngenomenPercentage}%)</strong>
+      </div>
+      <div style="margin-top:6px">
+        ${data.nietIngenomenRedenLijst.map(([label, aantal]) => `
+          <div class="overzicht-uur-rij">
+            <span class="overzicht-uur-label" style="width:auto;flex:1;text-align:left">${escapeHtml(label)}</span>
+            <div class="overzicht-uur-balk-track" style="max-width:90px"><div class="overzicht-uur-balk-vulling" style="width:${Math.round(aantal / maxReden * 100)}%"></div></div>
+            <span class="overzicht-uur-aantal">${aantal}</span>
+          </div>`).join('')}
+      </div>`;
+      })() : ''}
+
       ${(data.sameDayGemTotStart !== null || data.sameDayGemReparatietijd !== null) ? `
         <div class="overzicht-mini-titel">Same-day-doorlooptijden</div>
         <div>
@@ -2454,17 +3286,408 @@
           ${data.sameDayGemReparatietijd !== null ? `<div class="overzicht-type-row"><span>Gem. reparatietijd</span><strong>${data.sameDayGemReparatietijd} min</strong></div>` : ''}
         </div>` : ''}
 
-      ${data.sameDayPerTechnician.length > 0 ? `
-        <div class="overzicht-mini-titel">Same-days per technician</div>
-        <div>
-          ${data.sameDayPerTechnician.map(([naam, c]) => `<div class="overzicht-type-row"><span>${escapeHtml(naam)}</span><strong>${c}</strong></div>`).join('')}
-        </div>` : ''}
+      ${data.sameDayPerTechnician.length > 0 ? (() => {
+        // NIEUW: bullet-chart-stijl i.p.v. een kale lijst met cijfers — een
+        // gesorteerde lijst met getallen oogt al snel als een ranking, wat
+        // expliciet vermeden moet worden voor individuele medewerkerdata.
+        // De vaste (niet-gesorteerde) volgorde + een gemiddelde-referentielijn
+        // geven context ("hoe verhoudt dit zich") zonder competitie-gevoel.
+        const gemiddelde = data.sameDayPerTechnician.reduce((s, [, c]) => s + c, 0) / data.sameDayPerTechnician.length;
+        const maxC = Math.max(...data.sameDayPerTechnician.map(([, c]) => c), 1);
+        const gemPositie = Math.min(100, (gemiddelde / maxC) * 100);
+        return `
+        <div class="overzicht-mini-titel">Same-days per technician <span style="font-weight:400;text-transform:none;color:var(--muted);letter-spacing:0">— t.o.v. gemiddelde (${gemiddelde.toFixed(1)})</span></div>
+        <div class="bullet-chart-groep">
+          ${data.sameDayPerTechnician.map(([naam, c]) => `
+            <div class="bullet-chart-rij">
+              <span class="bullet-chart-label">${escapeHtml(naam)}</span>
+              <div class="bullet-chart-track">
+                <div class="bullet-chart-balk" style="width:${Math.min(100, (c / maxC) * 100)}%"></div>
+                <div class="bullet-chart-gemlijn" style="left:${gemPositie}%" title="Gemiddelde: ${gemiddelde.toFixed(1)}"></div>
+              </div>
+              <span class="bullet-chart-waarde">${c}</span>
+            </div>`).join('')}
+        </div>`;
+      })() : ''}
 
       ${data.perMedewerker.length > 0 ? `
         <div class="overzicht-mini-titel">Per medewerker</div>
         <div>
           ${data.perMedewerker.map(([naam, c]) => `<div class="overzicht-type-row"><span>${escapeHtml(naam)}</span><strong>${c}</strong></div>`).join('')}
         </div>` : ''}`;
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — Periode-overzicht (week/maand/weekdag-trend)
+  // Aggregeert meerdere dagen door berekenDagoverzicht() herhaald aan te
+  // roepen — dat leest uit de al-in-het-geheugen-geladen queue/sameDayItems,
+  // dus geen extra Firebase-calls. Bewust beperkt tot 30 dagen max (geen
+  // kwartaal), zoals expliciet als aandachtspunt genoemd voor performance.
+  // ══════════════════════════════════════════════════════════════════
+  // ── NIEUW: welke periode is actief gekozen — bepaalt zowel de
+  // schermweergave als wat de PDF-knop exporteert. ──
+  let huidigePeriodeKeuze = 'week';
+
+  function kiesPeriode(keuze) {
+    huidigePeriodeKeuze = keuze;
+    document.querySelectorAll('.periode-keuze-knop').forEach(btn => btn.classList.remove('is-actief'));
+    document.getElementById('periode-knop-' + keuze).classList.add('is-actief');
+    renderPeriodeOverzicht();
+  }
+
+  // Week/maand: rolling venster (afgelopen 7 / 30 dagen), simpelste en
+  // meest universeel begrepen invulling van "een weekrapport" — geen
+  // kalender-uitlijning nodig, dus ook geen aparte "deze/vorige week"-
+  // verwarring meer.
+  function berekenPeriodeOverzicht(modus) {
+    const vandaag = new Date();
+    let totaalAangemeld = 0, totaalAfgehandeld = 0, wachttijdSom = 0, wachttijdTelbaar = 0;
+    const perTypeSom = { ophalen: 0, ongepland: 0, schoonmaak: 0 };
+    const perDag = [];
+    const heatmapData = {}; // { dagVanWeekIndex (0=zo): { uur: aantal } }
+
+    const aantalDagen = modus === 'maand' ? 30 : 7;
+    const dagOffsets = [];
+    for (let i = 1; i <= aantalDagen; i++) dagOffsets.push(i);
+
+    dagOffsets.forEach((offset) => {
+      const dag = new Date(vandaag);
+      dag.setDate(dag.getDate() - offset);
+      const dagStr = dag.getFullYear() + '-' + String(dag.getMonth() + 1).padStart(2, '0') + '-' + String(dag.getDate()).padStart(2, '0');
+      const data = berekenDagoverzicht(dagStr);
+      totaalAangemeld += data.totaalAangemeld;
+      totaalAfgehandeld += data.totaal;
+      if (data.totaal > 0) { wachttijdSom += data.gemiddelde; wachttijdTelbaar++; }
+      Object.keys(perTypeSom).forEach(t => { perTypeSom[t] += (data.perType[t] || 0); });
+      if (data.totaal > 0) perDag.push({ datum: dagStr, totaal: data.totaal, gemiddelde: data.gemiddelde });
+
+      // NIEUW: heatmap-data — dag-van-de-week × uur, opgeteld over de hele
+      // periode. Dit is de aanbevolen visualisatie voor "wanneer is het
+      // structureel druk" — een lijst met losse dagen laat dat patroon
+      // niet zien, een 2D-heatmap wel.
+      const dagVanWeekIndex = dag.getDay();
+      if (!heatmapData[dagVanWeekIndex]) heatmapData[dagVanWeekIndex] = {};
+      Object.entries(data.perUur).forEach(([uur, aantal]) => {
+        heatmapData[dagVanWeekIndex][uur] = (heatmapData[dagVanWeekIndex][uur] || 0) + aantal;
+      });
+    });
+
+    return {
+      dagenMetData: perDag.length,
+      totaalAangemeld, totaalAfgehandeld,
+      gemiddeldeWachttijd: wachttijdTelbaar > 0 ? Math.round(wachttijdSom / wachttijdTelbaar) : 0,
+      perTypeSom, perDag, heatmapData,
+    };
+  }
+
+  // ── NIEUW: all-time-overzicht ──
+  // Voor week/maand loopt de berekening dag-voor-dag via berekenDagoverzicht()
+  // — prima voor 7 of 30 dagen, maar bij "alle tijd" (mogelijk honderden
+  // dagen sinds de eerste ingebruikname) zou dat traag worden. Deze functie
+  // scant de al-geladen queue-data in één keer, ongeacht hoeveel dagen dat
+  // beslaat — dus snel, ook na maanden gebruik.
+  function berekenAlleTijdOverzicht() {
+    const afgerond = queue.filter(e => e.status === 'afgerond' && e.afgerondOp);
+    if (afgerond.length === 0) return { dagenMetData: 0 };
+
+    let wachttijdSomTotaal = 0, wachttijdTelbaar = 0;
+    const perTypeSom = { ophalen: 0, ongepland: 0, schoonmaak: 0 };
+    const heatmapData = {};
+    const perDagMap = {}; // 'YYYY-MM-DD' -> { totaal, wachttijdSom, telbaar }
+    let vroegsteTijdstip = null;
+
+    afgerond.forEach((e) => {
+      if (perTypeSom[e.type] !== undefined) perTypeSom[e.type]++;
+      if (!e.timestamp) return;
+      if (vroegsteTijdstip === null || e.timestamp < vroegsteTijdstip) vroegsteTijdstip = e.timestamp;
+
+      const d = new Date(e.timestamp);
+      const dagStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      if (!perDagMap[dagStr]) perDagMap[dagStr] = { totaal: 0, wachttijdSom: 0, telbaar: 0 };
+      perDagMap[dagStr].totaal++;
+
+      if (e.afgerondOp) {
+        const minuten = (e.afgerondOp - e.timestamp) / 60000;
+        wachttijdSomTotaal += minuten;
+        wachttijdTelbaar++;
+        perDagMap[dagStr].wachttijdSom += minuten;
+        perDagMap[dagStr].telbaar++;
+      }
+
+      const dagVanWeekIndex = d.getDay();
+      const uur = d.getHours();
+      if (!heatmapData[dagVanWeekIndex]) heatmapData[dagVanWeekIndex] = {};
+      heatmapData[dagVanWeekIndex][uur] = (heatmapData[dagVanWeekIndex][uur] || 0) + 1;
+    });
+
+    const perDag = Object.entries(perDagMap)
+      .map(([datum, d]) => ({ datum, totaal: d.totaal, gemiddelde: d.telbaar > 0 ? Math.round(d.wachttijdSom / d.telbaar) : 0 }))
+      .sort((a, b) => b.datum.localeCompare(a.datum)); // nieuwste eerst, consistent met week/maand
+
+    return {
+      dagenMetData: perDag.length,
+      totaalAangemeld: queue.length,
+      totaalAfgehandeld: afgerond.length,
+      gemiddeldeWachttijd: wachttijdTelbaar > 0 ? Math.round(wachttijdSomTotaal / wachttijdTelbaar) : 0,
+      perTypeSom, perDag, heatmapData,
+      vroegsteTijdstip,
+    };
+  }
+
+  // Eén punt waar render + export dezelfde data vandaan halen — voorkomt
+  // dat scherm en PDF ooit uit elkaar kunnen lopen.
+  function haalPeriodeData() {
+    return huidigePeriodeKeuze === 'alltime' ? berekenAlleTijdOverzicht() : berekenPeriodeOverzicht(huidigePeriodeKeuze);
+  }
+
+  function renderPeriodeOverzicht() {
+    const p = haalPeriodeData();
+
+    if (p.dagenMetData === 0) {
+      const legeTekst = huidigePeriodeKeuze === 'alltime'
+        ? 'Nog geen afgeronde klanten om te tonen — kom hier later op terug.'
+        : 'Nog niet genoeg historie voor deze periode — kom hier later op terug.';
+      document.getElementById('periode-overzicht-body').innerHTML = '<div class="overzicht-leeg">' + legeTekst + '</div>';
+      return;
+    }
+
+    // Compacte lijst per dag met data, nieuwste bovenaan.
+    const perDagHtml = [...p.perDag].map(d => { // perDag is al nieuwste-eerst opgebouwd, geen reverse nodig
+      const [j, m, dd] = d.datum.split('-').map(Number);
+      const label = new Date(j, m - 1, dd).toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' });
+      return `<div class="overzicht-type-row"><span>${label}</span><strong>${d.totaal} klanten · ${d.gemiddelde} min</strong></div>`;
+    }).join('');
+
+    // NIEUW: heatmap dag-van-week × uur — laat in één oogopslag zien
+    // WANNEER het structureel druk is (i.p.v. alleen losse dagcijfers).
+    // Alleen openingsuren (9-17) tonen, geen lege kolommen ernaast.
+    const OPENINGSUREN = [9, 10, 11, 12, 13, 14, 15, 16];
+    const WEEKDAG_VOLGORDE = [1, 2, 3, 4, 5, 6, 0]; // maandag eerst, zondag laatst
+    let heatmapMax = 1;
+    WEEKDAG_VOLGORDE.forEach(dagIdx => {
+      OPENINGSUREN.forEach(u => {
+        const waarde = (p.heatmapData[dagIdx] && p.heatmapData[dagIdx][u]) || 0;
+        if (waarde > heatmapMax) heatmapMax = waarde;
+      });
+    });
+    const heatmapHtml = `
+      <div class="heatmap-grid">
+        <div class="heatmap-hoek"></div>
+        ${OPENINGSUREN.map(u => `<div class="heatmap-uurlabel">${u}u</div>`).join('')}
+        ${WEEKDAG_VOLGORDE.map(dagIdx => `
+          <div class="heatmap-daglabel">${DAGEN_VAN_DE_WEEK[dagIdx].slice(0, 2)}</div>
+          ${OPENINGSUREN.map(u => {
+            const waarde = (p.heatmapData[dagIdx] && p.heatmapData[dagIdx][u]) || 0;
+            // Minimale intensiteit (0.06) zodat een lege cel nog altijd als
+            // rooster-vakje zichtbaar is i.p.v. onzichtbaar te versmelten
+            // met de achtergrond — dat hield het raster zelf overzichtelijk.
+            const intensiteit = waarde === 0 ? 0.06 : 0.18 + (waarde / heatmapMax) * 0.72;
+            return `<div class="heatmap-cel" style="background:rgba(26,61,124,${intensiteit.toFixed(2)})" title="${DAGEN_VAN_DE_WEEK[dagIdx]} ${u}:00 — ${waarde} aanmeldingen" role="img" aria-label="${DAGEN_VAN_DE_WEEK[dagIdx]} ${u} uur: ${waarde} aanmeldingen"></div>`;
+          }).join('')}
+        `).join('')}
+      </div>
+      <div class="heatmap-legenda">
+        <span>Minder</span>
+        <span class="heatmap-legenda-cellen">
+          ${[0.06, 0.25, 0.45, 0.65, 0.9].map(i => `<span class="heatmap-legenda-cel" style="background:rgba(26,61,124,${i})"></span>`).join('')}
+        </span>
+        <span>Meer</span>
+      </div>`;
+
+    // NIEUW: lichte SVG-lijngrafiek voor de volumetrend — geen library,
+    // gewoon een polyline op basis van dezelfde perDag-data.
+    const chronologisch = [...p.perDag].reverse(); // perDag is nieuwste-eerst; voor links->rechts op tijd omdraaien
+    const svgBreedte = 100, svgHoogte = 32;
+    const maxTotaal = Math.max(1, ...chronologisch.map(d => d.totaal));
+    const punten = chronologisch.map((d, i) => {
+      const x = chronologisch.length > 1 ? (i / (chronologisch.length - 1)) * svgBreedte : svgBreedte / 2;
+      const y = svgHoogte - (d.totaal / maxTotaal) * (svgHoogte - 4) - 2;
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+    const lijngrafiekHtml = chronologisch.length >= 2 ? `
+      <svg viewBox="0 0 ${svgBreedte} ${svgHoogte}" class="periode-lijngrafiek" preserveAspectRatio="none">
+        <polyline points="${punten}" fill="none" stroke="var(--primary)" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+      </svg>
+      <div class="periode-lijngrafiek-as"><span>${chronologisch[0].datum.split('-').reverse().slice(0,2).join('/')}</span><span>${chronologisch[chronologisch.length-1].datum.split('-').reverse().slice(0,2).join('/')}</span></div>`
+      : '<div class="overzicht-leeg">Nog niet genoeg dagen voor een trendlijn.</div>';
+
+    document.getElementById('periode-overzicht-body').innerHTML = `
+      <div class="overzicht-stats-grid">
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${p.totaalAangemeld}</div>
+          <div class="overzicht-stat-label">Totaal aangemeld</div>
+        </div>
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${p.totaalAfgehandeld}</div>
+          <div class="overzicht-stat-label">Totaal afgehandeld</div>
+        </div>
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${p.gemiddeldeWachttijd} min</div>
+          <div class="overzicht-stat-label">Gem. wachttijd (dagen met data)</div>
+        </div>
+        <div class="overzicht-stat-card">
+          <div class="overzicht-stat-value">${p.dagenMetData}</div>
+          <div class="overzicht-stat-label">Dagen met activiteit</div>
+        </div>
+      </div>
+
+      <div class="overzicht-mini-titel" style="margin-top:0">Volumetrend — klanten per dag</div>
+      ${lijngrafiekHtml}
+
+      <div class="overzicht-mini-titel">Wanneer is het structureel druk?</div>
+      ${heatmapHtml}
+
+      <div class="overzicht-mini-titel">Per type bezoek (totaal over de periode)</div>
+      <div>
+        ${Object.keys(TYPE_LABELS_OVERZICHT).map(t => `
+          <div class="overzicht-type-row"><span>${TYPE_LABELS_OVERZICHT[t]}</span><strong>${p.perTypeSom[t] || 0}</strong></div>
+        `).join('')}
+      </div>
+      <div class="overzicht-mini-titel">Per dag</div>
+      <div>${perDagHtml}</div>
+    `;
+  }
+
+  function toonPeriodeOverzicht() {
+    document.querySelectorAll('.periode-keuze-knop').forEach(btn => btn.classList.remove('is-actief'));
+    document.getElementById('periode-knop-' + huidigePeriodeKeuze).classList.add('is-actief');
+    renderPeriodeOverzicht();
+    document.getElementById('periode-overzicht-overlay').classList.add('open');
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — Periode-PDF-rapport (week/maandrapport)
+  // Het periode-overzicht-scherm had al een heatmap en lijngrafiek, maar
+  // er was helemaal geen PDF-export voor deze weergave — alleen de
+  // dag-PDF bestond. Hergebruikt dezelfde berekening (berekenPeriodeOverzicht)
+  // als het scherm, met eigen PDF-geschikte opmaak van dezelfde twee
+  // visuals (heatmap + lijngrafiek).
+  // ══════════════════════════════════════════════════════════════════
+  function exporteerPeriodePdf() {
+    const p = haalPeriodeData();
+
+    if (p.dagenMetData === 0) {
+      alert('Nog niet genoeg historie voor deze periode om een rapport te genereren.');
+      return;
+    }
+
+    const nu = new Date();
+    const gegenereerdOp = nu.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }) + ' om ' + nu.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+    const periodeLabels = { week: 'Weekrapport — afgelopen 7 dagen', maand: 'Maandrapport — afgelopen 30 dagen', alltime: 'All-time rapport — volledige historie' };
+    let periodeLabel = periodeLabels[huidigePeriodeKeuze] || huidigePeriodeKeuze;
+    if (huidigePeriodeKeuze === 'alltime' && p.vroegsteTijdstip) {
+      periodeLabel += ' (vanaf ' + new Date(p.vroegsteTijdstip).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' }) + ')';
+    }
+    const kortTypeLabel = (t) => TYPE_LABELS_OVERZICHT[t].replace(/^\S+\s/, '');
+
+    // Heatmap — zelfde berekening als renderPeriodeOverzicht(), eigen PDF-opmaak.
+    const OPENINGSUREN = [9, 10, 11, 12, 13, 14, 15, 16];
+    const WEEKDAG_VOLGORDE = [1, 2, 3, 4, 5, 6, 0];
+    let heatmapMax = 1;
+    WEEKDAG_VOLGORDE.forEach(dagIdx => {
+      OPENINGSUREN.forEach(u => {
+        const waarde = (p.heatmapData[dagIdx] && p.heatmapData[dagIdx][u]) || 0;
+        if (waarde > heatmapMax) heatmapMax = waarde;
+      });
+    });
+    const heatmapPdfHtml = `
+      <div class="pdf-heatmap-grid">
+        <div></div>
+        ${OPENINGSUREN.map(u => `<div class="pdf-heatmap-label">${u}u</div>`).join('')}
+        <div class="pdf-heatmap-label" style="font-size:7px">totaal</div>
+        ${WEEKDAG_VOLGORDE.map(dagIdx => {
+          const dagTotaal = OPENINGSUREN.reduce((som, u) => som + ((p.heatmapData[dagIdx] && p.heatmapData[dagIdx][u]) || 0), 0);
+          return `
+          <div class="pdf-heatmap-label pdf-heatmap-daglabel">${DAGEN_VAN_DE_WEEK[dagIdx].slice(0, 2)}</div>
+          ${OPENINGSUREN.map(u => {
+            const waarde = (p.heatmapData[dagIdx] && p.heatmapData[dagIdx][u]) || 0;
+            const intensiteit = waarde === 0 ? 0.06 : 0.18 + (waarde / heatmapMax) * 0.72;
+            // Grijstinten i.p.v. blauw: drukt betrouwbaar af op elke
+            // printer, ook in zwart-wit, en houdt het rapport rustig.
+            return `<div class="pdf-heatmap-cel" style="background:rgba(17,17,17,${intensiteit.toFixed(2)})"></div>`;
+          }).join('')}
+          <div class="pdf-heatmap-totaal">${dagTotaal > 0 ? dagTotaal : '·'}</div>`;
+        }).join('')}
+      </div>
+      <div class="pdf-heatmap-legenda">
+        <span>Minder</span>
+        ${[0.06, 0.25, 0.45, 0.65, 0.9].map(i => `<span class="pdf-heatmap-legenda-cel" style="background:rgba(17,17,17,${i})"></span>`).join('')}
+        <span>Meer</span>
+        <span style="margin-left:8px">· drukste moment: ${heatmapMax} ${heatmapMax === 1 ? 'aanmelding' : 'aanmeldingen'} in één uur</span>
+      </div>`;
+
+    // Lijngrafiek — zelfde berekening als renderPeriodeOverzicht().
+    const chronologisch = [...p.perDag].reverse();
+    const svgBreedte = 200, svgHoogte = 50;
+    const maxTotaal = Math.max(1, ...chronologisch.map(d => d.totaal));
+    const punten = chronologisch.map((d, i) => {
+      const x = chronologisch.length > 1 ? (i / (chronologisch.length - 1)) * svgBreedte : svgBreedte / 2;
+      const y = svgHoogte - (d.totaal / maxTotaal) * (svgHoogte - 6) - 3;
+      return x.toFixed(1) + ',' + y.toFixed(1);
+    }).join(' ');
+    const lijngrafiekPdfHtml = chronologisch.length >= 2 ? `
+      <svg viewBox="0 0 ${svgBreedte} ${svgHoogte}" class="pdf-lijngrafiek" preserveAspectRatio="none">
+        <polyline points="${punten}" fill="none" stroke="#222" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+      </svg>
+      <div class="pdf-lijngrafiek-as"><span>${chronologisch[0].datum.split('-').reverse().slice(0, 2).join('/')}</span><span>${chronologisch[chronologisch.length - 1].datum.split('-').reverse().slice(0, 2).join('/')}</span></div>`
+      : '<p style="font-size:10px;color:#999">Nog niet genoeg dagen voor een trendlijn.</p>';
+
+    document.getElementById('pdf-rapport-container').innerHTML = `
+      <div class="pdf-header">
+        <img src="Amac_Logo.svg" class="pdf-logo" alt="Amac">
+        <div>
+          <div class="pdf-titel">Periode-rapport — Amac</div>
+          <div class="pdf-sub">${periodeLabel}</div>
+        </div>
+      </div>
+      <div class="pdf-meta">Gegenereerd op ${gegenereerdOp}</div>
+
+      <div class="pdf-sectie-titel">Kerncijfers</div>
+      <div class="pdf-kpi-grid">
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${p.totaalAangemeld}</div>
+          <div class="pdf-kpi-label">Aangemeld</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${p.totaalAfgehandeld}</div>
+          <div class="pdf-kpi-label">Afgehandeld</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${p.gemiddeldeWachttijd}<span style="font-size:10px"> min</span></div>
+          <div class="pdf-kpi-label">Gem. wachttijd</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${p.dagenMetData}</div>
+          <div class="pdf-kpi-label">Dagen actief</div>
+        </div>
+      </div>
+
+      <p class="pdf-summary">
+        In deze periode werden <strong>${p.totaalAangemeld}</strong> klanten aangemeld en
+        <strong>${p.totaalAfgehandeld}</strong> afgehandeld, verdeeld over
+        <strong>${p.dagenMetData}</strong> ${p.dagenMetData === 1 ? 'dag' : 'dagen'} met activiteit
+        (gemiddeld ${(p.totaalAfgehandeld / Math.max(1, p.dagenMetData)).toFixed(1)} klanten per actieve dag).
+        De gemiddelde wachttijd bedroeg <strong>${p.gemiddeldeWachttijd} minuten</strong>.
+      </p>
+
+      <div class="pdf-sectie-titel">Volumetrend — klanten per dag</div>
+      ${lijngrafiekPdfHtml}
+
+      <div class="pdf-sectie-titel">Wanneer is het structureel druk?</div>
+      ${heatmapPdfHtml}
+
+      <div class="pdf-sectie-titel">Per type bezoek (totaal over de periode)</div>
+      <table class="pdf-tabel">
+        ${Object.keys(TYPE_LABELS_OVERZICHT).map(t => `<tr><td>${kortTypeLabel(t)}</td><td>${p.perTypeSom[t] || 0}</td></tr>`).join('')}
+      </table>
+
+      <div class="pdf-footer">
+        <strong>Privacy:</strong> dit rapport bevat uitsluitend geaggregeerde bedrijfscijfers — er staan nergens klantnamen, contactgegevens of andere persoonlijke gegevens in.
+        <br>Amac Wachtrij-systeem — gegenereerd op ${gegenereerdOp}.
+      </div>
+    `;
+
+    window.print();
   }
 
   function toonDagoverzicht() {
@@ -2488,76 +3711,8 @@
     renderDagoverzicht();
   }
 
-  function csvVeld(v) {
-    const s = String(v ?? '');
-    return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
-  }
-
-  function downloadCsv(inhoud, bestandsnaam) {
-    const blob = new Blob(['\uFEFF' + inhoud], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = bestandsnaam;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
   const DAGEN_VAN_DE_WEEK = ['zondag', 'maandag', 'dinsdag', 'woensdag', 'donderdag', 'vrijdag', 'zaterdag'];
 
-  // ── CSV-export: vijf logische, losse bestanden i.p.v. één onoverzichtelijk
-  // bestand — elk gericht op een ander analysedoel. Bewust GEEN klantnaam
-  // (AVG) — alleen niet-herleidbare informatie die al elders zichtbaar is. ──
-  function exporteerDagoverzichtCsv() {
-    const datumVoorExport = dagoverzichtDatum || huidigeDatumString();
-    const data = berekenDagoverzicht(datumVoorExport);
-
-    // 1) Samenvatting — kerncijfers, klaar voor een draaitabel/dashboard.
-    downloadCsv(
-      'kpi,waarde\n' + [
-        ['datum', datumVoorExport], ['totaal_aangemeld', data.totaalAangemeld],
-        ['afgehandeld', data.totaal], ['gemiddelde_wachttijd_min', data.gemiddelde],
-        ['mediaan_wachttijd_min', data.mediaanWachttijd], ['langste_wachttijd_min', data.langsteMinuten],
-        ['pct_boven_' + WACHTTIJD_DOELSTELLING_MIN + 'min', data.percentageBovenDrempel],
-        ['gemiddelde_behandeltijd_min', data.gemiddeldeBehandeltijd],
-        ['sameday_openstaand', data.sameDayOpen], ['sameday_in_behandeling', data.sameDayBehandeling],
-        ['sameday_klaar', data.sameDayKlaar],
-      ].map(r => r.map(csvVeld).join(',')).join('\n'),
-      'dagoverzicht-samenvatting-' + datumVoorExport + '.csv'
-    );
-
-    // 2) Klantdoorstroom — één rij per afgehandelde klant, geschikt voor
-    // filtering/draaitabellen in Excel of Sheets.
-    const doorstroomKolommen = ['type', 'dag_van_week', 'aanmeldtijd', 'afgerondtijd', 'wachttijd_minuten', 'medewerker', 'behandelaar'];
-    const doorstroomRijen = data.lijst.map(e => {
-      const wachttijd = (e.timestamp && e.afgerondOp) ? Math.round((e.afgerondOp - e.timestamp) / 60000) : '';
-      const afgerondTijd = e.afgerondOp ? new Date(e.afgerondOp).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' }) : '';
-      const dagVanWeek = e.afgerondOp ? DAGEN_VAN_DE_WEEK[new Date(e.afgerondOp).getDay()] : '';
-      const typeLabel = TYPE_LABELS_OVERZICHT[e.type] || e.type;
-      return [typeLabel, dagVanWeek, e.tijd, afgerondTijd, wachttijd, normaliseerMedewerkerNaam(e.medewerker) || e.medewerker || '', matchMedewerkerNaam(e.behandelaar) || e.behandelaar || ''].map(csvVeld).join(',');
-    });
-    downloadCsv(doorstroomKolommen.join(',') + '\n' + doorstroomRijen.join('\n'), 'klantdoorstroom-' + datumVoorExport + '.csv');
-
-    // 3) Wachttijd-analyse per bezoektype.
-    const wachttijdRijen = Object.keys(TYPE_LABELS_OVERZICHT).map(t =>
-      [t, data.perType[t] || 0, data.wachttijdPerType[t] !== null ? data.wachttijdPerType[t] : ''].map(csvVeld).join(',')
-    );
-    downloadCsv('type,aantal,gemiddelde_wachttijd_min\n' + wachttijdRijen.join('\n'), 'wachttijd-analyse-' + datumVoorExport + '.csv');
-
-    // 4) Tijdblokken en drukte.
-    const uren = Object.keys(data.perUur).map(Number).sort((a, b) => a - b);
-    const uurRijen = uren.map(u => [String(u).padStart(2, '0') + ':00', data.perUur[u]].map(csvVeld).join(','));
-    downloadCsv('uur,aantal_aanmeldingen\n' + uurRijen.join('\n'), 'tijdblokken-en-drukte-' + datumVoorExport + '.csv');
-
-    // 5) Same-day-overzicht — alleen als er die dag same-days waren.
-    if (data.sameDayOpen + data.sameDayBehandeling + data.sameDayKlaar > 0) {
-      downloadCsv(
-        'status,aantal\nopenstaand,' + data.sameDayOpen + '\nin_behandeling,' + data.sameDayBehandeling + '\nklaar,' + data.sameDayKlaar +
-        (data.sameDayGemTotStart !== null ? '\ngemiddelde_tijd_tot_start_min,' + data.sameDayGemTotStart : '') +
-        (data.sameDayGemReparatietijd !== null ? '\ngemiddelde_reparatietijd_min,' + data.sameDayGemReparatietijd : ''),
-        'same-day-overzicht-' + datumVoorExport + '.csv'
-      );
-    }
-  }
 
   // ══════════════════════════════════════════════════════════════════
   // NIEUW — Professioneel PDF-rapport
@@ -2571,6 +3726,7 @@
     const isVandaag = datumVoorExport === huidigeDatumString();
     const data = berekenDagoverzicht(datumVoorExport);
     const gisteren = isVandaag ? berekenGisterenVergelijking(datumVoorExport) : null;
+    const week = isVandaag ? berekenWeekVergelijking(datumVoorExport) : null;
     const [j, m, d] = datumVoorExport.split('-').map(Number);
     const datumLeesbaar = new Date(j, m - 1, d).toLocaleDateString('nl-NL', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     const nu = new Date();
@@ -2584,6 +3740,9 @@
     }
     if (gisteren && gisteren.totaal > 3 && data.totaal < gisteren.totaal * 0.7) {
       inzichten.push(`Merkbaar minder klanten afgehandeld dan gisteren (${data.totaal} vs ${gisteren.totaal}).`);
+    }
+    if (week && week.gemiddeldTotaal > 3 && data.totaal < week.gemiddeldTotaal * 0.7) {
+      inzichten.push(`Merkbaar minder klanten afgehandeld dan het gemiddelde van de afgelopen ${week.dagenMetData} dagen (${data.totaal} vs ${week.gemiddeldTotaal}).`);
     }
     if (data.druksteUur !== null) {
       inzichten.push(`Drukste moment van de dag: rond ${String(data.druksteUur).padStart(2, '0')}:00 (${data.druksteUurAantal} aanmeldingen).`);
@@ -2615,15 +3774,30 @@
       </p>
 
       <div class="pdf-sectie-titel">Kerncijfers</div>
+      <div class="pdf-kpi-grid">
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${data.totaalAangemeld}</div>
+          <div class="pdf-kpi-label">Aangemeld</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${data.totaal}</div>
+          <div class="pdf-kpi-label">Afgehandeld</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${data.totaal > 0 ? data.gemiddelde : '—'}<span style="font-size:10px">${data.totaal > 0 ? ' min' : ''}</span></div>
+          <div class="pdf-kpi-label">Gem. wachttijd</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${data.totaal > 0 ? (100 - data.percentageBovenDrempel) + '%' : '—'}</div>
+          <div class="pdf-kpi-label">Binnen ${INSTELLINGEN.wachttijdDoelstellingMin} min</div>
+        </div>
+      </div>
       <table class="pdf-tabel">
-        <tr><td>Totaal aangemeld</td><td>${data.totaalAangemeld}</td></tr>
-        <tr><td>Afgehandeld</td><td>${data.totaal}</td></tr>
         <tr><td>Nog in wachtrij (op moment van export)</td><td>${isVandaag ? data.nogWachtend : '—'}</td></tr>
-        <tr><td>Gemiddelde wachttijd</td><td>${data.totaal > 0 ? data.gemiddelde + ' min' : '—'}</td></tr>
         <tr><td>Mediaan wachttijd</td><td>${data.totaal > 0 ? data.mediaanWachttijd + ' min' : '—'}</td></tr>
-        <tr><td>% boven ${WACHTTIJD_DOELSTELLING_MIN} min doelstelling</td><td>${data.totaal > 0 ? data.percentageBovenDrempel + '%' : '—'}</td></tr>
         <tr><td>Gemiddelde behandeltijd</td><td>${data.totaal > 0 ? data.gemiddeldeBehandeltijd + ' min' : '—'}</td></tr>
         <tr><td>Langste wachttijd</td><td>${data.totaal > 0 ? data.langsteMinuten + ' min' : '—'}</td></tr>
+        <tr><td>Backlog bij sluiting</td><td>${data.backlogBijSluiting !== null ? data.backlogBijSluiting + ' items' : 'niet beschikbaar'}</td></tr>
       </table>
 
       <div class="pdf-sectie-titel">Per type bezoek</div>
@@ -2631,19 +3805,52 @@
         ${Object.keys(TYPE_LABELS_OVERZICHT).map(t => `<tr><td>${kortTypeLabel(t)}</td><td>${data.perType[t] || 0}</td></tr>`).join('')}
       </table>
 
-      <div class="pdf-sectie-titel">Same-day-statusverdeling</div>
+      ${data.totaal > 0 ? (() => {
+        const maxBlok = Math.max(1, ...data.wachttijdVerdeling.map(b => b.aantal));
+        return `
+      <div class="pdf-sectie-titel">Wachttijd-verdeling</div>
+      ${data.wachttijdVerdeling.map(b => `
+        <div class="pdf-grafiek-rij">
+          <span class="pdf-grafiek-label">${b.label}</span>
+          <div class="pdf-grafiek-track"><div class="pdf-grafiek-vulling" style="width:${Math.round(b.aantal / maxBlok * 100)}%"></div></div>
+          <span class="pdf-grafiek-waarde">${b.aantal}</span>
+        </div>`).join('')}`;
+      })() : ''}
+
+      ${data.nietIngenomenAantal > 0 ? (() => {
+        const maxReden = Math.max(1, ...data.nietIngenomenRedenLijst.map(r => r[1]));
+        return `
+      <div class="pdf-sectie-titel">Niet ingenomen — ongeplande service</div>
+      <p class="pdf-summary" style="margin-bottom:8px">
+        <strong>${data.nietIngenomenAantal}</strong> van de <strong>${data.ongeplandTotaalDieDag}</strong>
+        ongeplande services (${data.nietIngenomenPercentage}%) zijn niet ingenomen.
+        ${data.nietIngenomenRedenLijst.length > 0 ? 'Meest voorkomende reden: <strong>' + escapeHtml(data.nietIngenomenRedenLijst[0][0]) + '</strong>.' : ''}
+      </p>
+      ${data.nietIngenomenRedenLijst.map(([label, aantal]) => `
+        <div class="pdf-grafiek-rij">
+          <span class="pdf-grafiek-label" style="width:180px">${escapeHtml(label)}</span>
+          <div class="pdf-grafiek-track"><div class="pdf-grafiek-vulling" style="width:${Math.round(aantal / maxReden * 100)}%"></div></div>
+          <span class="pdf-grafiek-waarde">${aantal}</span>
+        </div>`).join('')}`;
+      })() : ''}
+
+      <div class="pdf-sectie-titel">Same-day-overzicht</div>
       ${(() => {
-        const sdMax = Math.max(1, data.sameDayOpen, data.sameDayBehandeling, data.sameDayKlaar);
+        const sdMax = Math.max(1, data.sameDayOpen, data.sameDayBehandeling, data.sameDayKlaar, data.sameDayUitgeleverd || 0);
         const sdBalk = (label, waarde) => `
           <div class="pdf-grafiek-rij">
             <span class="pdf-grafiek-label">${label}</span>
             <div class="pdf-grafiek-track"><div class="pdf-grafiek-vulling" style="width:${Math.round(waarde / sdMax * 100)}%"></div></div>
             <span class="pdf-grafiek-waarde">${waarde}</span>
           </div>`;
-        return sdBalk('Openstaand', data.sameDayOpen) + sdBalk('In behandeling', data.sameDayBehandeling) + sdBalk('Klaar', data.sameDayKlaar);
+        return sdBalk('Openstaand', data.sameDayOpen)
+          + sdBalk('In behandeling', data.sameDayBehandeling)
+          + sdBalk('Klaar', data.sameDayKlaar)
+          + sdBalk('Uitgeleverd', data.sameDayUitgeleverd || 0);
       })()}
-      ${(data.sameDayGemTotStart !== null || data.sameDayGemReparatietijd !== null) ? `
+      ${(data.sameDayGemTotStart !== null || data.sameDayGemReparatietijd !== null || data.langstOpenstaandeSameDayUren !== null) ? `
         <table class="pdf-tabel" style="margin-top:6px">
+          ${data.langstOpenstaandeSameDayUren !== null ? `<tr><td>Langst openstaande same-day</td><td>${data.langstOpenstaandeSameDayUren} uur</td></tr>` : ''}
           ${data.sameDayGemTotStart !== null ? `<tr><td>Gemiddelde tijd tot start</td><td>${data.sameDayGemTotStart} min</td></tr>` : ''}
           ${data.sameDayGemReparatietijd !== null ? `<tr><td>Gemiddelde reparatietijd</td><td>${data.sameDayGemReparatietijd} min</td></tr>` : ''}
         </table>` : ''}
@@ -2669,7 +3876,10 @@
       <div class="pdf-sectie-titel">Aandachtspunten</div>
       <ul class="pdf-inzichten">${inzichten.map(i => `<li>${i}</li>`).join('')}</ul>
 
-      <div class="pdf-footer">Amac Wachtrij-systeem — geaggregeerde bedrijfscijfers, geen persoonlijke klantgegevens opgenomen in dit rapport.</div>
+      <div class="pdf-footer">
+        <strong>Privacy:</strong> dit rapport bevat uitsluitend geaggregeerde bedrijfscijfers (aantallen, tijden, gemiddelden) — er staan nergens klantnamen, contactgegevens of andere persoonlijke gegevens in.
+        <br>Amac Wachtrij-systeem — gegenereerd op ${gegenereerdOp}.
+      </div>
     `;
 
     window.print();
@@ -2845,6 +4055,20 @@
       </div>`).join('');
   }
 
+  // ── NIEUW: "meer"-menu — bundelt leaderboard/instellingen/audio ──
+  function toggleHeaderMeerMenu() {
+    document.getElementById('header-meer-menu').classList.toggle('open');
+  }
+  window.addEventListener('click', function (e) {
+    const control = document.querySelector('.header-meer-control');
+    const menu = document.getElementById('header-meer-menu');
+    // Klikken binnen het menu zelf (incl. de popovers erbinnen) mag het
+    // menu niet sluiten — alleen een klik echt daarbuiten.
+    if (menu.classList.contains('open') && control && !control.contains(e.target)) {
+      menu.classList.remove('open');
+    }
+  });
+
   function toggleLeaderboardPopover() {
     renderLeaderboard();
     document.getElementById('leaderboard-popover').classList.toggle('open');
@@ -2854,6 +4078,44 @@
     const pop = document.getElementById('leaderboard-popover');
     if (pop.classList.contains('open') && control && !control.contains(e.target)) pop.classList.remove('open');
   });
+
+  // ── NIEUW: instelbare drempels — popover openen/sluiten, opslaan, laden ──
+  function vulInstellingenVelden() {
+    document.getElementById('instelling-wachttijd').value = INSTELLINGEN.wachttijdDoelstellingMin;
+    document.getElementById('instelling-repnr-uren').value = INSTELLINGEN.sameDayRepnrUren;
+    document.getElementById('instelling-escalatie-uren').value = INSTELLINGEN.sameDayEscalatieUren;
+  }
+
+  function toggleInstellingenPopover() {
+    vulInstellingenVelden();
+    document.getElementById('instellingen-status').textContent = '';
+    document.getElementById('instellingen-popover').classList.toggle('open');
+  }
+  window.addEventListener('click', function (e) {
+    const control = document.querySelector('.instellingen-control');
+    const pop = document.getElementById('instellingen-popover');
+    if (pop.classList.contains('open') && control && !control.contains(e.target)) pop.classList.remove('open');
+  });
+
+  function slaInstellingenOp() {
+    const wachttijd = parseFloat(document.getElementById('instelling-wachttijd').value);
+    const repnrUren = parseFloat(document.getElementById('instelling-repnr-uren').value);
+    const escalatieUren = parseFloat(document.getElementById('instelling-escalatie-uren').value);
+    if (!wachttijd || !repnrUren || !escalatieUren || wachttijd <= 0 || repnrUren <= 0 || escalatieUren <= 0) {
+      document.getElementById('instellingen-status').textContent = '⚠ Vul overal een geldig getal groter dan 0 in.';
+      document.getElementById('instellingen-status').style.color = 'var(--danger)';
+      return;
+    }
+    const nieuw = { wachttijdDoelstellingMin: wachttijd, sameDayRepnrUren: repnrUren, sameDayEscalatieUren: escalatieUren };
+    firebase.database().ref('instellingen/drempels').set(nieuw).then(() => {
+      document.getElementById('instellingen-status').textContent = '✓ Opgeslagen, geldt voor iedereen';
+      document.getElementById('instellingen-status').style.color = 'var(--success)';
+    }).catch((err) => {
+      console.error('[Amac Wachtrij] Instellingen opslaan mislukt:', err);
+      document.getElementById('instellingen-status').textContent = '⚠ Opslaan mislukt: ' + err.message;
+      document.getElementById('instellingen-status').style.color = 'var(--danger)';
+    });
+  }
 
   // ── Klok ──
   function updateClock() {
@@ -3163,6 +4425,8 @@
   // zie ruimOudeSameDayItemsOp() hieronder.
   // ══════════════════════════════════════════════════════════════════
   let sameDayItems = [];
+  let dagStatistieken = {}; // { 'YYYY-MM-DD': { backlogBijSluiting: n } }
+  let statusHistorieItems = []; // statusovergangen — voor de status_history.csv-export
 
   // ── Same-day-kaart uitlijnen met de normale klantkaarten ──
   // BUGFIX: eerder werd alleen de hoogte van de tabs-rij gecompenseerd, maar
@@ -3179,12 +4443,16 @@
     paneel.style.marginTop = ''; // eerst resetten, anders beïnvloedt de vorige meting de nieuwe
     if (window.innerWidth < 1000) return; // kolommen staan dan niet naast elkaar
 
-    const eersteKaart = document.querySelector('#queue-container .queue-item');
-    if (!eersteKaart) return; // lege wachtrij: niets om op uit te lijnen
-    // BUGFIX: meet vanaf het PANEEL zelf, niet vanaf de kolom-top. Het paneel
-    // begint onder de sectietitel; meten vanaf de kolom telde die titelhoogte
-    // dubbel, waardoor de same-day-kaarten juist te ver naar beneden zakten.
-    const verschil = eersteKaart.getBoundingClientRect().top - paneel.getBoundingClientRect().top;
+    const kaartenVak = document.getElementById('queue-container');
+    if (!kaartenVak) return;
+    // Uitlijnen op het KAARTENVAK zelf, niet op de eerste kaart erin:
+    //  · bij een LEGE wachtrij bestaat die eerste kaart niet, waardoor er
+    //    voorheen helemaal niet werd uitgelijnd;
+    //  · staat er een tussenkop ("Momenteel in behandeling") boven de eerste
+    //    kaart, dan meet je met .queue-item vanaf de verkeerde plek.
+    // Meten vanaf het PANEEL (niet de kolom-top), want het paneel begint al
+    // onder de sectietitel — anders telt die titelhoogte dubbel mee.
+    const verschil = kaartenVak.getBoundingClientRect().top - paneel.getBoundingClientRect().top;
     if (verschil > 0) paneel.style.marginTop = verschil + 'px';
   }
   window.addEventListener('resize', synchroniseerSameDayUitlijning);
@@ -3203,12 +4471,39 @@
     const open        = sameDayItems.filter(e => !e.status || e.status === 'openstaand').sort(sorteerOpAanmeldtijd);
     const behandeling = sameDayItems.filter(e => e.status === 'in-behandeling').sort(sorteerOpAanmeldtijd);
     const klaar       = sameDayItems.filter(e => e.status === 'afgehandeld').sort(sorteerOpAanmeldtijd);
+    const uitgeleverd = sameDayItems.filter(e => e.status === 'uitgeleverd').sort(sorteerOpAanmeldtijd);
+
+    // NIEUW: escalatie-totaal (openstaand, > ingestelde drempel) samengevat
+    // bovenaan de kolom — voorkomt dat je door de hele lijst moet scrollen
+    // om te zien of er iets is blijven liggen.
+    // BUGFIX: gebruikte hier nog een hardcoded "> 2" i.p.v. de instelbare
+    // drempel (INSTELLINGEN.sameDayEscalatieUren) — nu consistent met de
+    // per-kaart-berekening en de instellingen-popover.
+    const escalatieAantal = open.filter(e => e.aangemaaktOp && (Date.now() - e.aangemaaktOp) / 3600000 > INSTELLINGEN.sameDayEscalatieUren).length;
+    const elEscalatieSamenvatting = document.getElementById('sameday-escalatie-samenvatting');
+    if (elEscalatieSamenvatting) {
+      if (escalatieAantal > 0) {
+        elEscalatieSamenvatting.textContent = '⏱ ' + escalatieAantal + ' > ' + INSTELLINGEN.sameDayEscalatieUren + 'u open';
+        elEscalatieSamenvatting.style.display = 'inline-block';
+      } else {
+        elEscalatieSamenvatting.style.display = 'none';
+      }
+    }
+
+    if (elBadgeKlaarUitlevering) {
+      if (klaar.length > 0) {
+        elBannerKlaarUitlevering.textContent = klaar.length + ' klaar voor uitlevering';
+        elBadgeKlaarUitlevering.style.display = 'flex';
+      } else {
+        elBadgeKlaarUitlevering.style.display = 'none';
+      }
+    }
 
     // ── BUGFIX (eerdere ronde): de hele kolom (incl. titel) moet samen
     // tonen/verbergen, nooit alleen de inhoud — anders ontstaat een leeg
     // vak naast de wachtrij. Datzelfde principe passen we nu ook toe per
     // statusgroep: een lege groep laat geen leeg kadertje achter. ──
-    const totaalZichtbaar = open.length + behandeling.length + klaar.length;
+    const totaalZichtbaar = open.length + behandeling.length + klaar.length + uitgeleverd.length;
     if (totaalZichtbaar === 0) {
       elSameDayZijkolom.classList.remove('zichtbaar');
       return;
@@ -3241,14 +4536,27 @@
             </div>
           </div>`;
       }
+      // ── Tijdgebaseerde signalering, puur visueel (geen blokkade) ──
+      // · repnr ontbreekt langer dan de ingestelde drempel → 📋-marker
+      // · nog "openstaand" langer dan de escalatie-drempel → ⏱-badge +
+      //   violette accentkleur (bewust ANDERS dan repnr-marker: het zijn
+      //   twee verschillende problemen en horen niet hetzelfde symbool of
+      //   dezelfde kleur te delen).
+      const leeftijdUren = e.aangemaaktOp ? (Date.now() - e.aangemaaktOp) / 3600000 : 0;
+      const repnrMistLang = !e.repnr && leeftijdUren > INSTELLINGEN.sameDayRepnrUren;
+      const isEscalatie = (!e.status || e.status === 'openstaand') && leeftijdUren > INSTELLINGEN.sameDayEscalatieUren;
+
       return `
-        <div class="sameday-rij">
+        <div class="sameday-rij${isEscalatie ? ' is-escalatie' : ''}">
           <div class="sameday-rij-top">
             <span class="sameday-naam">${escapeHtml(e.naam)}</span>
-            <span class="sameday-status-badge">${statusLabel}</span>
+            <span class="sameday-rij-top-rechts">
+              ${e.technician ? `<span class="sameday-technician-mini">👤 ${escapeHtml(e.technician)}</span>` : ''}
+              <span class="sameday-status-badge${isEscalatie ? ' is-escalatie-badge' : ''}">${statusLabel}${isEscalatie ? ' ⏱' : ''}</span>
+            </span>
           </div>
           <div class="sameday-rij-mid">
-            ${fixablyRepnrTagHtml(e.repnr) || '<span class="tag tag-repnr">Geen rep.nr</span>'}
+            ${fixablyRepnrTagHtml(e.repnr) || `<span class="tag tag-repnr${repnrMistLang ? ' tag-repnr-mist-lang' : ''}" title="${repnrMistLang ? 'Staat al langer dan ' + INSTELLINGEN.sameDayRepnrUren + ' uur zonder reparatienummer' : ''}">${repnrMistLang ? '📋 ' : ''}Geen rep.nr</span>`}
           </div>
           <!-- Technician-dropdown. Verbeteringen t.o.v. de vorige versie:
                · duidelijk label ervoor, zodat je niet hoeft te raden wat het is
@@ -3288,7 +4596,22 @@
 
     elSameDayGroepKlaar.classList.toggle('zichtbaar', klaar.length > 0);
     elSameDayCountKlaar.textContent = klaar.length;
-    elSameDayLijstKlaar.innerHTML = klaar.map(e => rijHtml(e, '', 'Klaar')).join('');
+    elSameDayLijstKlaar.innerHTML = klaar.map(e => rijHtml(e,
+      `<button type="button" class="btn-sameday-actie-groot" onclick="leverSameDayUit('${e.key}')">📦 Uitgeleverd</button>`,
+      'Klaar'
+    )).join('');
+
+    // Uitgeleverd = eindstatus, geen vervolgactie meer. Alleen bewerken en
+    // verwijderen blijven beschikbaar (via rijHtml zelf).
+    elSameDayGroepUitgeleverd.classList.toggle('zichtbaar', uitgeleverd.length > 0);
+    elSameDayCountUitgeleverd.textContent = uitgeleverd.length;
+    elSameDayLijstUitgeleverd.innerHTML = uitgeleverd.map(e => rijHtml(e, '', 'Uitgeleverd')).join('');
+
+    // Uitlijning opnieuw meten: de kolom kan hierboven net van verborgen
+    // naar zichtbaar zijn gegaan, en een verborgen element levert geen
+    // bruikbare positie op — zonder deze aanroep blijft de uitlijning dan
+    // staan op de meting van toen het paneel er nog niet was.
+    synchroniseerSameDayUitlijning();
 
     // ── NIEUW: Enter-toetsondersteuning + live repnr-opmaak in het
     // bewerkformulier — alleen aankoppelen als er daadwerkelijk een kaart
@@ -3359,6 +4682,7 @@
     if (item) Object.assign(item, updates);
     sameDayEditingKey = null;
     renderSameDayPanel();
+    toonOpslaanToast();
 
     sameDayRef.child(key).update(updates).catch((err) => {
       console.error('[Amac Wachtrij] Same-day-item bewerken mislukt:', err);
@@ -3373,6 +4697,10 @@
       console.error('[Amac Wachtrij] Same-day-status bijwerken mislukt:', err);
       alert('Status bijwerken is niet gelukt: ' + err.message);
     });
+    logStatusEvent('sameday-' + key, 'openstaand', 'in-behandeling', 'technician gestart');
+    logAuditActie('sameday-gestart', 'Same-day gestart', {
+      record: sameDayItems.find(e => e.key === key), queueRecordId: key, source: 'same_day',
+      previousValue: 'Openstaand', newValue: 'In behandeling' });
   }
 
   // Zet een same-day-reparatie van "in behandeling" naar "afgehandeld".
@@ -3382,6 +4710,36 @@
       console.error('[Amac Wachtrij] Same-day-status bijwerken mislukt:', err);
       alert('Status bijwerken is niet gelukt: ' + err.message);
     });
+    logStatusEvent('sameday-' + key, 'in-behandeling', 'afgehandeld', 'reparatie klaar');
+    logAuditActie('sameday-klaar', 'Reparatie gemarkeerd als klaar', {
+      record: sameDayItems.find(e => e.key === key), queueRecordId: key, source: 'same_day',
+      previousValue: 'In behandeling', newValue: 'Klaar' });
+  }
+
+  // ── NIEUW: uitleveren aan de klant ──
+  // Legt het daadwerkelijke overdrachtsmoment vast (uitgeleverdOp). Dit
+  // ontbrak volledig: de flow eindigde bij "Klaar", waardoor nergens stond
+  // of het apparaat ook echt was meegegeven — bij een geschil ("ik heb 'm
+  // nooit gekregen") was er geen enkel bewijs. Met bevestigingsvraag, want
+  // een verkeerde uitlevering is in de fysieke wereld niet terug te draaien.
+  function leverSameDayUit(key) {
+    const item = sameDayItems.find(e => e.key === key);
+    if (!item) return;
+    const bevestiging = confirm(
+      'Apparaat uitleveren aan de klant?\n\n' +
+      'Klant: ' + item.naam + '\n' +
+      'Reparatienummer: ' + (item.repnr || 'geen') + '\n\n' +
+      'Controleer of dit de juiste klant en het juiste apparaat is.'
+    );
+    if (!bevestiging) return;
+    sameDayRef.child(key).update({ status: 'uitgeleverd', uitgeleverdOp: Date.now() }).catch((err) => {
+      console.error('[Amac Wachtrij] Uitleveren vastleggen mislukt:', err);
+      alert('Uitlevering vastleggen is niet gelukt: ' + err.message);
+    });
+    logStatusEvent('sameday-' + key, 'afgehandeld', 'uitgeleverd', 'apparaat meegegeven aan klant');
+    logAuditActie('sameday-uitgeleverd', 'Reparatie uitgeleverd aan klant', {
+      record: item, queueRecordId: key, source: 'same_day',
+      previousValue: 'Klaar', newValue: 'Uitgeleverd' });
   }
 
   // Voorkomt dat het "sameday"-Firebase-pad onbeperkt blijft groeien: items
@@ -3429,6 +4787,14 @@
         if (snap.val() !== vandaag) {
           statusRef.set(true);
           dagelijksRef.update({ laatsteAutoDicht: vandaag });
+          // NIEUW: backlog-cijfer vastleggen op het moment van sluiten — dit
+          // is de ENIGE betrouwbare manier om "hoeveel stond er nog open bij
+          // sluiting" achteraf te kunnen zien, want de wachtrij zelf toont
+          // alleen de actuele stand op het moment dat je 'm bekijkt.
+          const backlogAantal = queue.filter(e => e.status !== 'afgerond').length;
+          firebase.database().ref('dagstatistieken/' + vandaag).update({
+            backlogBijSluiting: backlogAantal,
+          }).catch((err) => console.warn('[Amac Wachtrij] Backlog-cijfer wegschrijven mislukt:', err));
         }
       }).catch((err) => console.warn('[Amac Wachtrij] Dagschema (dicht) mislukt:', err));
     }
@@ -3480,10 +4846,32 @@
       volwassen: selectedAdult,
     };
 
-    dbRef.push(entry).then(() => {
+    // ── KRITIEKE FIX: opslaan-bevestiging vóór het legen van het formulier ──
+    // Voorheen werd resetForm() onvoorwaardelijk aangeroepen, óók als de
+    // Firebase-write faalde (offline, rechten, storing). De medewerker zag
+    // dan een leeg formulier en ging ervan uit dat de klant was aangemeld,
+    // terwijl die nergens in de wachtrij stond — de klant werd dus stil
+    // vergeten. Nu leegt het formulier pas ná een bevestigde write, en bij
+    // een fout blijven de ingevulde gegevens staan om opnieuw te proberen.
+    const submitKnop = e.target.querySelector('button[type="submit"]');
+    if (submitKnop) { submitKnop.disabled = true; submitKnop.dataset.origTekst = submitKnop.innerHTML; submitKnop.textContent = 'Bezig met aanmelden…'; }
+
+    dbRef.push(entry).then((ref) => {
       triggerEmployeeRain(medewerker);
+      // Het allereerste statusmoment (aanmelden → wachtend) loggen, zodat
+      // elk record zijn beginmoment heeft in de statusgeschiedenis-export.
+      logStatusEvent(ref.key, null, 'wachtend', 'klant aangemeld');
+      logAuditActie('klant-aangemeld', 'Klant aangemeld', { actorNaam: medewerker, queueRecordId: ref.key, newValue: 'wachtend' });
+      resetForm();
+      toonOpslaanToast();
+    }).catch((err) => {
+      console.error('[Amac Wachtrij] Klant aanmelden mislukt:', err);
+      alert('Aanmelden is NIET gelukt: ' + err.message +
+        '\n\nDe gegevens staan nog in het formulier — controleer je internetverbinding en probeer het opnieuw.' +
+        '\n\nLet op: deze klant staat op dit moment NIET in de wachtrij.');
+    }).finally(() => {
+      if (submitKnop) { submitKnop.disabled = false; submitKnop.innerHTML = submitKnop.dataset.origTekst || 'Klant aanmelden'; }
     });
-    resetForm();
   });
 
   function resetForm() {
@@ -3527,20 +4915,49 @@
   // gisteren worden bij het laden automatisch genegeerd (zie renderQueue),
   // zodat de dataset niet onbeperkt blijft groeien qua wat getoond wordt.
   function verwijder(key) {
+    const entry = queue.find(e => e.key === key);
+    const vorigeStatus = entry ? entry.status : 'onbekend';
     dbRef.child(key).update({
       status: 'afgerond',
       afgerondOp: Date.now(),
     });
+    logStatusEvent(key, vorigeStatus, 'afgerond', 'gemarkeerd als gedaan');
+    logAuditActie('klantkaart-afgehandeld', 'Klantkaart afgehandeld', {
+      record: entry, queueRecordId: key, previousValue: vorigeStatus, newValue: 'afgerond' });
   }
 
-  // Definitief verwijderen — alleen bereikbaar vanuit de geschiedenis-tabs,
-  // voor als een kaart per ongeluk is afgerond of niet meer nodig is.
+  // ── NIEUW: bevestiging vóór definitief verwijderen ──
+  // De daadwerkelijke Firebase-verwijdering gebeurt nu pas in
+  // bevestigDefinitiefVerwijderen(), niet meer direct bij de klik.
+  let definitiefVerwijderenPendingKey = null;
+
   function verwijderDefinitief(key) {
-    dbRef.child(key).remove();
+    definitiefVerwijderenPendingKey = key;
+    document.getElementById('verwijder-bevestig-overlay').classList.add('open');
+    // Focus op Annuleren (de veilige optie) zodat een per-ongeluk-Enter
+    // nooit de destructieve actie triggert.
+    setTimeout(() => document.getElementById('btn-verwijder-annuleer').focus(), 50);
+  }
+
+  function annuleerDefinitiefVerwijderen() {
+    document.getElementById('verwijder-bevestig-overlay').classList.remove('open');
+    definitiefVerwijderenPendingKey = null;
+  }
+
+  function bevestigDefinitiefVerwijderen() {
+    if (!definitiefVerwijderenPendingKey) return;
+    logAuditActie('definitief-verwijderd', 'klantkaart uit geschiedenis', {
+      record: queue.find(e => e.key === definitiefVerwijderenPendingKey), queueRecordId: definitiefVerwijderenPendingKey });
+    dbRef.child(definitiefVerwijderenPendingKey).remove();
+    document.getElementById('verwijder-bevestig-overlay').classList.remove('open');
+    definitiefVerwijderenPendingKey = null;
   }
 
   // Terugzetten van een per ongeluk afgeronde klant naar de actieve wachtrij.
   function herstelUitGeschiedenis(key) {
+    logAuditActie('hersteld', 'klantkaart teruggezet naar actieve wachtrij', {
+      record: queue.find(e => e.key === key), queueRecordId: key });
+    logStatusEvent(key, 'afgerond', 'wachtend', 'hersteld uit geschiedenis');
     dbRef.child(key).update({ status: 'wachtend', afgerondOp: null });
   }
 
@@ -3558,6 +4975,10 @@
     }
     clearError(veldId);
     const naam = medewerkerNaam.trim();
+    // Vorige behandelaar vastleggen vóór de update, zodat de logregel
+    // "gewijzigd van X naar Y" kan tonen. Meestal leeg (eerste toewijzing).
+    const bestaandeEntry = queue.find(e => e.key === key);
+    const vorigeBehandelaar = bestaandeEntry ? (bestaandeEntry.behandelaar || '') : '';
     // NIEUW: behandelStartOp — apart tijdstempel van "wanneer begon de
     // daadwerkelijke behandeling", los van de aanmeldtijd. Hiermee kan het
     // dagoverzicht straks "gemiddelde behandeltijd" tonen (hoe lang duurt
@@ -3569,6 +4990,11 @@
       status: 'in-behandeling',
       behandelStartOp: Date.now(),
     });
+    logStatusEvent(key, 'wachtend', 'in-behandeling', 'neem in behandeling: ' + naam);
+    logAuditActie('behandelaar-toegewezen', 'Behandelaar toegewezen', {
+      actorNaam: naam, queueRecordId: key, previousValue: vorigeBehandelaar || 'Niet toegewezen', newValue: naam });
+    logAuditActie('status-gewijzigd', 'Status gewijzigd van \u2018Wachtend\u2019 naar \u2018In behandeling\u2019', {
+      actorNaam: naam, queueRecordId: key, previousValue: 'Wachtend', newValue: 'In behandeling' });
     if (MEDEWERKERS.includes(naam)) triggerEmployeeRain(naam);
   }
 
@@ -3576,8 +5002,7 @@
   // NIEUW — Same-day-vraag, nu bij het VOLTOOIEN van de klantkaart
   // (niet meer bij "Neem in behandeling"). Alleen relevant bij "Ongepland"
   // (een nieuwe reparatie) — "ophalen" is al een eerder afgeronde reparatie
-  // die alleen wordt opgehaald, en schoonmaak/prijsopgave hebben geen
-  // same-day-concept.
+  // die alleen wordt opgehaald, en schoonmaak heeft geen same-day-concept.
   //
   // Flow: klik op "Gedaan" → (bij Ongepland) modal "Is dit same-day?" →
   // bij "Ja" een tweede modal voor het (optionele) reparatienummer → pas na
@@ -3588,6 +5013,144 @@
   let voltooienPendingKey = null;
 
   // Aangeroepen door de "Gedaan"-knop op elke klantkaart.
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — "Niet ingenomen" registreren bij ongeplande service
+  // Vaste volgorde en STABIELE codes: het label kan later gerust
+  // hertekstueerd worden zonder dat historische registraties onbruikbaar
+  // worden, want rapportage groepeert op de code, nooit op de vrije tekst.
+  // ══════════════════════════════════════════════════════════════════
+  const NIET_INGENOMEN_REDENEN = [
+    { toets: '1', code: 'zoek_mijn_aan',            label: 'Zoek Mijn staat nog aan' },
+    { toets: '2', code: 'klant_niet_akkoord_kosten', label: 'Klant gaat niet akkoord met de reparatiekosten' },
+    { toets: '3', code: 'onderdeel_niet_op_voorraad', label: 'Onderdeel is niet op voorraad' },
+    { toets: '4', code: 'same_day_niet_haalbaar',   label: 'Same-day reparatie is niet haalbaar' },
+    { toets: '5', code: 'diagnose_of_prijsopgave_nodig', label: 'Diagnose of prijsopgave is eerst nodig' },
+    { toets: '6', code: 'niet_economisch_verantwoord', label: 'Reparatie is niet economisch verantwoord' },
+    { toets: '7', code: 'geen_backup',              label: 'Klant heeft geen back-up gemaakt' },
+    { toets: '8', code: 'opsturen_niet_akkoord',    label: 'Reparatie moet worden opgestuurd, klant niet akkoord' },
+    { toets: '9', code: 'klant_geen_tijd',          label: 'Klant heeft geen tijd om de intake af te ronden' },
+    { toets: '0', code: 'anders',                   label: 'Anders' },
+  ];
+
+  let nietIngenomenPendingKey = null;
+  let nietIngenomenGekozenCode = null;
+
+  function startNietIngenomen(key) {
+    nietIngenomenPendingKey = key;
+    nietIngenomenGekozenCode = null;
+    document.getElementById('niet-ingenomen-toelichting').value = '';
+    document.getElementById('field-niet-ingenomen-toelichting').style.display = 'none';
+    document.getElementById('btn-niet-ingenomen-opslaan').disabled = true;
+    // Redenen opbouwen vanuit de vaste lijst — één bron, dus de getoonde
+    // volgorde en de sneltoetsen kunnen nooit uit elkaar lopen.
+    document.getElementById('niet-ingenomen-redenen').innerHTML = NIET_INGENOMEN_REDENEN.map(r => `
+      <button type="button" class="ni-reden" id="ni-reden-${r.code}" onclick="kiesNietIngenomenReden('${r.code}')">
+        <span class="ni-toets">${r.toets}</span>
+        <span>${r.label}</span>
+      </button>`).join('');
+    document.getElementById('niet-ingenomen-overlay').classList.add('open');
+  }
+
+  function kiesNietIngenomenReden(code) {
+    nietIngenomenGekozenCode = code;
+    document.querySelectorAll('.ni-reden').forEach(el => el.classList.remove('is-gekozen'));
+    const gekozenEl = document.getElementById('ni-reden-' + code);
+    if (gekozenEl) gekozenEl.classList.add('is-gekozen');
+
+    const isAnders = code === 'anders';
+    document.getElementById('field-niet-ingenomen-toelichting').style.display = isAnders ? '' : 'none';
+    if (isAnders) {
+      // Focus in het tekstveld: vanaf dat moment vangt de keydown-listener
+      // géén cijfers meer af, zodat de medewerker gewoon kan typen.
+      setTimeout(() => document.getElementById('niet-ingenomen-toelichting').focus(), 50);
+    }
+    valideerNietIngenomenToelichting();
+  }
+
+  // Opslaan blijft geblokkeerd tot de invoer geldig is — bij "Anders" is
+  // dat een toelichting van minimaal 5 tekens.
+  function valideerNietIngenomenToelichting() {
+    const toelichting = document.getElementById('niet-ingenomen-toelichting').value.trim();
+    const isAnders = nietIngenomenGekozenCode === 'anders';
+    document.getElementById('niet-ingenomen-teller-tekst').textContent =
+      toelichting.length + ' / 300 tekens (minimaal 5)';
+    const geldig = nietIngenomenGekozenCode !== null && (!isAnders || toelichting.length >= 5);
+    document.getElementById('btn-niet-ingenomen-opslaan').disabled = !geldig;
+    return geldig;
+  }
+
+  function sluitNietIngenomen() {
+    const toelichting = document.getElementById('niet-ingenomen-toelichting').value.trim();
+    // Alleen waarschuwen als er daadwerkelijk iets te verliezen valt.
+    if (nietIngenomenGekozenCode !== null || toelichting !== '') {
+      if (!confirm('Weet je zeker dat je wilt annuleren? Je selectie wordt niet opgeslagen.')) return;
+    }
+    document.getElementById('niet-ingenomen-overlay').classList.remove('open');
+    nietIngenomenPendingKey = null;
+    nietIngenomenGekozenCode = null;
+  }
+
+  function slaNietIngenomenOp() {
+    if (!valideerNietIngenomenToelichting() || !nietIngenomenPendingKey) return;
+    const reden = NIET_INGENOMEN_REDENEN.find(r => r.code === nietIngenomenGekozenCode);
+    if (!reden) return;
+    const toelichting = document.getElementById('niet-ingenomen-toelichting').value.trim();
+    const key = nietIngenomenPendingKey;
+    const entry = queue.find(e => e.key === key);
+    const vorigeStatus = entry ? entry.status : 'onbekend';
+
+    // Dubbele registratie voorkomen: knop meteen blokkeren, en de
+    // pending-key wissen vóór de async write.
+    document.getElementById('btn-niet-ingenomen-opslaan').disabled = true;
+    nietIngenomenPendingKey = null;
+
+    dbRef.child(key).update({
+      status: 'niet-ingenomen',
+      nietIngenomenRedenCode: reden.code,
+      nietIngenomenRedenLabel: reden.label,
+      nietIngenomenToelichting: reden.code === 'anders' ? toelichting : '',
+      nietIngenomenOp: Date.now(),
+      nietIngenomenDoor: bepaalActor(entry).naam,
+      afgerondOp: Date.now(), // zodat de kaart in de dag-geschiedenis valt
+    }).then(() => {
+      toonOpslaanToast();
+      alert('Niet ingenomen geregistreerd: ' + reden.label);
+    }).catch((err) => {
+      console.error('[Amac Wachtrij] Niet-ingenomen registreren mislukt:', err);
+      alert('Registreren is niet gelukt: ' + err.message + '\n\nDe klant staat nog in de wachtrij — probeer het opnieuw.');
+    });
+
+    logStatusEvent(key, vorigeStatus, 'niet-ingenomen', 'reden: ' + reden.code);
+    logAuditActie('niet-ingenomen', 'Niet ingenomen geregistreerd: ' + reden.label, {
+      record: entry, queueRecordId: key, newValue: reden.code });
+
+    document.getElementById('niet-ingenomen-overlay').classList.remove('open');
+    nietIngenomenGekozenCode = null;
+  }
+
+  // ── Sneltoetsen 1–0, uitsluitend actief zolang DEZE modal open is ──
+  // Vuurt bewust NIET wanneer de focus in een invoerveld staat, zodat
+  // cijfers in het toelichtingsveld gewoon getypt kunnen worden.
+  window.addEventListener('keydown', function (e) {
+    const overlay = document.getElementById('niet-ingenomen-overlay');
+    if (!overlay || !overlay.classList.contains('open')) return;
+
+    if (e.key === 'Escape') { e.preventDefault(); sluitNietIngenomen(); return; }
+
+    const actief = document.activeElement;
+    const inInvoerveld = actief && (actief.tagName === 'INPUT' || actief.tagName === 'TEXTAREA' || actief.tagName === 'SELECT');
+
+    if (e.key === 'Enter' && !e.shiftKey) {
+      // Enter bevestigt alleen bij geldige invoer.
+      if (valideerNietIngenomenToelichting()) { e.preventDefault(); slaNietIngenomenOp(); }
+      return;
+    }
+    if (inInvoerveld) return; // cijfers zijn hier gewoon tekst
+
+    const reden = NIET_INGENOMEN_REDENEN.find(r => r.toets === e.key);
+    if (reden) { e.preventDefault(); kiesNietIngenomenReden(reden.code); }
+  });
+
   function startVoltooien(key) {
     const entry = queue.find(e => e.key === key);
     if (entry && entry.type === 'ongepland') {
@@ -3645,6 +5208,10 @@
         probleem: entry.probleem || '',
         aangemaaktOp: Date.now(),
         status: 'openstaand',
+      }).then((ref) => {
+        // BUGFIX: zelfde ontbrekende beginmoment als bij de normale
+        // aanmelding — het aanmaken zelf (→ openstaand) werd nooit gelogd.
+        logStatusEvent('sameday-' + ref.key, null, 'openstaand', 'same-day aangemaakt');
       }).catch((err) => {
         // ── BUGFIX: zonder .catch() bleef een geweigerde write (bijv. door
         // ontbrekende Firebase-rechten) volledig onzichtbaar — de klant werd
@@ -3680,6 +5247,8 @@
   function verwijderSameDayItem(key) {
     const item = sameDayItems.find(e => e.key === key);
     if (!item) return;
+    logAuditActie('same-day-verwijderd', 'Same-day verwijderd (status was: ' + (item.status || 'openstaand') + ')', {
+      record: item, queueRecordId: key, source: 'same_day' });
     const { key: _weg, ...data } = item;
     laatstVerwijderdSameDay = { key, data };
 
@@ -3702,6 +5271,8 @@
   // want de sortering kijkt naar het (ongewijzigde) aangemaaktOp-veld.
   function herstelSameDayItem() {
     if (!laatstVerwijderdSameDay) return;
+    logAuditActie('same-day-hersteld', 'Same-day hersteld via undo-melding', {
+      record: laatstVerwijderdSameDay.data, queueRecordId: laatstVerwijderdSameDay.key, source: 'same_day' });
     const { key, data } = laatstVerwijderdSameDay;
     sameDayRef.child(key).set(data).catch((err) => {
       console.error('[Amac Wachtrij] Same-day-item herstellen mislukt:', err);
@@ -3745,6 +5316,7 @@
     const naamEl     = document.getElementById('edit-naam-' + key);
     const probleemEl = document.getElementById('edit-probleem-' + key);
     const repnrEl     = document.getElementById('edit-repnr-' + key); // bestaat alleen bij type 'ophalen'
+    const afwijkingEl = document.getElementById('edit-afwijking-' + key); // bestaat alleen bij type 'ophalen'
     const icareEl     = document.getElementById('edit-icare-' + key);
     const geenNlEl    = document.getElementById('edit-geennl-' + key);
 
@@ -3758,6 +5330,7 @@
       geenNl: geenNlEl.checked,
     };
     if (repnrEl) updates.repnr = formatRepnr(repnrEl.value.trim());
+    if (afwijkingEl) updates.afwijking = afwijkingEl.value.trim();
 
     // ── BUGFIX: geen .catch() betekende dat een mislukte write volledig
     // onzichtbaar bleef — "opslaan doet niks" zonder enige foutmelding. ──
@@ -3769,11 +5342,21 @@
     if (entry) Object.assign(entry, updates);
     editingKey = null;
     renderQueue();
+    toonOpslaanToast(); // NIEUW: directe, zichtbare bevestiging dat de wijziging is verwerkt
 
     dbRef.child(key).update(updates).catch((err) => {
       console.error('Opslaan van klantkaart mislukt:', err);
       alert('Opslaan is niet gelukt: ' + err.message + '\n\nControleer of je nog bent ingelogd en of de Firebase-beveiligingsregels schrijven naar "wachtrij" toestaan.');
     });
+  }
+
+  // NIEUW: korte, herbruikbare opslaan-bevestiging voor elke bewerkactie.
+  let opslaanToastTimer = null;
+  function toonOpslaanToast() {
+    const toast = document.getElementById('opslaan-toast');
+    clearTimeout(opslaanToastTimer);
+    toast.classList.add('zichtbaar');
+    opslaanToastTimer = setTimeout(() => toast.classList.remove('zichtbaar'), 2200);
   }
 
   function zoekLabel(z) {
@@ -3792,12 +5375,18 @@
     const gisterenDatum = new Date(nu); gisterenDatum.setDate(nu.getDate() - 1);
     const gisterenStr = gisterenDatum.toDateString();
 
-    const actief = queue.filter(e => e.status !== 'afgerond');
+    // "niet-ingenomen" is een EINDSTATUS: die klant wacht niet meer, dus
+    // hoort niet tussen de actieve wachtenden te blijven staan.
+    const actief = queue.filter(e => e.status !== 'afgerond' && e.status !== 'niet-ingenomen');
     const wachtend = actief.filter(e => e.status !== 'in-behandeling');
     const inBehandeling = actief.filter(e => e.status === 'in-behandeling');
-    const afgerondVandaag = queue.filter(e => e.status === 'afgerond' && e.afgerondOp && new Date(e.afgerondOp).toDateString() === vandaagStr)
+    // Niet-ingenomen kaarten verschijnen ook in de geschiedenis-tabs: ze
+    // zijn afgehandeld (zij het met een andere uitkomst) en moeten
+    // terugvindbaar blijven, incl. de geregistreerde reden.
+    const isAfgehandeld = (e) => e.status === 'afgerond' || e.status === 'niet-ingenomen';
+    const afgerondVandaag = queue.filter(e => isAfgehandeld(e) && e.afgerondOp && new Date(e.afgerondOp).toDateString() === vandaagStr)
       .sort((a, b) => (b.afgerondOp || 0) - (a.afgerondOp || 0));
-    const afgerondGisteren = queue.filter(e => e.status === 'afgerond' && e.afgerondOp && new Date(e.afgerondOp).toDateString() === gisterenStr)
+    const afgerondGisteren = queue.filter(e => isAfgehandeld(e) && e.afgerondOp && new Date(e.afgerondOp).toDateString() === gisterenStr)
       .sort((a, b) => (b.afgerondOp || 0) - (a.afgerondOp || 0));
 
     // Positienummers alleen op de actieve wachtrij herberekenen — geschiedenis
@@ -3819,18 +5408,46 @@
       'Wachttijd: <strong>' + (totaal === 0 ? 'geen wachttijd' : totaal + ' min') + '</strong>' +
       (inBehandeling.length > 0 ? ' <span style="font-weight:400;color:var(--muted);font-size:11px">(incl. klant in behandeling)</span>' : '');
 
+    // NIEUW: samenvattende 'wacht boven'-teller, altijd bovenaan zichtbaar
+    // — voorkomt dat een boven-wachtende klant vergeten wordt als de kaart
+    // tussen andere kaarten verdwijnt na scrollen.
+    const bovenAantal = actief.filter(e => e.boven).length;
+    if (bovenAantal > 0) {
+      elBannerBovenTekst.textContent = bovenAantal === 1 ? '1 klant wacht boven' : bovenAantal + ' klanten wachten boven';
+      elBadgeBoven.style.display = 'flex';
+    } else {
+      elBadgeBoven.style.display = 'none';
+    }
+
+    // NIEUW: langste actieve wachttijd — onder klanten die nog wachten
+    // (dus nog niet in behandeling). Directe actie-signaal: is er iemand
+    // die veel te lang staat, dan valt dat hier meteen op.
+    const wachtendeItems = actief.filter(e => e.status !== 'in-behandeling');
+    let langsteActieveWachttijd = 0;
+    wachtendeItems.forEach(e => {
+      if (e.timestamp) {
+        const minuten = (Date.now() - e.timestamp) / 60000;
+        if (minuten > langsteActieveWachttijd) langsteActieveWachttijd = minuten;
+      }
+    });
+    if (langsteActieveWachttijd > 0) {
+      elBannerLangsteWachttijd.textContent = 'Langst wacht: ' + Math.round(langsteActieveWachttijd) + ' min';
+      elBadgeLangsteWachttijd.style.display = 'flex';
+    } else {
+      elBadgeLangsteWachttijd.style.display = 'none';
+    }
+
     elQueueTitle.innerHTML = `
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       Actuele wachtrij${n > 0 ? ' <span style="font-weight:400;color:var(--card);font-size:12px">— ' + n + (n===1?' klant':' klanten') + ' · geschatte wachttijd ' + totaal + ' min</span>' : ''}
     `;
 
-    // ── Gedeelde helper voor het type-bezoek-label — nu 4 typen i.p.v. 2,
-    // vandaar een kleine lookup i.p.v. een simpele ternary. Gebruikt in zowel
+    // ── Gedeelde helper voor het type-bezoek-label — nu 3 typen, vandaar
+    // een kleine lookup i.p.v. een simpele ternary. Gebruikt in zowel
     // de actieve wachtrij als de geschiedenisweergave hieronder. ──
     function typeTagHtml(type) {
       if (type === 'ophalen')     return '<span class="tag tag-type-ophalen">📦 Reparatie ophalen</span>';
       if (type === 'schoonmaak')  return '<span class="tag tag-type-schoonmaak">🧼 Schoonmaak</span>';
-      if (type === 'prijsopgave') return '<span class="tag tag-type-prijsopgave">💶 Prijsopgave voor PO</span>';
       return '<span class="tag tag-type-ongepland">🔧 Ongepland — ter reparatie/service</span>';
     }
 
@@ -3838,6 +5455,24 @@
       if (e.volwassen === true)  return '<span class="tag tag-adult-yes">✓ 18+</span>';
       if (e.volwassen === false) return '<span class="tag tag-adult-no">⚠ Onder 18</span>';
       return '';
+    }
+
+    // ── NIEUW: afwijking (bijv. "reparatie niet gevonden in Fixably") —
+    // simpele notitie, geen apart ticket-systeem, gewoon zichtbaar voor
+    // het hele team zodra iemand 'm op de kaart heeft gezet. ──
+    function afwijkingTag(e) {
+      if (!e.afwijking) return '';
+      return `<span class="tag tag-afwijking" title="Afwijking genoteerd">⚠ ${escapeHtml(e.afwijking)}</span>`;
+    }
+
+    // ── NIEUW: status + reden bij een niet-ingenomen service ──
+    // Toont zowel de status als de concrete reden, zodat een collega niet
+    // hoeft door te klikken om te zien waarom de inname niet doorging.
+    function nietIngenomenTag(e) {
+      if (e.status !== 'niet-ingenomen') return '';
+      const reden = e.nietIngenomenRedenLabel || 'reden onbekend';
+      const toelichting = e.nietIngenomenToelichting ? ' — ' + e.nietIngenomenToelichting : '';
+      return `<span class="tag tag-niet-ingenomen" title="Niet ingenomen${toelichting ? ': ' + escapeHtml(e.nietIngenomenToelichting) : ''}">✕ Niet ingenomen: ${escapeHtml(reden)}${escapeHtml(toelichting)}</span>`;
     }
 
     // ── NIEUW: "betaald?" alleen relevant bij Schoonmaak ──
@@ -3899,7 +5534,7 @@
                   </button>
                 </div>
               </div>
-              <div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${adultTag(e)}${betaaldTag(e)}${backupTag(e)}</div>
+              <div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${nietIngenomenTag(e)}${adultTag(e)}${betaaldTag(e)}${backupTag(e)}${afwijkingTag(e)}</div>
               <div class="queue-desc">${e.probleem}</div>
               <div class="tag-row">${icareTag}${nlTag}${zoekTag}</div>
             </div>`;
@@ -3948,6 +5583,7 @@
         <div class="edit-form">
           <div class="edit-row"><label>Naam</label><input type="text" class="edit-input" id="edit-naam-${e.key}" value="${escapeHtml(e.naam)}" /></div>
           ${e.type === 'ophalen' ? `<div class="edit-row"><label>Reparatienummer</label><input type="text" class="edit-input" id="edit-repnr-${e.key}" value="${escapeHtml(formatRepnr(e.repnr || ''))}" inputmode="numeric" maxlength="9" /></div>` : ''}
+          ${e.type === 'ophalen' ? `<div class="edit-row"><label>⚠ Afwijking <span style="color:var(--muted);font-weight:400">(optioneel — bijv. "reparatie niet gevonden in Fixably")</span></label><input type="text" class="edit-input" id="edit-afwijking-${e.key}" value="${escapeHtml(e.afwijking || '')}" placeholder="Geen afwijking" /></div>` : ''}
           <div class="edit-row"><label>Probleemomschrijving</label><textarea class="edit-input" id="edit-probleem-${e.key}">${escapeHtml(e.probleem || '')}</textarea></div>
           <div class="edit-checkrow"><label class="checkbox-item"><input type="checkbox" id="edit-icare-${e.key}" ${e.icare ? 'checked' : ''}/> iCare / AppleCare</label><label class="checkbox-item"><input type="checkbox" id="edit-geennl-${e.key}" ${e.geenNl ? 'checked' : ''}/> Geen NL</label></div>
           <div class="edit-actions"><button type="button" class="btn-save-edit" onclick="saveEdit('${e.key}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>Opslaan</button><button type="button" class="btn-cancel-edit" onclick="cancelEdit()">Annuleren</button></div>
@@ -3962,15 +5598,17 @@
               <div style="min-width:0">${isEditing ? '' : `<div class="queue-name">${e.naam}</div>`}<div class="queue-meta">Aangemeld om ${e.tijd} · door ${e.medewerker}</div></div>
             </div>
             <div class="queue-header-actions">
-              ${isEditing ? '' : `<button class="btn-edit-icon" onclick="startEdit('${e.key}')" title="Kaart bewerken"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg></button>
-              <button class="btn-boven${bovenActief ? ' is-actief' : ''}" onclick="toggleBoven('${e.key}', ${bovenActief})" title="Markeer of deze klant boven wacht (bijv. bij een trapprobleem)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>${bovenActief ? '✓ Boven' : 'Boven?'}</button>
-              <button class="btn-remove btn-gedaan" onclick="startVoltooien('${e.key}')" title="Markeer deze klant als voltooid"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>Gedaan</button>`}
+              ${isEditing ? '' : `<button class="btn-secundair-actie" onclick="startEdit('${e.key}')" title="Naam, probleem en overige gegevens bewerken"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>Bewerken</button>
+              <button class="btn-secundair-actie${bovenActief ? ' is-actief' : ''}" onclick="toggleBoven('${e.key}', ${bovenActief})" title="Markeer of deze klant boven wacht (bijv. bij een trapprobleem)"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>${bovenActief ? '✓ Boven' : 'Boven?'}</button>
+              <button class="btn-primaire-kaartactie" onclick="startVoltooien('${e.key}')" title="Markeer deze klant als voltooid"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>Gedaan</button>
+              ${e.type === 'ongepland' ? `<span class="actie-scheiding" aria-hidden="true"></span><button class="btn-niet-ingenomen" onclick="startNietIngenomen('${e.key}')" title="Registreer dat het apparaat niet is ingenomen"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Niet ingenomen</button>` : ''}`}
             </div>
           </div>
-          ${isEditing ? editForm : `<div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${adultTag(e)}${betaaldTag(e)}${backupTag(e)}</div><div class="queue-desc">${e.probleem}</div><div class="tag-row">${icareTag}${nlTag}${zoekTag}</div><div class="behandel-row">${behandelHtml}</div>`}
+          ${isEditing ? editForm : `<div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${nietIngenomenTag(e)}${adultTag(e)}${betaaldTag(e)}${backupTag(e)}${afwijkingTag(e)}</div><div class="queue-desc">${e.probleem}</div><div class="tag-row">${icareTag}${nlTag}${zoekTag}</div><div class="behandel-row">${behandelHtml}</div>`}
         </div>`;
     }
 
+    // ── NIEUW: zoeken + filteren ──
     const behandelingHtml = inBehandeling.length > 0
       ? `<div class="behandeling-sectie"><div class="behandeling-sectie-titel">🧑‍💼 Momenteel in behandeling <span class="behandeling-aantal">${inBehandeling.length}</span></div>${inBehandeling.map(renderActieveKaart).join('')}</div>`
       : '';
@@ -4175,6 +5813,11 @@
   // 23:59 → zaterdag 00:00) als het 08:00/17:00-schema betrouwbaar op,
   // zonder dat de pagina herladen hoeft te worden.
   setInterval(controleerWeekend, 60000);
+  // NIEUW: same-day-signalering (repnr >1u, escalatie >2u) is tijdgebaseerd,
+  // niet databewegingsgebaseerd — zonder deze herhaling zou een kaart pas
+  // bijwerken bij de eerstvolgende Firebase-wijziging, wat uren kan duren.
+  // Puur een lokale her-render (geen Firebase-call), dus goedkoop.
+  setInterval(renderSameDayPanel, 60000);
 
   // ── Authenticatie ──
   let dbListenerActief = false;
@@ -4294,10 +5937,41 @@
               elSameDayZijkolom.classList.add('zichtbaar');
               elSameDayGroepBehandeling.classList.remove('zichtbaar');
               elSameDayGroepKlaar.classList.remove('zichtbaar');
+              elSameDayGroepUitgeleverd.classList.remove('zichtbaar');
               elSameDayGroepOpen.classList.add('zichtbaar');
               elSameDayLijstOpen.innerHTML =
                 '<div class="sameday-foutmelding">⚠ Kon niet laden (' + err.message + '). Controleer de Firebase-beveiligingsregels voor pad "sameday".</div>';
             });
+
+            // NIEUW: dagstatistieken (o.a. backlog-cijfer bij sluiting) —
+            // heel kleine dataset (één klein object per dag), dus gewoon
+            // volledig in het geheugen houden i.p.v. per dag apart op te
+            // halen. berekenDagoverzicht() leest hier synchroon uit.
+            firebase.database().ref('dagstatistieken').on('value', (snap) => {
+              dagStatistieken = snap.val() || {};
+            }, (err) => console.warn('[Amac Wachtrij] Dagstatistieken laden mislukt:', err));
+
+            // NIEUW: instelbare drempels laden — bij het eerste gebruik
+            // bestaat dit pad nog niet, dan blijven de standaardwaarden
+            // (30 min / 1u / 2u) gewoon gelden.
+            firebase.database().ref('instellingen/drempels').on('value', (snap) => {
+              const opgeslagen = snap.val();
+              if (opgeslagen) INSTELLINGEN = opgeslagen;
+              renderSameDayPanel(); // drempels kunnen wijzigen wat als escalatie geldt
+            }, (err) => console.warn('[Amac Wachtrij] Instellingen laden mislukt:', err));
+
+            // NIEUW: statusgeschiedenis inladen — nodig voor de nieuwe
+            // status_history.csv-export. Events ouder dan 30 dagen worden
+            // stilletjes opgeruimd, zodat dit pad niet onbeperkt groeit
+            // (zelfde patroon als de bestaande same-day-opschoning).
+            statusHistorieRef.on('value', (snap) => {
+              const data = snap.val() || {};
+              statusHistorieItems = Object.keys(data).map(key => ({ key, ...data[key] }));
+              const grens = Date.now() - 30 * 24 * 60 * 60 * 1000;
+              statusHistorieItems.forEach((item) => {
+                if (item.changed_at < grens) statusHistorieRef.child(item.key).remove();
+              });
+            }, (err) => console.warn('[Amac Wachtrij] Statusgeschiedenis laden mislukt:', err));
           }
         } else {
           elLoginOverlay.style.display = 'flex';
