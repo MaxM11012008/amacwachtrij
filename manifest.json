@@ -1,0 +1,26 @@
+{
+  "name": "Amac Service Wachtrij",
+  "short_name": "Wachtrij",
+  "description": "Wachtrijbeheer voor Amac Rotterdam Lijnbaan: service-inname beneden en winkelvloer boven.",
+  "lang": "nl",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F5F5F5",
+  "theme_color": "#1a3d7c",
+  "icons": [
+    {
+      "src": "Amac_Profielafbeelding_Algemeen.png",
+      "sizes": "501x501",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "Amac_Profielafbeelding_Algemeen.png",
+      "sizes": "501x501",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
