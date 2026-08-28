@@ -2470,7 +2470,14 @@
     }
     .boven-schrijf-vlak canvas {
       display: block; width: 100%; height: 100%;
+      /* Binnen het schrijfvlak mag de browser niets van zichzelf doen:
+         niet scrollen, niet zoomen bij dubbeltik, geen tekstselectie, geen
+         blauwe tikmarkering en geen callout bij lang indrukken. Alleen
+         hier — buiten dit vlak werkt alles gewoon zoals altijd. */
       touch-action: none; cursor: crosshair;
+      -webkit-user-select: none; user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
     }
     .boven-schrijf-placeholder {
       position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
@@ -8229,51 +8236,136 @@
     let onderlaag = null;      // Image van een ingeladen bestaande notitie
     let refBreedte = 0, refHoogte = 0;  // canvasmaat waarin streken zijn vastgelegd
 
-    function cssMaat() {
-      const r = canvas.getBoundingClientRect();
-      return { w: r.width, h: r.height };
+    // ── Instellingen van de pen ──────────────────────────────────────
+    // Lijndikte in CSS-pixels. De Pencil beweegt tussen DUN en DIK mee met
+    // de druk; vinger en muis leveren geen bruikbare druk en krijgen een
+    // vaste dikte.
+    const PEN_DUN = 1.2, PEN_DIK = 4.4, VASTE_DIKTE = 2.6;
+    // Punten die dichter dan dit op de vorige liggen zijn pentrilling en
+    // geen beweging. Weglaten maakt de lijn rustiger én scheelt rekenwerk.
+    const MIN_AFSTAND2 = 0.4 * 0.4;
+
+    let vlakRect = null;       // gebufferde positie van het canvas
+    let drukGefilterd = null;  // afgevlakte pendruk binnen de huidige streek
+    let laatsteInhoud = null;  // om de knopstatus niet per punt bij te werken
+
+    // getBoundingClientRect() dwingt de browser tot een layoutberekening.
+    // Dat mag niet per getekend punt gebeuren: een Apple Pencil levert via
+    // getCoalescedEvents() tot tientallen punten per beweging, en op 120 Hz
+    // waren dat er ruim duizend per seconde. De maat verandert tijdens een
+    // streek toch niet — het schrijfvlak ligt in een vaste laag en scrollen
+    // is er uitgezet — dus hij wordt per streek één keer opgehaald.
+    function verversRect() { vlakRect = canvas.getBoundingClientRect(); return vlakRect; }
+    function rect() { return vlakRect || verversRect(); }
+    function cssMaat() { const r = rect(); return { w: r.width, h: r.height }; }
+
+    // Schaal van referentieruimte naar het scherm. Uniform, want handschrift
+    // mag nooit uitgerekt worden.
+    function schaal(r) {
+      let s = refBreedte ? Math.min(r.width / refBreedte, r.height / refHoogte) : 1;
+      // Vangnet: zonder layout (vlak nog verborgen) is de schaal 0 en zou
+      // delen daardoor Infinity/NaN-coördinaten opleveren — die zouden de
+      // notitie onherstelbaar beschadigen. Dan liever niet schalen.
+      return (!isFinite(s) || s <= 0) ? 1 : s;
     }
+
+    // ── Tekenen van een streek ───────────────────────────────────────
+    // De punten worden NIET met rechte stukjes verbonden. Elk segment loopt
+    // van het midden tussen twee punten naar het midden tussen de volgende
+    // twee, met het punt daartussen als buigpunt van een kwadratische curve.
+    // Daardoor loopt de lijn vloeiend door de meetpunten heen in plaats van
+    // er met zichtbare knikjes tussendoor. Bij traag schrijven en bij kleine
+    // letters is dat het verschil tussen "hoekig" en "handschrift".
+    function midden(a, b, w) { return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, w: w }; }
+    function lijn(ctx, a, b, s) {
+      ctx.lineWidth = Math.max(0.4, b.w * s);
+      ctx.beginPath();
+      ctx.moveTo(a.x * s, a.y * s);
+      ctx.lineTo(b.x * s, b.y * s);
+      ctx.stroke();
+    }
+    function stip(ctx, p, s) {
+      ctx.beginPath();
+      ctx.arc(p.x * s, p.y * s, Math.max(0.3, p.w * s / 2), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    // Tekent alleen wat er nog niet staat. `streek.klaar` onthoudt hoever we
+    // waren; daardoor wordt tijdens het schrijven alleen het nieuwe stukje
+    // bijgetekend. Voorheen werd bij élk pen-punt het hele vlak gewist en
+    // alle streken opnieuw getekend — het werk groeide dus kwadratisch met
+    // de lengte van de notitie, en precies daarom begon een lange zin
+    // halverwege te haperen.
+    function tekenStreek(ctx, streek, s, afgerond) {
+      const n = streek.length;
+      if (!n) return;
+      // Het beginpunt krijgt altijd een stip, óók bij een lange streek. Niet
+      // uit schoonheid: het live tekenen en het volledig hertekenen moeten
+      // exact hetzelfde beeld opleveren. Deed alleen het live pad dit, dan
+      // verschoof de notitie een haartje zodra hij opnieuw werd getekend —
+      // na "ongedaan maken" of na het draaien van de iPad.
+      if (!streek.begin) { stip(ctx, streek[0], s); streek.begin = true; }
+      if (n === 1) return;
+      if (!streek.klaar) {
+        lijn(ctx, streek[0], midden(streek[0], streek[1], streek[0].w), s);
+        streek.klaar = 1;
+      }
+      for (let i = streek.klaar; i <= n - 2; i++) {
+        const p0 = streek[i - 1], p1 = streek[i], p2 = streek[i + 1];
+        ctx.lineWidth = Math.max(0.4, p1.w * s);
+        ctx.beginPath();
+        ctx.moveTo((p0.x + p1.x) / 2 * s, (p0.y + p1.y) / 2 * s);
+        ctx.quadraticCurveTo(p1.x * s, p1.y * s, (p1.x + p2.x) / 2 * s, (p1.y + p2.y) / 2 * s);
+        ctx.stroke();
+      }
+      if (n - 1 > streek.klaar) streek.klaar = n - 1;
+      // Het laatste stukje kan pas als vaststaat dat er niets meer bijkomt:
+      // van het laatste midden naar het werkelijke eindpunt.
+      if (afgerond && !streek.staart) {
+        lijn(ctx, midden(streek[n - 2], streek[n - 1], streek[n - 1].w), streek[n - 1], s);
+        streek.staart = true;
+      }
+    }
+
+    function penKlaar(ctx) { ctx.strokeStyle = '#111827'; ctx.fillStyle = '#111827'; }
+
+    function meldInhoud() {
+      const nu = streken.length > 0 || !!onderlaag;
+      vlak.heeftInhoud = nu;
+      if (placeholder) placeholder.style.display = nu ? 'none' : '';
+      // Laat de buitenwereld (knopstatus) meelopen — maar niet bij elk
+      // pen-punt: dat waren honderden DOM-schrijfacties per seconde midden
+      // in het tekenen. Nu alleen als er echt iets verandert, en aan het
+      // eind van een streek.
+      if (nu !== laatsteInhoud || !tekent) {
+        laatsteInhoud = nu;
+        if (typeof vlak.opVeranderd === 'function') vlak.opVeranderd();
+      }
+    }
+
+    // Volledige hertekening. Alleen nodig bij wissen, ongedaan maken,
+    // inladen, herstellen en bij resize/rotatie — niet tijdens het schrijven.
     function teken() {
       if (!vlak.ctx) return;
       const { w, h } = cssMaat();
-      vlak.ctx.clearRect(0, 0, w, h);
+      const ctx = vlak.ctx;
+      ctx.clearRect(0, 0, w, h);
       if (onderlaag) {
         const s = Math.min(w / onderlaag.width, h / onderlaag.height, 1);
-        vlak.ctx.drawImage(onderlaag, 0, 0, onderlaag.width * s, onderlaag.height * s);
+        ctx.drawImage(onderlaag, 0, 0, onderlaag.width * s, onderlaag.height * s);
       }
       if (streken.length && refBreedte > 0) {
-        // Uniforme schaal: handschrift mag nooit uitgerekt worden.
         const s = Math.min(w / refBreedte, h / refHoogte);
-        vlak.ctx.strokeStyle = '#111827';
-        vlak.ctx.fillStyle = '#111827';
+        penKlaar(ctx);
         streken.forEach((streek) => {
-          if (!streek.length) return;
-          if (streek.length === 1) {
-            const p = streek[0];
-            vlak.ctx.beginPath();
-            vlak.ctx.arc(p.x * s, p.y * s, Math.max(0.5, p.w * s / 2), 0, Math.PI * 2);
-            vlak.ctx.fill();
-            return;
-          }
-          for (let i = 1; i < streek.length; i++) {
-            const a = streek[i - 1], b = streek[i];
-            vlak.ctx.lineWidth = Math.max(0.5, b.w * s);
-            vlak.ctx.beginPath();
-            vlak.ctx.moveTo(a.x * s, a.y * s);
-            vlak.ctx.lineTo(b.x * s, b.y * s);
-            vlak.ctx.stroke();
-          }
+          streek.klaar = 0; streek.staart = false; streek.begin = false;
+          tekenStreek(ctx, streek, s, true);
         });
       }
-      vlak.heeftInhoud = streken.length > 0 || !!onderlaag;
-      if (placeholder) placeholder.style.display = vlak.heeftInhoud ? 'none' : '';
-      // Laat de buitenwereld (knopstatus) meelopen met elke wijziging —
-      // anders bleven "Ongedaan maken" en "Wis alles" uitgeschakeld staan
-      // terwijl er net geschreven was.
-      if (typeof vlak.opVeranderd === 'function') vlak.opVeranderd();
+      meldInhoud();
     }
 
     function pasAan() {
+      vlakRect = null;                 // maat opnieuw opmeten
       const { w, h } = cssMaat();
       if (w === 0 || h === 0) return; // nog niet zichtbaar
       const dpr = Math.min(window.devicePixelRatio || 1, 3);
@@ -8295,20 +8387,27 @@
     vlak.pasAan = pasAan;
 
     function positie(ev) {
-      const r = canvas.getBoundingClientRect();
+      const r = rect();
+      const s = schaal(r);
       // Terugrekenen naar referentieruimte, zodat een streek na rotatie
       // op exact dezelfde plek t.o.v. de rest blijft staan.
-      let s = refBreedte ? Math.min(r.width / refBreedte, r.height / refHoogte) : 1;
-      // Vangnet: zonder layout (vlak nog verborgen) is de schaal 0 en zou
-      // delen daardoor Infinity/NaN-coördinaten opleveren — die zouden de
-      // notitie onherstelbaar beschadigen. Dan liever niet schalen.
-      if (!isFinite(s) || s <= 0) s = 1;
       return { x: (ev.clientX - r.left) / s, y: (ev.clientY - r.top) / s, s };
     }
     function dikte(ev, s) {
-      const basis = ev.pointerType === 'pen'
-        ? Math.max(1.1, (ev.pressure > 0 ? ev.pressure : 0.5) * 4.2)
-        : 2.6;
+      let basis;
+      if (ev.pointerType === 'pen') {
+        const ruw = ev.pressure > 0 ? Math.min(1, ev.pressure) : 0.5;
+        // Ruwe drukwaarden schommelen van sample tot sample. Ongefilterd
+        // springt de lijndikte zichtbaar heen en weer binnen één letter,
+        // wat er onrustig uitziet terwijl de hand niets anders doet.
+        drukGefilterd = drukGefilterd === null ? ruw : drukGefilterd + (ruw - drukGefilterd) * 0.35;
+        // Wortel in plaats van recht evenredig: onderin het bereik reageert
+        // de pen daardoor gevoeliger, en dat is precies waar handschrift
+        // zich afspeelt — bijna niemand drukt een pen half plat.
+        basis = PEN_DUN + (PEN_DIK - PEN_DUN) * Math.sqrt(drukGefilterd);
+      } else {
+        basis = VASTE_DIKTE;
+      }
       return basis / (s || 1);
     }
     function start(ev) {
@@ -8321,35 +8420,73 @@
       ev.preventDefault();
       try { canvas.setPointerCapture(ev.pointerId); } catch (err) { /* oudere browsers */ }
       tekent = true;
+      drukGefilterd = null;
+      verversRect();
       const p = positie(ev);
       huidigeStreek = [{ x: p.x, y: p.y, w: dikte(ev, p.s) }];
+      huidigeStreek.klaar = 0;
+      huidigeStreek.staart = false;
+      huidigeStreek.begin = false;
       streken.push(huidigeStreek);
-      teken();
+      penKlaar(vlak.ctx);
+      tekenStreek(vlak.ctx, huidigeStreek, p.s, false);
+      meldInhoud();
     }
     function beweeg(ev) {
       if (!tekent || !vlak.ctx || !huidigeStreek) return;
       ev.preventDefault();
-      // getCoalescedEvents() levert de tussenliggende pen-punten (vloeiender
-      // handschrift). Valt terug op de gebeurtenis zelf wanneer de lijst leeg
-      // is — anders zou er in dat geval geen enkel punt worden vastgelegd.
+      // getCoalescedEvents() levert de tussenliggende pen-punten die de
+      // browser sinds de vorige gebeurtenis heeft opgespaard. Zonder die
+      // lijst mist een snelle Pencil-haal punten en wordt de bocht een
+      // rechte streep. Valt terug op de gebeurtenis zelf wanneer de lijst
+      // leeg is — anders zou er in dat geval geen enkel punt worden
+      // vastgelegd.
       let punten = (typeof ev.getCoalescedEvents === 'function') ? ev.getCoalescedEvents() : null;
       if (!punten || punten.length === 0) punten = [ev];
-      punten.forEach((pt) => {
-        const p = positie(pt);
-        huidigeStreek.push({ x: p.x, y: p.y, w: dikte(pt, p.s) });
-      });
-      teken();
+      const r = rect();
+      const s = schaal(r);
+      let toegevoegd = false;
+      for (let i = 0; i < punten.length; i++) {
+        const pt = punten[i];
+        const x = (pt.clientX - r.left) / s;
+        const y = (pt.clientY - r.top) / s;
+        const vorig = huidigeStreek[huidigeStreek.length - 1];
+        if (vorig) {
+          const dx = (x - vorig.x) * s, dy = (y - vorig.y) * s;
+          if (dx * dx + dy * dy < MIN_AFSTAND2) continue;
+        }
+        huidigeStreek.push({ x: x, y: y, w: dikte(pt, s) });
+        toegevoegd = true;
+      }
+      if (!toegevoegd) return;
+      penKlaar(vlak.ctx);
+      tekenStreek(vlak.ctx, huidigeStreek, s, false);
     }
     function stop(ev) {
       if (!tekent) return;
-      tekent = false; huidigeStreek = null;
-      try { canvas.releasePointerCapture(ev.pointerId); } catch (err) { /* niet nodig */ }
+      tekent = false;
+      if (huidigeStreek && vlak.ctx) {
+        penKlaar(vlak.ctx);
+        tekenStreek(vlak.ctx, huidigeStreek, schaal(rect()), true);
+      }
+      huidigeStreek = null;
+      drukGefilterd = null;
+      if (ev) { try { canvas.releasePointerCapture(ev.pointerId); } catch (err) { /* niet nodig */ } }
+      meldInhoud();
     }
     canvas.addEventListener('pointerdown', start);
     canvas.addEventListener('pointermove', beweeg);
     canvas.addEventListener('pointerup', stop);
     canvas.addEventListener('pointercancel', stop);
-    canvas.addEventListener('pointerleave', stop);
+    // GEEN pointerleave meer. Met setPointerCapture blijven de gebeurtenissen
+    // gewoon binnenkomen zodra de pen even buiten het vlak komt — maar
+    // pointerleave vuurde dan alsnog en brak de streek middenin een
+    // handtekening af. pointerup en pointercancel sluiten een streek af, ook
+    // ver buiten het vlak; lostpointercapture vangt het geval dat het
+    // systeem de aanwijzer afpakt.
+    canvas.addEventListener('lostpointercapture', stop);
+    // Lang indrukken met vinger of pen mag geen contextmenu opleveren.
+    canvas.addEventListener('contextmenu', (ev) => ev.preventDefault());
 
     vlak.wis = function () {
       streken = []; huidigeStreek = null; onderlaag = null;
