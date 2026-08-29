@@ -1719,6 +1719,76 @@
     .medewerker-balk-vulling { height: 100%; background: var(--primary); border-radius: 999px; }
 
     /* ══════════════════════════════════════════════════════════════════
+       NIEUW — Medewerkerkaart is selecteerbaar
+       De kaart zelf is de keuze: aantikken selecteert die medewerker,
+       nogmaals aantikken wist de selectie. Er komt dus geen extra
+       keuzelijst of dropdown op het scherm bij. De echte <button> in de
+       kaartkop geeft toetsenbord- en schermlezerbediening (aria-pressed);
+       de rest van de kaart is een extra, ruimer aanraakgebied.
+       ══════════════════════════════════════════════════════════════════ */
+    .mw-kaart {
+      /* transparante rand i.p.v. geen rand: zo verspringt de kaart niet
+         zodra hij geselecteerd wordt. */
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .mw-kaart:hover { border-color: var(--primary); }
+    .mw-kaart.is-geselecteerd {
+      border-color: var(--primary);
+      background: var(--primary-light);
+    }
+    /* Bij een smalle kaart mogen naam, badge en aantal onder elkaar vallen
+       i.p.v. over elkaar heen te lopen. */
+    .mw-kop { flex-wrap: wrap; }
+    .mw-kies-knop {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.02em;
+      padding: 3px 9px; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--card);
+      color: var(--muted); cursor: pointer; white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .mw-kies-knop:hover { border-color: var(--primary); color: var(--primary); }
+    .mw-kies-knop.is-actief {
+      background: var(--primary); border-color: var(--primary); color: #fff;
+    }
+    /* Vaste regel boven de lijst: staat er altijd (ook zonder selectie),
+       zodat de lijst niet verspringt zodra je iets aantikt. */
+    .mw-selectie-hint {
+      font-size: 11px; color: var(--muted); line-height: 1.5;
+      margin-bottom: 10px; display: flex; align-items: center;
+      gap: 8px; flex-wrap: wrap;
+    }
+    .mw-selectie-hint .mw-gekozen { color: var(--primary); font-weight: 700; }
+    .btn-selectie-wissen {
+      background: none; border: none; padding: 0;
+      color: var(--primary); font-size: 11px; font-weight: 700;
+      text-decoration: underline; cursor: pointer;
+    }
+
+    /* Twee exportknoppen onder elkaar i.p.v. naast elkaar: op mobiel
+       blijft elke knop over de volle breedte aantikbaar, en de bovenste
+       knop is altijd de meest specifieke actie. */
+    .modal-footer.mw-footer { flex-direction: column; align-items: stretch; }
+    /* Zachte variant van .btn-primary voor de secundaire exportactie —
+       zelfde vorm en maat, minder nadruk. */
+    .btn-zacht {
+      background: var(--card); color: var(--primary);
+      border: 1px solid var(--primary); border-radius: 6px;
+      padding: 10px 20px; font-size: 13px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 6px; width: 100%;
+      transition: background 0.15s;
+    }
+    .btn-zacht:hover { background: var(--primary-light); }
+    /* BELANGRIJK: het `hidden`-attribuut zet display:none via de
+       browser-standaardstijl, maar .btn-primary en .btn-zacht zetten zelf
+       display:flex — en een klasseselector wint van die standaardstijl.
+       Zonder deze regel zou de knop voor één medewerker ALTIJD zichtbaar
+       zijn, ook zonder selectie. */
+    .btn-primary[hidden], .btn-zacht[hidden] { display: none; }
+
+    /* ══════════════════════════════════════════════════════════════════
        NIEUW: Mini-leaderboard — speelse popover, zelfde interactiepatroon
        als de audio-instellingen (icoon → popover eronder).
        ══════════════════════════════════════════════════════════════════ */
@@ -2142,6 +2212,79 @@
       .pdf-tabel td:last-child { text-align: right; font-weight: 700; }
       .pdf-inzichten { font-size: 11px; line-height: 1.75; padding-left: 16px; margin: 0; color: #111; }
       .pdf-inzichten li { margin-bottom: 4px; }
+
+      /* ── NIEUW: brede, lange tabellen (Medewerkersrapport) ──
+         De bestaande .pdf-tabel is een tweekoloms lijstje zonder <thead>;
+         voor het medewerkersrapport is een echte meerkolomstabel nodig die
+         over meerdere A4-pagina's mag doorlopen. Alle regels hieronder
+         hangen aan .pdf-tabel-lang / <thead>, dus de bestaande rapporten
+         (die geen van beide gebruiken) veranderen niet. */
+      .pdf-tabel thead th {
+        font-size: 8.5px; font-weight: 800; color: #111;
+        text-transform: uppercase; letter-spacing: 0.03em;
+        text-align: left; padding: 5px 6px; vertical-align: bottom;
+        border-bottom: 1.5px solid #333; background: none !important;
+      }
+      /* table-header-group laat Chrome/Safari/Firefox de tabelkop op
+         IEDERE pagina herhalen zodra de tabel afbreekt — precies wat een
+         lange medewerkerslijst nodig heeft om leesbaar te blijven. */
+      .pdf-tabel thead { display: table-header-group; }
+      .pdf-tabel tfoot { display: table-footer-group; }
+      .pdf-tabel tfoot td {
+        border-top: 1.5px solid #333; border-bottom: none;
+        font-weight: 800; padding-top: 6px;
+      }
+      /* Lange tabellen MOETEN kunnen afbreken; de generieke regel
+         `.pdf-tabel { break-inside: avoid }` verderop is bedoeld voor de
+         korte lijstjes. LET OP de elementselector: die generieke regel staat
+         LATER in deze stylesheet en zou bij gelijke specificiteit winnen —
+         een tabel van 25 medewerkers werd dan in z'n geheel naar de volgende
+         pagina geduwd, met een halflege pagina ervoor. `table.pdf-tabel-lang`
+         is specifieker en wint dus ongeacht de volgorde, zonder dat de
+         bestaande regel gewijzigd hoeft te worden. */
+      table.pdf-tabel-lang {
+        break-inside: auto; page-break-inside: auto;
+        table-layout: fixed; width: 100%; font-size: 9.5px;
+      }
+      .pdf-tabel-lang td { padding: 4.5px 6px; vertical-align: top; }
+      /* Lange namen mogen afbreken i.p.v. de kolombreedte op te blazen. */
+      .pdf-tabel-lang td.naam { font-weight: 700; overflow-wrap: anywhere; }
+      /* De bestaande regel `.pdf-tabel td:last-child` maakt ELKE laatste
+         kolom vetgedrukt en rechts uitgelijnd — logisch bij de bestaande
+         tweekolomslijstjes, maar niet in een meerkolomstabel. Hier bepaalt
+         de .num-klasse de uitlijning; alleen de totaalregel is vet. De
+         volgorde en specificiteit hieronder zijn bewust: de .num-regel
+         staat ná (en is specifieker dan) de :last-child-reset. */
+      .pdf-tabel-lang td:last-child { font-weight: inherit; text-align: inherit; }
+      .pdf-tabel-lang th.num, .pdf-tabel-lang td.num,
+      .pdf-tabel-lang th.num:last-child, .pdf-tabel-lang td.num:last-child {
+        text-align: right;
+      }
+      /* Alleen de CIJFERS blijven op één regel ("28 min" mag nooit
+         afbreken). Kolomkoppen moeten juist wél kunnen afbreken, anders
+         lopen lange koppen als "Mediaan wachttijd" over de buurkolom heen
+         bij table-layout: fixed. De koppen breken op een vaste plek af
+         (<br> in de opmaak), zodat de uitlijning voorspelbaar blijft. */
+      .pdf-tabel-lang td.num { white-space: nowrap; }
+      .pdf-tabel-lang th { line-height: 1.25; }
+      .pdf-tabel-lang th .eenheid {
+        display: block; font-size: 7.5px; font-weight: 600; color: #555;
+        text-transform: none; letter-spacing: 0;
+      }
+      .pdf-tabel-lang tfoot td { font-weight: 800; }
+      .pdf-tabel-noot { font-size: 8.5px; color: #555; margin: 5px 0 0; line-height: 1.5; }
+      /* Houdt een kop met de bijbehorende balkjes/toelichting bij elkaar.
+         De losse regels hadden al `break-inside: avoid`, maar de GROEP niet
+         — daardoor kon een sectie van drie balkjes midden doormidden over
+         twee pagina's vallen. */
+      .pdf-blok { break-inside: avoid; page-break-inside: avoid; }
+
+      /* Toegepaste selectie (periode, filters, sortering): compacte
+         sleutel/waarde-lijst bovenaan het rapport, zodat later altijd
+         terug te zien is welke selectie deze PDF weergeeft. */
+      .pdf-selectie { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 2px; }
+      .pdf-selectie td { padding: 3.5px 6px; border-bottom: 1px solid #e2e2e2; color: #111; background: none !important; }
+      .pdf-selectie td:first-child { width: 30%; color: #444; font-weight: 700; }
 
       /* ── Slimme aandachtspunten: structuur i.p.v. losse bullets, met
          prioriteit ALTIJD ook als tekst (nooit uitsluitend kleur). ── */
@@ -3540,6 +3683,30 @@
         als zelfstandige kwaliteitsbeoordeling, omdat werktijden, rollen, klanttypen en
         taakverdeling kunnen verschillen.
       </p>
+    </div>
+    <!-- NIEUW: PDF-export, exact hetzelfde patroon als bij het Dagoverzicht
+         en de Rapporten-modal (vaste voettekstbalk, zelfde knop en icoon).
+         De knoppen exporteren altijd de op dat moment gekozen periode én
+         selectie.
+
+         De bovenste knop verschijnt UITSLUITEND wanneer er één medewerker
+         is geselecteerd; zonder selectie blijft alleen de onderste knop
+         staan. Het omwisselen van btn-primary/btn-zacht gebeurt in
+         werkMedewerkerExportKnoppenBij(), zodat de meest specifieke actie
+         altijd de nadruk krijgt. -->
+    <div class="modal-footer mw-footer">
+      <button type="button" class="btn-primary" id="btn-export-medewerker" hidden
+              style="margin-left:0;width:100%;justify-content:center"
+              onclick="exporteerEenMedewerkerPdf()">
+        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span id="btn-export-medewerker-tekst">Exporteer medewerker als PDF</span>
+      </button>
+      <button type="button" class="btn-primary" id="btn-export-alle-medewerkers"
+              style="margin-left:0;width:100%;justify-content:center"
+              onclick="exporteerMedewerkersPdf()">
+        <svg aria-hidden="true" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        Exporteer alle medewerkers als PDF
+      </button>
     </div>
   </div>
 </div>
@@ -6107,7 +6274,26 @@
     renderMedewerkerOverzicht();
   }
 
-  function renderMedewerkerOverzicht() {
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — Eén punt waar het SCHERM en de PDF-EXPORT hun periode en
+  // selectie vandaan halen. Zelfde principe als haalPeriodeData() bij de
+  // periode-rapporten: zo kan de PDF nooit een andere periode, ander
+  // datumbereik of andere sortering tonen dan wat op dat moment op het
+  // scherm staat. De logica hieronder is ongewijzigd verplaatst uit
+  // renderMedewerkerOverzicht().
+  // ══════════════════════════════════════════════════════════════════
+  const MEDEWERKER_PERIODE_TABS = {
+    vandaag: 'Vandaag', week: 'Deze week', maand: 'Deze maand',
+    alles: 'Alles', aangepast: 'Aangepast',
+  };
+
+  // ── NIEUW: welke medewerker is aangetikt voor een gerichte export ──
+  // null = geen selectie; dan is alleen de "alle medewerkers"-export
+  // beschikbaar. Bewust één centrale variabele, zodat scherm, knoppen en
+  // PDF nooit een andere medewerker kunnen bedoelen.
+  let geselecteerdeMedewerker = null;
+
+  function haalMedewerkerSelectie() {
     let van, tot, periodeLabel;
     if (medewerkerPeriode === 'vandaag') {
       van = startVanVandaag(); tot = eindeVanVandaag();
@@ -6132,8 +6318,73 @@
         : 'gekozen periode';
     }
 
+    // Exacte begin- en eindgrens van de selectie, zodat in de PDF
+    // controleerbaar is welk bereik precies is doorgerekend (bij "deze
+    // week/maand/alles" loopt de bovengrens tot het exportmoment).
+    const stempel = (ms) => new Date(ms).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
+      + ' om ' + new Date(ms).toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+
+    return {
+      van, tot, periodeLabel,
+      tabLabel: MEDEWERKER_PERIODE_TABS[medewerkerPeriode] || medewerkerPeriode,
+      datumBereikLabel: (van === 0 ? 'begin van de beschikbare historie' : stempel(van)) + ' t/m ' + stempel(tot),
+      // Het overzicht kent één vaste inhoudsfilter (zie
+      // berekenMedewerkerStatistieken) en één vaste sortering; beide
+      // worden in de PDF vermeld zodat de export zichzelf verklaart.
+      // Er is in dit rapport geen zoekveld, dus ook geen zoekopdracht.
+      filterLabel: 'Alleen medewerkers met activiteit in deze periode (aangemeld, in behandeling, afgerond of niet ingenomen)',
+      zoekLabel: 'Geen zoekopdracht actief',
+      sorteringLabel: 'Afgerond (hoog → laag), bij gelijk aantal op aangemeld (hoog → laag)',
+      geselecteerdeMedewerker,
+    };
+  }
+
+  // ── NIEUW: selectie aan/uit en de exportknoppen daarop afstemmen ──
+  // Opnieuw renderen na een klik is bewust: de lijst telt hooguit enkele
+  // tientallen kaarten, en zo is er één plek waar de kaartopmaak, de
+  // hintregel en de knoppen samen worden bijgewerkt.
+  function kiesMedewerkerKaart(naam) {
+    geselecteerdeMedewerker = (geselecteerdeMedewerker === naam) ? null : naam;
+    renderMedewerkerOverzicht();
+  }
+
+  function wisMedewerkerSelectie() {
+    geselecteerdeMedewerker = null;
+    renderMedewerkerOverzicht();
+  }
+
+  // De knop voor één medewerker bestaat alleen zolang er een medewerker
+  // geselecteerd is; zonder selectie is "alle medewerkers" de enige (en
+  // dus primaire) actie.
+  function werkMedewerkerExportKnoppenBij() {
+    const knopEen  = document.getElementById('btn-export-medewerker');
+    const knopAlle = document.getElementById('btn-export-alle-medewerkers');
+    if (!knopEen || !knopAlle) return;
+
+    if (geselecteerdeMedewerker) {
+      document.getElementById('btn-export-medewerker-tekst').textContent =
+        'Exporteer ' + geselecteerdeMedewerker + ' als PDF';
+      knopEen.hidden = false;
+      knopEen.className = 'btn-primary';
+      knopAlle.className = 'btn-zacht';
+    } else {
+      knopEen.hidden = true;
+      knopAlle.className = 'btn-primary';
+    }
+  }
+
+  function renderMedewerkerOverzicht() {
+    const { van, tot, periodeLabel } = haalMedewerkerSelectie();
+
     const stats = berekenMedewerkerStatistieken(van, tot);
     const body = document.getElementById('medewerker-overzicht-body');
+
+    // Een selectie die in deze periode geen activiteit (meer) heeft, vervalt.
+    // Anders zou de exportknop een medewerker noemen die niet in beeld staat.
+    if (geselecteerdeMedewerker && !stats.some(m => m.naam === geselecteerdeMedewerker)) {
+      geselecteerdeMedewerker = null;
+    }
+    werkMedewerkerExportKnoppenBij();
 
     if (stats.length === 0) {
       body.innerHTML = `<div class="overzicht-leeg">Geen medewerkeractiviteit gevonden voor ${escapeHtml(periodeLabel)}.</div>`;
@@ -6143,12 +6394,24 @@
     const maxAfgerond = Math.max(1, ...stats.map(m => m.afgerond)); // nooit delen door 0
     const toon = (waarde, eenheid) => waarde === null ? '<span class="mw-nvt">n.v.t.</span>' : waarde + (eenheid || '');
 
+    // De hintregel staat er ALTIJD, ook zonder selectie: alleen de tekst
+    // wisselt. Zo verspringt de lijst niet zodra je een kaart aantikt.
+    const hintHtml = geselecteerdeMedewerker
+      ? `<span>Geselecteerd: <span class="mw-gekozen">${escapeHtml(geselecteerdeMedewerker)}</span> — de exportknop onderaan maakt een PDF van alleen deze medewerker.</span>
+         <button type="button" class="btn-selectie-wissen" onclick="wisMedewerkerSelectie()">Selectie wissen</button>`
+      : '<span>Tik een medewerker aan om alleen die medewerker als PDF te exporteren.</span>';
+
     body.innerHTML = `
       <div class="mw-periode-label">Periode: ${escapeHtml(periodeLabel)}</div>
-      ${stats.map(m => `
-        <div class="mw-kaart">
+      <div class="mw-selectie-hint">${hintHtml}</div>
+      ${stats.map(m => {
+        const isGekozen = m.naam === geselecteerdeMedewerker;
+        return `
+        <div class="mw-kaart${isGekozen ? ' is-geselecteerd' : ''}" data-medewerker="${escapeHtml(m.naam)}">
           <div class="mw-kop">
             <span class="mw-naam">${escapeHtml(m.naam)}</span>
+            <button type="button" class="mw-kies-knop${isGekozen ? ' is-actief' : ''}"
+                    data-medewerker="${escapeHtml(m.naam)}" aria-pressed="${isGekozen}">${isGekozen ? '\u2713 Geselecteerd' : 'Selecteer'}</button>
             ${m.beperkteSteekproef ? '<span class="mw-waarschuwing" title="Minder dan ' + MIN_METINGEN_BETROUWBAAR + ' afgeronde klanten — gemiddelden zijn indicatief">beperkt aantal metingen</span>' : ''}
             <span class="mw-afgerond-groot">${m.afgerond}</span>
           </div>
@@ -6171,11 +6434,490 @@
             <span>🧼 Schoonmaak ${m.perType.schoonmaak}</span>
             <span>📦 Ophalen ${m.perType.ophalen}</span>
           </div>
-        </div>`).join('')}
+        </div>`;
+      }).join('')}
     `;
   }
 
+  // ── Aantikken van een kaart selecteert die medewerker ──
+  // Eén gedelegeerde listener i.p.v. een inline onclick per kaart: de
+  // kaarten worden bij elke render opnieuw opgebouwd, en de naam gaat via
+  // een data-attribuut mee zodat aanhalingstekens in een naam nooit in
+  // JavaScript-code terechtkomen. De echte <button> in de kaartkop zorgt
+  // voor toetsenbordbediening; zijn klik bubbelt naar dezelfde listener,
+  // dus er is precies één afhandeling per klik.
+  document.getElementById('medewerker-overzicht-body').addEventListener('click', (e) => {
+    const kaart = e.target.closest('[data-medewerker]');
+    if (kaart) kiesMedewerkerKaart(kaart.dataset.medewerker);
+  });
+
+  // ══════════════════════════════════════════════════════════════════
+  // Gedeelde kop en voet voor BEIDE medewerker-exports (alle medewerkers
+  // én één geselecteerde medewerker). Eén plek waar de toegepaste selectie
+  // wordt vastgelegd, zodat de twee PDF's dezelfde opbouw houden en er
+  // nooit een filter in de ene wél en in de andere niet wordt vermeld.
+  // ══════════════════════════════════════════════════════════════════
+  function medewerkerPdfKop(sel, titel, rapportomvang, gegenereerdOp, extraRijen) {
+    return `
+      <div class="pdf-header">
+        <img src="Amac_Logo.svg" class="pdf-logo" alt="Amac">
+        <div>
+          <div class="pdf-titel">${escapeHtml(titel)}</div>
+          <div class="pdf-sub">Amac Benedenwachtrij · Periode: ${escapeHtml(sel.periodeLabel)} · Locatie: Amac</div>
+        </div>
+      </div>
+      <div class="pdf-meta">Geëxporteerd op ${gegenereerdOp}</div>
+
+      <div class="pdf-sectie-titel">Toegepaste selectie</div>
+      <table class="pdf-selectie">
+        <tr><td>Rapportomvang</td><td>${escapeHtml(rapportomvang)}</td></tr>
+        <tr><td>Geselecteerde periode</td><td>${escapeHtml(sel.tabLabel)} — ${escapeHtml(sel.periodeLabel)}</td></tr>
+        <tr><td>Datumbereik</td><td>${escapeHtml(sel.datumBereikLabel)}</td></tr>
+        <tr><td>Actieve filters</td><td>${escapeHtml(sel.filterLabel)}</td></tr>
+        <tr><td>Zoekopdracht</td><td>${escapeHtml(sel.zoekLabel)}</td></tr>
+        <tr><td>Sortering</td><td>${escapeHtml(sel.sorteringLabel)}</td></tr>
+        ${extraRijen || ''}
+        <tr><td>Exportdatum en -tijd</td><td>${gegenereerdOp}</td></tr>
+      </table>`;
+  }
+
+  function medewerkerPdfVoet(gegenereerdOp, titel) {
+    return `
+      <div class="pdf-footer">
+        <strong>Toelichting:</strong> deze cijfers geven inzicht in werkverdeling en procesbelasting.
+        Ze zijn niet bedoeld als zelfstandige kwaliteitsbeoordeling, omdat werktijden, rollen,
+        klanttypen en taakverdeling per medewerker kunnen verschillen.
+        <br><strong>Privacy:</strong> dit rapport bevat medewerkersnamen en geaggregeerde werkcijfers —
+        er staan nergens klantnamen, contactgegevens of andere klantgegevens in.
+        <br>Amac Wachtrij-systeem — ${escapeHtml(titel)}, geëxporteerd op ${gegenereerdOp}.
+      </div>`;
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — Medewerkersrapport als PDF
+  //
+  // Hergebruikt exact de bestaande exportaanpak van het Dagoverzicht, de
+  // Rapporten-modal en de Bovenwachtrij: BEWUST GEEN externe/betaalde
+  // PDF-bibliotheek, API-key of dienst. De #pdf-rapport-container (één
+  // vaste container direct onder <body>) wordt gevuld met dezelfde
+  // .pdf-*-opmaakklassen, waarna window.print() de browser-eigen
+  // "Opslaan als PDF" opent. Dat werkt offline en op elk apparaat —
+  // desktop, iPad en telefoon — zonder extra afhankelijkheden.
+  //
+  // De export toont UITSLUITEND wat op dat moment in het medewerker-
+  // overzicht zichtbaar is: dezelfde periode/selectie
+  // (haalMedewerkerSelectie) en dezelfde berekening
+  // (berekenMedewerkerStatistieken) als het scherm — er wordt niets
+  // extra's opgehaald en niets weggelaten.
+  // ══════════════════════════════════════════════════════════════════
+  function exporteerMedewerkersPdf() {
+    const sel = haalMedewerkerSelectie();
+    const stats = berekenMedewerkerStatistieken(sel.van, sel.tot);
+
+    const nu = new Date();
+    const gegenereerdOp = nu.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
+      + ' om ' + nu.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+
+    // "n.v.t." i.p.v. een verzonnen 0 wanneer er geen metingen zijn —
+    // exact dezelfde regel als op het scherm.
+    const toon = (waarde, eenheid) => (waarde === null || waarde === undefined) ? 'n.v.t.' : waarde + (eenheid || '');
+
+    const kop = medewerkerPdfKop(sel, 'Medewerkersrapport', 'Alle medewerkers met activiteit in deze periode', gegenereerdOp,
+      `<tr><td>Aantal medewerkers in dit rapport</td><td>${stats.length}</td></tr>`);
+    const voet = medewerkerPdfVoet(gegenereerdOp, 'Medewerkersrapport');
+
+    // ── Lege selectie: geen alert() die de export blokkeert, maar een
+    //    volwaardige PDF die vastlegt dát er niets was in deze periode —
+    //    dat is precies wat het scherm op dat moment ook toont. ──
+    if (stats.length === 0) {
+      document.getElementById('pdf-rapport-container').innerHTML = kop + `
+      <div class="pdf-sectie-titel">Resultaat</div>
+      <p class="pdf-summary">
+        <strong>Geen medewerkeractiviteit gevonden</strong> voor ${escapeHtml(sel.periodeLabel)}.
+        In het geselecteerde datumbereik zijn geen klanten aangemeld, in behandeling genomen,
+        afgerond of als niet ingenomen geregistreerd.
+      </p>` + voet;
+      window.print();
+      return;
+    }
+
+    // ── Totalen over de zichtbare selectie ──
+    const som = (veld) => stats.reduce((totaal, m) => totaal + (m[veld] || 0), 0);
+    const totaalAangemeld     = som('aangemeld');
+    const totaalBehandeld     = som('behandeld');
+    const totaalAfgerond      = som('afgerond');
+    const totaalNietIngenomen = som('nietIngenomen');
+    const totaalMetWachttijd  = som('metWachttijd');
+    const totaalBinnenDoel    = som('binnenDoelstelling');
+
+    // Beschermd tegen delen door nul, net als in berekenMedewerkerStatistieken.
+    const pctBinnenDoelTotaal = totaalMetWachttijd > 0
+      ? Math.round(totaalBinnenDoel / totaalMetWachttijd * 100) : null;
+    const alleWachttijden = stats.reduce((arr, m) => arr.concat(m.wachttijden), []);
+    const gemWachttijdTotaal = alleWachttijden.length > 0
+      ? Math.round(alleWachttijden.reduce((a, b) => a + b, 0) / alleWachttijden.length) : null;
+    const gemPerMedewerker = (totaalAfgerond / stats.length).toFixed(1);
+    const typeTotaal = (sleutel) => stats.reduce((totaal, m) => totaal + m.perType[sleutel], 0);
+
+    const heeftBeperkteSteekproef = stats.some(m => m.beperkteSteekproef);
+    // De waarschuwing staat als tekstmarkering (*) in de tabel, nooit
+    // uitsluitend als kleur — zo blijft die ook zwart-wit leesbaar.
+    const ster = (m) => m.beperkteSteekproef ? ' *' : '';
+    const steekproefNoot = heeftBeperkteSteekproef
+      ? `<p class="pdf-tabel-noot">* Minder dan ${MIN_METINGEN_BETROUWBAAR} afgeronde klanten in deze periode — de gemiddelden van deze medewerker zijn indicatief.</p>`
+      : '';
+
+    const maxAfgerond = Math.max(1, ...stats.map(m => m.afgerond)); // nooit delen door 0
+
+    document.getElementById('pdf-rapport-container').innerHTML = kop + `
+
+      <div class="pdf-sectie-titel">Samenvatting</div>
+      <p class="pdf-summary">
+        In de geselecteerde periode (${escapeHtml(sel.periodeLabel)}) waren
+        <strong>${stats.length}</strong> ${stats.length === 1 ? 'medewerker' : 'medewerkers'} actief.
+        Samen meldden zij <strong>${totaalAangemeld}</strong> klanten aan, namen zij
+        <strong>${totaalBehandeld}</strong> klanten in behandeling en rondden zij
+        <strong>${totaalAfgerond}</strong> klanten af
+        (gemiddeld ${gemPerMedewerker} per medewerker).
+        ${gemWachttijdTotaal !== null
+          ? 'De gemiddelde wachttijd over de afgeronde klanten bedroeg <strong>' + gemWachttijdTotaal + ' minuten</strong>'
+            + (pctBinnenDoelTotaal !== null ? '; <strong>' + pctBinnenDoelTotaal + '%</strong> werd binnen ' + INSTELLINGEN.wachttijdDoelstellingMin + ' minuten geholpen.' : '.')
+          : 'Er zijn in deze periode geen wachttijden gemeten.'}
+        ${totaalNietIngenomen > 0
+          ? 'Daarnaast zijn <strong>' + totaalNietIngenomen + '</strong> ongeplande services niet ingenomen.'
+          : 'Er zijn geen ongeplande services als niet ingenomen geregistreerd.'}
+      </p>
+
+      <div class="pdf-sectie-titel">Kerncijfers</div>
+      <div class="pdf-kpi-grid">
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${stats.length}</div>
+          <div class="pdf-kpi-label">Medewerkers</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${totaalAangemeld}</div>
+          <div class="pdf-kpi-label">Aangemeld</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${totaalBehandeld}</div>
+          <div class="pdf-kpi-label">In behandeling</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${totaalAfgerond}</div>
+          <div class="pdf-kpi-label">Afgerond</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${totaalNietIngenomen}</div>
+          <div class="pdf-kpi-label">Niet ingenomen</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${gemWachttijdTotaal !== null ? gemWachttijdTotaal + '<span style="font-size:10px"> min</span>' : 'n.v.t.'}</div>
+          <div class="pdf-kpi-label">Gem. wachttijd</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${pctBinnenDoelTotaal !== null ? pctBinnenDoelTotaal + '%' : 'n.v.t.'}</div>
+          <div class="pdf-kpi-label">Binnen ${INSTELLINGEN.wachttijdDoelstellingMin} min</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${gemPerMedewerker}</div>
+          <div class="pdf-kpi-label">Afgerond per medewerker</div>
+        </div>
+      </div>
+
+      ${totaalAfgerond > 0 ? `
+      <div class="pdf-sectie-titel">Verdeling van afgerond werk</div>
+      ${stats.map(m => `
+        <div class="pdf-grafiek-rij">
+          <span class="pdf-grafiek-label">${escapeHtml(m.naam)}</span>
+          <div class="pdf-grafiek-track"><div class="pdf-grafiek-vulling" style="width:${Math.round(m.afgerond / maxAfgerond * 100)}%"></div></div>
+          <span class="pdf-grafiek-waarde">${m.afgerond}</span>
+        </div>`).join('')}
+      <p class="pdf-conclusie">De balken tonen het aantal afgeronde klanten per medewerker, in dezelfde volgorde als op het scherm. Het getal staat er altijd naast, zodat de grafiek ook zwart-wit leesbaar is.</p>` : ''}
+
+      <div class="pdf-sectie-titel">Volume per medewerker</div>
+      <table class="pdf-tabel pdf-tabel-lang">
+        <colgroup>
+          <col style="width:30%"><col style="width:14%"><col style="width:14%">
+          <col style="width:14%"><col style="width:14%"><col style="width:14%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Medewerker</th>
+            <th class="num">Aangemeld</th>
+            <th class="num">In<br>behandeling</th>
+            <th class="num">Afgerond</th>
+            <th class="num">Niet<br>ingenomen</th>
+            <th class="num">Aandeel<br>afgerond</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${stats.map(m => `
+          <tr>
+            <td class="naam">${escapeHtml(m.naam)}${ster(m)}</td>
+            <td class="num">${m.aangemeld}</td>
+            <td class="num">${m.behandeld}</td>
+            <td class="num">${m.afgerond}</td>
+            <td class="num">${m.nietIngenomen}</td>
+            <td class="num">${toon(m.aandeelVanTotaal, '%')}</td>
+          </tr>`).join('')}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>Totaal — ${stats.length} ${stats.length === 1 ? 'medewerker' : 'medewerkers'}</td>
+            <td class="num">${totaalAangemeld}</td>
+            <td class="num">${totaalBehandeld}</td>
+            <td class="num">${totaalAfgerond}</td>
+            <td class="num">${totaalNietIngenomen}</td>
+            <td class="num">${totaalAfgerond > 0 ? '100%' : 'n.v.t.'}</td>
+          </tr>
+        </tfoot>
+      </table>
+      ${steekproefNoot}
+
+      <div class="pdf-sectie-titel">Wacht-, behandel- en doorlooptijden per medewerker</div>
+      <table class="pdf-tabel pdf-tabel-lang">
+        <colgroup>
+          <col style="width:22%"><col style="width:13%"><col style="width:13%"><col style="width:13%">
+          <col style="width:13%"><col style="width:13%"><col style="width:13%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Medewerker</th>
+            <th class="num">Gem.<br>wachttijd<span class="eenheid">minuten</span></th>
+            <th class="num">Mediaan<br>wachttijd<span class="eenheid">minuten</span></th>
+            <th class="num">Gem.<br>behandeltijd<span class="eenheid">minuten</span></th>
+            <th class="num">Gem.<br>doorlooptijd<span class="eenheid">minuten</span></th>
+            <th class="num">Binnen<br>${INSTELLINGEN.wachttijdDoelstellingMin} min<span class="eenheid">aandeel</span></th>
+            <th class="num">Niet<br>ingenomen<span class="eenheid">aandeel</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          ${stats.map(m => `
+          <tr>
+            <td class="naam">${escapeHtml(m.naam)}${ster(m)}</td>
+            <td class="num">${toon(m.gemWachttijd)}</td>
+            <td class="num">${toon(m.medWachttijd)}</td>
+            <td class="num">${toon(m.gemBehandeltijd)}</td>
+            <td class="num">${toon(m.gemDoorlooptijd)}</td>
+            <td class="num">${toon(m.pctBinnenDoelstelling, '%')}</td>
+            <td class="num">${toon(m.pctNietIngenomen, '%')}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      <p class="pdf-tabel-noot">
+        Wachttijd = aanmelding tot start behandeling · behandeltijd = start tot afronding ·
+        doorlooptijd = aanmelding tot afronding. "n.v.t." betekent dat er in deze periode geen
+        bruikbare meting beschikbaar was; er wordt bewust geen 0 getoond.
+      </p>
+
+      <div class="pdf-sectie-titel">Afgeronde klanten per type bezoek</div>
+      <table class="pdf-tabel pdf-tabel-lang">
+        <colgroup>
+          <col style="width:36%"><col style="width:16%"><col style="width:16%">
+          <col style="width:16%"><col style="width:16%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>Medewerker</th>
+            <th class="num">Ongepland</th>
+            <th class="num">Schoonmaak</th>
+            <th class="num">Reparatie<br>ophalen</th>
+            <th class="num">Totaal<br>afgerond</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${stats.map(m => `
+          <tr>
+            <td class="naam">${escapeHtml(m.naam)}</td>
+            <td class="num">${m.perType.ongepland}</td>
+            <td class="num">${m.perType.schoonmaak}</td>
+            <td class="num">${m.perType.ophalen}</td>
+            <td class="num">${m.afgerond}</td>
+          </tr>`).join('')}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td>Totaal</td>
+            <td class="num">${typeTotaal('ongepland')}</td>
+            <td class="num">${typeTotaal('schoonmaak')}</td>
+            <td class="num">${typeTotaal('ophalen')}</td>
+            <td class="num">${totaalAfgerond}</td>
+          </tr>
+        </tfoot>
+      </table>
+    ` + voet;
+
+    window.print();
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — PDF-export van ÉÉN geselecteerde medewerker
+  //
+  // Zelfde techniek als alle andere rapporten in deze app: geen externe
+  // of betaalde PDF-bibliotheek, maar de vaste #pdf-rapport-container
+  // vullen met dezelfde .pdf-*-opmaak en daarna window.print() — de
+  // browser-eigen "Opslaan als PDF". Werkt daardoor offline op desktop,
+  // tablet, iPad en mobiel.
+  //
+  // De inhoud is exact de kaart zoals die op dat moment op het scherm
+  // staat: dezelfde periode/selectie (haalMedewerkerSelectie), dezelfde
+  // berekening (berekenMedewerkerStatistieken) en dezelfde elf cijfers,
+  // in dezelfde volgorde en met dezelfde "n.v.t."-regel. Er wordt niets
+  // bijverzonnen en niets weggelaten.
+  // ══════════════════════════════════════════════════════════════════
+  function exporteerEenMedewerkerPdf() {
+    const sel = haalMedewerkerSelectie();
+    // Zonder selectie staat deze knop niet op het scherm; deze controle
+    // vangt alleen een aanroep af die er langs zou komen.
+    if (!sel.geselecteerdeMedewerker) return;
+
+    const stats = berekenMedewerkerStatistieken(sel.van, sel.tot);
+    const m = stats.find(s => s.naam === sel.geselecteerdeMedewerker);
+
+    // De medewerker heeft in de inmiddels geldende periode geen activiteit
+    // meer: dan is er niets echts te exporteren. Opnieuw renderen ruimt de
+    // selectie en de knop op, in plaats van een leeg rapport te maken.
+    if (!m) { renderMedewerkerOverzicht(); return; }
+
+    const nu = new Date();
+    const gegenereerdOp = nu.toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
+      + ' om ' + nu.toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
+
+    // "n.v.t." i.p.v. een verzonnen 0 — exact dezelfde regel als op het scherm.
+    const toon = (waarde, eenheid) => (waarde === null || waarde === undefined) ? 'n.v.t.' : waarde + (eenheid || '');
+
+    const positie = stats.findIndex(s => s.naam === m.naam) + 1;
+    const maxAfgerond = Math.max(1, ...stats.map(s => s.afgerond)); // nooit delen door 0
+    const drukste = stats.find(s => s.afgerond === maxAfgerond);
+    const titel = 'Medewerkersrapport – ' + m.naam;
+
+    const kop = medewerkerPdfKop(sel, titel, 'Uitsluitend ' + m.naam, gegenereerdOp, `
+        <tr><td>Geselecteerde medewerker</td><td>${escapeHtml(m.naam)}</td></tr>
+        <tr><td>Positie in de lijst</td><td>${positie} van ${stats.length} (gesorteerd op afgerond werk)</td></tr>`);
+    const voet = medewerkerPdfVoet(gegenereerdOp, titel);
+
+    // Dezelfde elf regels als in de mw-stats op het scherm, in dezelfde
+    // volgorde — zo is de PDF regel voor regel te vergelijken met de kaart.
+    const cijferRijen = [
+      ['Aangemeld', m.aangemeld],
+      ['In behandeling genomen', m.behandeld],
+      ['Afgerond', m.afgerond],
+      ['Niet ingenomen', m.nietIngenomen],
+      ['Gem. wachttijd', toon(m.gemWachttijd, ' min')],
+      ['Mediane wachttijd', toon(m.medWachttijd, ' min')],
+      ['Gem. behandeltijd', toon(m.gemBehandeltijd, ' min')],
+      ['Gem. doorlooptijd', toon(m.gemDoorlooptijd, ' min')],
+      ['Binnen ' + INSTELLINGEN.wachttijdDoelstellingMin + ' min', toon(m.pctBinnenDoelstelling, '%')],
+      ['Niet-ingenomen %', toon(m.pctNietIngenomen, '%')],
+      ['Aandeel afgerond werk', toon(m.aandeelVanTotaal, '%')],
+    ];
+
+    // Balken voor de drie bezoektypes; het getal staat er altijd naast,
+    // dus ook zwart-wit leesbaar.
+    const typeMax = Math.max(1, m.perType.ongepland, m.perType.schoonmaak, m.perType.ophalen);
+    const typeBalk = (label, waarde) => `
+        <div class="pdf-grafiek-rij">
+          <span class="pdf-grafiek-label">${label}</span>
+          <div class="pdf-grafiek-track"><div class="pdf-grafiek-vulling" style="width:${Math.round(waarde / typeMax * 100)}%"></div></div>
+          <span class="pdf-grafiek-waarde">${waarde}</span>
+        </div>`;
+
+    document.getElementById('pdf-rapport-container').innerHTML = kop + `
+
+      <div class="pdf-sectie-titel">Samenvatting</div>
+      <p class="pdf-summary">
+        In de geselecteerde periode (${escapeHtml(sel.periodeLabel)}) meldde
+        <strong>${escapeHtml(m.naam)}</strong> <strong>${m.aangemeld}</strong> klanten aan,
+        nam <strong>${m.behandeld}</strong> klanten in behandeling en rondde
+        <strong>${m.afgerond}</strong> klanten af.
+        ${m.gemWachttijd !== null
+          ? 'De gemiddelde wachttijd van die klanten was <strong>' + m.gemWachttijd + ' minuten</strong>'
+            + (m.pctBinnenDoelstelling !== null ? ', waarvan <strong>' + m.pctBinnenDoelstelling + '%</strong> binnen de doelstelling van ' + INSTELLINGEN.wachttijdDoelstellingMin + ' minuten.' : '.')
+          : 'Er zijn voor deze medewerker in deze periode geen wachttijden gemeten.'}
+        ${m.aandeelVanTotaal !== null
+          ? 'Dat is <strong>' + m.aandeelVanTotaal + '%</strong> van al het afgeronde werk in deze periode (positie ' + positie + ' van ' + stats.length + ').'
+          : ''}
+        ${m.nietIngenomen > 0
+          ? 'Daarnaast registreerde deze medewerker <strong>' + m.nietIngenomen + '</strong> niet ingenomen ongeplande services.'
+          : ''}
+      </p>
+
+      <div class="pdf-sectie-titel">Kerncijfers</div>
+      <div class="pdf-kpi-grid">
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${m.aangemeld}</div>
+          <div class="pdf-kpi-label">Aangemeld</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${m.behandeld}</div>
+          <div class="pdf-kpi-label">In behandeling</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${m.afgerond}</div>
+          <div class="pdf-kpi-label">Afgerond</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${m.nietIngenomen}</div>
+          <div class="pdf-kpi-label">Niet ingenomen</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${m.gemWachttijd !== null ? m.gemWachttijd + '<span style="font-size:10px"> min</span>' : 'n.v.t.'}</div>
+          <div class="pdf-kpi-label">Gem. wachttijd</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${m.gemBehandeltijd !== null ? m.gemBehandeltijd + '<span style="font-size:10px"> min</span>' : 'n.v.t.'}</div>
+          <div class="pdf-kpi-label">Gem. behandeltijd</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${toon(m.pctBinnenDoelstelling, '%')}</div>
+          <div class="pdf-kpi-label">Binnen ${INSTELLINGEN.wachttijdDoelstellingMin} min</div>
+        </div>
+        <div class="pdf-kpi-kaart">
+          <div class="pdf-kpi-waarde">${toon(m.aandeelVanTotaal, '%')}</div>
+          <div class="pdf-kpi-label">Aandeel afgerond werk</div>
+        </div>
+      </div>
+
+      <div class="pdf-sectie-titel">Alle cijfers voor ${escapeHtml(m.naam)}</div>
+      <table class="pdf-tabel">
+        ${cijferRijen.map(([label, waarde]) => `<tr><td>${escapeHtml(label)}</td><td>${waarde}</td></tr>`).join('')}
+      </table>
+      ${m.beperkteSteekproef
+        ? `<p class="pdf-tabel-noot">Let op: minder dan ${MIN_METINGEN_BETROUWBAAR} afgeronde klanten in deze periode — de gemiddelden hierboven zijn indicatief.</p>`
+        : ''}
+
+      <div class="pdf-blok">
+        <div class="pdf-sectie-titel">Afgeronde klanten per type bezoek</div>
+        ${typeBalk('Ongepland', m.perType.ongepland)}
+        ${typeBalk('Schoonmaak', m.perType.schoonmaak)}
+        ${typeBalk('Reparatie ophalen', m.perType.ophalen)}
+        <p class="pdf-conclusie">Samen ${m.perType.ongepland + m.perType.schoonmaak + m.perType.ophalen} van de ${m.afgerond} afgeronde klanten; dezelfde verdeling als onderaan de kaart op het scherm.</p>
+      </div>
+
+      <div class="pdf-blok">
+        <div class="pdf-sectie-titel">Werkverdeling binnen de periode</div>
+        <div class="pdf-grafiek-rij">
+          <span class="pdf-grafiek-label">${escapeHtml(m.naam)}</span>
+          <div class="pdf-grafiek-track"><div class="pdf-grafiek-vulling" style="width:${Math.round(m.afgerond / maxAfgerond * 100)}%"></div></div>
+          <span class="pdf-grafiek-waarde">${m.afgerond}</span>
+        </div>
+        <p class="pdf-conclusie">
+          De balk toont hetzelfde als op het scherm: het afgeronde werk van deze medewerker
+          ten opzichte van de medewerker met de meeste afgeronde klanten in deze periode
+          (${escapeHtml(drukste ? drukste.naam : '—')}, ${maxAfgerond}).
+          ${positie === 1 ? 'Deze medewerker staat zelf bovenaan.' : ''}
+        </p>
+      </div>
+    ` + voet;
+
+    window.print();
+  }
+
   function toonMedewerkerOverzicht() {
+    // Schone start: een selectie uit een vorige keer mag niet blijven
+    // hangen — anders staat er meteen een exportknop voor een medewerker
+    // die je nu niet bewust hebt gekozen.
+    geselecteerdeMedewerker = null;
     setMedewerkerPeriode('vandaag');
     document.getElementById('medewerker-overlay').classList.add('open');
   }
