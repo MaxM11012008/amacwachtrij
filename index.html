@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Amac Service Wachtrij</title>
+  <title>Amac Wachtrij</title>
   <link rel="preconnect" href="https://www.gstatic.com">
   <link rel="preconnect" href="https://amac-wachtrij-default-rtdb.europe-west1.firebasedatabase.app">
   <link rel="preconnect" href="https://identitytoolkit.googleapis.com">
@@ -1165,7 +1165,7 @@
       left: 0; right: auto;
     }
 
-    /* ── NIEUW: voorspelling drukte Benedenwachtrij ──
+    /* ── NIEUW: voorspelling drukte Servicewachtrij ──
        Zelfde bouwstenen als het dagoverzicht (overzicht-stat-card,
        overzicht-uur-*), aangevuld met een paar eigen elementen voor het
        bereik, de indicator en het interne kwaliteitsblok. */
@@ -1243,16 +1243,6 @@
     }
     .voorspel-dagklaar-tekst { font-size: 13px; line-height: 1.55; color: var(--text); font-weight: 600; }
     .voorspel-dagklaar-meta { font-size: 11px; color: var(--muted); margin-top: 6px; }
-    /* Waarom het niet exact klopte, en wat daaraan gebeurt. Een dunne lijn in
-       plaats van var(--border) - die is blauwgrijs en zou vloeken op de
-       groene/gele/rode achtergrond van deze kaart. */
-    .voorspel-dagklaar-uitleg {
-      margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.08);
-      font-size: 11px; line-height: 1.55; color: var(--muted);
-    }
-    .voorspel-dagklaar-uitleg strong { color: var(--text); font-weight: 600; }
-    .voorspel-dagklaar-uitleg div + div { margin-top: 3px; }
-
     /* Het streepje op de balk staat waar de voorspelling stond; de balk zelf
        is wat er werkelijk kwam. Zo is in één oogopslag te zien of het gehaald
        is, zonder twee balken naast elkaar te hoeven vergelijken. */
@@ -1525,9 +1515,9 @@
     .boven-overzicht-modal .overzicht-datum-badge {
       background: var(--boven-light); color: var(--boven); border-color: var(--boven);
     }
-    /* Bovenwachtrij-modals hergebruiken dezelfde overzicht-/heatmap-/
-       lijngrafiek-componenten als de Benedenwachtrij, maar in het teal-
-       accent van de Bovenwachtrij i.p.v. het blauw van Beneden — zodat
+    /* Winkelwachtrij-modals hergebruiken dezelfde overzicht-/heatmap-/
+       lijngrafiek-componenten als de Servicewachtrij, maar in het teal-
+       accent van de Winkelwachtrij i.p.v. het blauw van Beneden — zodat
        nooit per ongeluk gedacht wordt dat je naar Beneden-cijfers kijkt. */
     .boven-overzicht-modal .overzicht-stat-value,
     .boven-overzicht-modal .overzicht-uur-balk-vulling,
@@ -1642,7 +1632,7 @@
     .btn-datumnav:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
     .btn-datumnav:disabled { opacity: 0.4; cursor: not-allowed; }
     /* Was een ID-selector (#dagoverzicht-datum) en gold daardoor NIET voor
-       het datumveld van de Bovenwachtrij — dat veld bleef smal en ongestyled.
+       het datumveld van de Winkelwachtrij — dat veld bleef smal en ongestyled.
        Nu één gedeelde selector, zodat beide dagoverzichten identiek ogen. */
     .dagoverzicht-datumnav input[type="date"] {
       flex: 1; min-width: 0; min-height: 44px; padding: 6px 10px;
@@ -2086,6 +2076,58 @@
     }
 
     /* ══════════════════════════════════════════════════════════════════
+       NIEUW — Apple Hero (Servicewachtrij)
+       Eén vlakke rij van vijf vaste knoppen. Bewust <button> en geen radio:
+       de keuze is optioneel en moet dus ook weer LEEG kunnen worden (tik
+       nogmaals). Geen subcategorieën, uitklapmenu's of vervolgvragen.
+       Tikdoel minimaal 40px hoog voor bediening met een vinger op de iPad.
+       ══════════════════════════════════════════════════════════════════ */
+    .hero-groep { display: flex; flex-wrap: wrap; gap: 6px; }
+    .hero-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      min-height: 40px; padding: 8px 14px;
+      border: 1px solid var(--border); border-radius: 999px;
+      background: var(--card); color: var(--text);
+      font-size: 12.5px; font-weight: 600; cursor: pointer;
+      transition: border-color 0.15s, background 0.15s, color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .hero-chip:hover { border-color: var(--primary); color: var(--primary); }
+    .hero-chip.is-gekozen {
+      border-color: var(--primary); background: var(--primary-light); color: var(--primary);
+    }
+    /* Vinkje i.p.v. alleen kleur: bij snel scannen tijdens drukte is kleur
+       alleen te subtiel om zeker te weten of er al gekozen is. */
+    .hero-chip.is-gekozen::before { content: '✓'; font-weight: 800; }
+    .hero-hint { font-size: 10.5px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+    .tag-apple-hero { background: #e9eef7; color: #1d3876; }
+
+
+    /* ══════════════════════════════════════════════════════════════════
+       NIEUW — Kleurcodering wachtrijblokken: drie klantgroepen
+       Kleuren zijn doorgerekend op WCAG-contrast (elk >= 5,2:1 op de eigen
+       lichte achtergrond), op onderlinge afstand (dE >= 51 bij normaal
+       zicht, >= 34 onder protanopie/deuteranopie/tritanopie) en op afstand
+       tot de BESTAANDE statuskleuren (dE >= 31 t.o.v. urgent/afgerond/
+       langst wachtend/haast/taalhulp), zodat die herkenbaar blijven.
+       De kleur is nooit het enige signaal: de band draagt altijd een icoon
+       én een voluit geschreven tekstlabel.
+       Bewust een aparte, brede band met accentbalk links — visueel duidelijk
+       onderscheiden van de kleine ronde status-tags verderop op de kaart.
+       ══════════════════════════════════════════════════════════════════ */
+    .groep-band {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 11px 4px 8px;
+      border-radius: 4px; border-left: 4px solid;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.02em;
+      margin-bottom: 9px; max-width: 100%;
+    }
+    .groep-band svg { flex-shrink: 0; }
+    .groep-apple-heroes { background: #e9eef7; border-left-color: #1d3876; color: #1d3876; }
+    .groep-accessoires  { background: #f6f3e4; border-left-color: #76641d; color: #76641d; }
+    .groep-support      { background: #fbecf1; border-left-color: #8a224c; color: #8a224c; }
+
+    /* ══════════════════════════════════════════════════════════════════
        NIEUW — Professioneel PDF-rapport (via browser "Afdrukken naar PDF")
        Bewust GEEN externe PDF-bibliotheek: de browser-eigen printfunctie
        is altijd beschikbaar, werkt offline, en HTML+CSS geeft meer
@@ -2433,7 +2475,7 @@
       .weergave-knop-titel { font-size: 13px; }
     }
 
-    /* ── Bovenwachtrij: algemeen ── */
+    /* ── Winkelwachtrij: algemeen ── */
     #boven-weergave { display: none; }
     #boven-weergave.is-zichtbaar { display: block; }
     .badge-bovenrij { background: var(--boven-light); color: var(--boven); border-color: var(--boven-rand); }
@@ -2818,6 +2860,186 @@
       .boven-kolom-lijst { flex: 1; min-width: 0; }
     }
     /* ══════════════════════════════════════════════════════════════════
+       NIEUW — Pauzeplanning: visuele tijdlijn
+       Staat volledig los van de wachtrijen: geen Firebase, geen rapportage,
+       geen koppeling met klantdata. De planning leeft alleen in het geheugen
+       van dit tabblad en is na een herlaadactie weg — dat is de bedoeling,
+       het gaat over één werkdag.
+
+       Alleen verkoopmedewerkers: de andere functies hebben geen klantcontact
+       en hoeven dus niet om de bezetting heen gepland te worden. Daarom staat
+       er geen functiekeuze meer in het formulier.
+       ══════════════════════════════════════════════════════════════════ */
+    /* De tijdlijn heeft vier kolommen naast elkaar; in de standaardbreedte
+       van een modal (620px) viel de laatste kolom half buiten beeld. */
+    .modal-card.pauze-kaart { max-width: 900px; }
+    .header-meer-menu .pauze-control { display: flex; align-items: center; gap: 8px; }
+    .header-meer-menu .pauze-control::after {
+      content: 'Pauzeplanning'; font-size: 12px; font-weight: 600;
+      color: var(--text); white-space: nowrap;
+    }
+    .header-meer-menu .btn-pauze {
+      background: var(--bg); color: var(--text); border: 1px solid var(--border);
+      border-radius: 6px; width: 26px; height: 26px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.15s; flex-shrink: 0;
+    }
+    .header-meer-menu .btn-pauze:hover { background: var(--primary-light); color: var(--primary); }
+
+    /* ── Toevoegen: één regel, geen formulier-blok ── */
+    .pauze-toevoegrij { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+    .pauze-toevoegrij input[type="text"] { flex: 1 1 150px; min-width: 0; }
+    .pauze-toevoegrij input[type="time"] { flex: 0 0 auto; width: 104px; }
+    .pauze-pijl { color: var(--muted); font-size: 12px; flex-shrink: 0; }
+    .btn-pauze-toevoegen {
+      min-height: 38px; padding: 8px 16px; border-radius: var(--radius);
+      border: none; background: var(--primary); color: #fff;
+      font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .btn-pauze-toevoegen:hover { background: var(--primary-hover); }
+    .pauze-fout {
+      width: 100%; font-size: 12px; color: var(--danger);
+      background: var(--danger-light); border-radius: 6px; padding: 7px 10px;
+      display: none;
+    }
+    .pauze-fout.zichtbaar { display: block; }
+    .pauze-hint { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+
+    /* ── Team als chips: compacter en sneller te scannen dan een lijst met
+         knoppen. Klik de chip om te bewerken, het kruisje om te verwijderen. ── */
+    .pauze-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .pauze-chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 999px; padding: 5px 6px 5px 12px;
+      font-size: 12px; min-height: 34px;
+    }
+    .pauze-chip-knop {
+      background: none; border: none; padding: 0; font: inherit; color: var(--text);
+      cursor: pointer; display: inline-flex; align-items: baseline; gap: 6px;
+    }
+    .pauze-chip-knop:hover { color: var(--primary); }
+    .pauze-chip-naam { font-weight: 700; }
+    .pauze-chip-uren { color: var(--muted); font-size: 11px; }
+    .pauze-chip.is-buiten { opacity: 0.6; border-style: dashed; }
+    .pauze-chip-weg {
+      background: none; border: none; cursor: pointer; color: var(--muted);
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 14px;
+      line-height: 1; padding: 0;
+    }
+    .pauze-chip-weg:hover { background: var(--danger-light); color: var(--danger); }
+
+    .btn-pauze-verdeel {
+      width: 100%; min-height: 46px; padding: 12px 18px; margin-top: 14px;
+      border-radius: var(--radius); border: none;
+      background: var(--primary); color: #fff;
+      font-size: 14px; font-weight: 800; font-family: inherit; cursor: pointer;
+    }
+    .btn-pauze-verdeel:hover:not(:disabled) { background: var(--primary-hover); }
+    .btn-pauze-verdeel:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ── De tijdlijn ──
+       Vier blokken naast elkaar met een doorlopende as eronder, zodat in één
+       oogopslag te zien is dat het één aaneengesloten venster van 12:00 tot
+       14:00 is en niet vier losse hokjes. Onder 720px klapt hij naar één
+       kolom: vier kolommen op een telefoon maakt de namen onleesbaar. */
+    .pauze-tijdlijn { margin-top: 6px; }
+    .pauze-as {
+      display: none; position: relative; height: 20px; margin: 0 0 6px;
+    }
+    .pauze-as::before {
+      content: ''; position: absolute; left: 0; right: 0; top: 9px;
+      height: 2px; background: var(--border);
+    }
+    .pauze-as span {
+      position: absolute; top: 0; transform: translateX(-50%);
+      font-size: 10px; font-weight: 700; color: var(--muted);
+      background: var(--card); padding: 0 4px;
+    }
+    .pauze-sporen { display: grid; gap: 10px; grid-template-columns: 1fr; }
+    @media (min-width: 720px) {
+      .pauze-as { display: block; }
+      .pauze-sporen { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    }
+
+    .pauze-slot {
+      border: 1.5px solid var(--border); border-radius: 10px;
+      background: var(--card); padding: 9px 10px 10px;
+      display: flex; flex-direction: column; gap: 6px;
+      transition: border-color 0.12s, background 0.12s, box-shadow 0.12s;
+      min-height: 96px;
+    }
+    .pauze-slot-kop {
+      display: flex; align-items: baseline; justify-content: space-between; gap: 6px;
+      font-size: 12.5px; font-weight: 800;
+    }
+    .pauze-slot-aantal { font-size: 10.5px; font-weight: 700; color: var(--muted); }
+    .pauze-slot-leeg {
+      font-size: 11.5px; color: var(--muted); font-style: italic;
+      padding: 8px 0; text-align: center;
+    }
+    /* Sleepstatus: alleen de slots waar deze persoon volgens zijn werktijden
+       IN MAG, lichten op. De rest wordt zichtbaar uitgeschakeld — dat scheelt
+       een mislukte poging en de vraag waarom het niet lukte. */
+    .pauze-slot.is-doelwit { border-color: var(--primary); border-style: dashed; }
+    .pauze-slot.is-onder-muis {
+      border-color: var(--primary); border-style: solid;
+      background: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(26,61,124,0.12);
+    }
+    .pauze-slot.is-geblokkeerd { opacity: 0.4; }
+
+    .pauze-persoon {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 9px;
+      cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pauze-persoon:active { cursor: grabbing; }
+    .pauze-persoon-tekst { min-width: 0; flex: 1; }
+    .pauze-persoon-naam { font-size: 12.5px; font-weight: 700; display: block; }
+    .pauze-persoon-meta { font-size: 10.5px; color: var(--muted); display: block; }
+    .pauze-greep { color: var(--border); flex-shrink: 0; }
+    .pauze-persoon.is-opgepakt { opacity: 0.35; }
+    /* Het meebewegende kaartje onder de vinger/muis. */
+    .pauze-sleepbeeld {
+      position: fixed; z-index: 1500; pointer-events: none;
+      background: var(--card); border: 1.5px solid var(--primary);
+      border-radius: 8px; padding: 7px 9px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.22);
+      font-size: 12.5px; font-weight: 700; color: var(--text);
+      transform: translate(-50%, -50%) rotate(-1.5deg);
+    }
+    .pauze-sleepbeeld small { display: block; font-size: 10.5px; font-weight: 600; color: var(--muted); }
+
+    /* "Terug" is puur een afvinkstatus voor de vloer — hij verandert niets
+       aan de planning en wordt nergens bewaard. */
+    .pauze-terug {
+      display: flex; align-items: center; gap: 5px; flex-shrink: 0;
+      font-size: 10.5px; font-weight: 700; color: var(--muted); cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .pauze-terug input { width: 17px; height: 17px; accent-color: var(--success); cursor: pointer; }
+    .pauze-persoon.is-terug { background: var(--success-light); border-color: #bfe6cd; }
+    .pauze-persoon.is-terug .pauze-persoon-naam { text-decoration: line-through; color: var(--muted); }
+    .pauze-persoon.is-terug .pauze-terug { color: var(--success); }
+
+    .pauze-melding {
+      font-size: 12px; line-height: 1.5; border-radius: 8px;
+      padding: 9px 12px; margin-bottom: 10px;
+    }
+    .pauze-melding.is-let-op { background: var(--warning-light); color: var(--warning); }
+    .pauze-melding.is-info   { background: var(--primary-light); color: var(--primary); }
+    .pauze-buiten {
+      margin-top: 10px; font-size: 11.5px; color: var(--muted);
+      background: var(--bg); border-radius: 8px; padding: 9px 12px; line-height: 1.5;
+    }
+    .pauze-buiten strong { color: var(--text); }
+
+    /* ══════════════════════════════════════════════════════════════════
        Aanraakbediening en bewegingsgevoeligheid
        Alles hieronder staat bewust achterin: het zijn correcties op de
        regels erboven, geen nieuwe onderdelen.
@@ -2888,7 +3110,7 @@
 <div id="login-overlay" style="display:none">
   <div class="login-card">
     <img src="Amac_Logo.svg" alt="Amac logo" class="login-logo">
-    <h2>Service Wachtrij</h2>
+    <h2>Amac Wachtrij</h2>
     <p>Log in met het Amac-account</p>
     <form id="login-form" novalidate style="width:100%;display:flex;flex-direction:column;gap:12px">
       <div class="field" id="field-login-email">
@@ -3002,7 +3224,7 @@
       </div>
     </div>
 
-        <!-- NIEUW: voorspelling drukte Benedenwachtrij. Bewust hier en niet
+        <!-- NIEUW: voorspelling drukte Servicewachtrij. Bewust hier en niet
              in de header zelf: het is een hulpmiddel om vooruit te kijken,
              geen statusmelding waar direct op gehandeld moet worden. -->
         <!-- NIEUW: activiteitenlog. Het pad 'auditlog' werd al geschreven bij
@@ -3015,8 +3237,16 @@
           </button>
         </div>
 
+        <!-- NIEUW: pauzeplanning. Staat hier en niet los in de balk: het is
+             een hulpmiddel voor één werkdag, geen wachtrijfunctie. -->
+        <div class="pauze-control">
+          <button class="btn-pauze" id="btn-pauze" onclick="openPauzeplanning()" title="Pauzeplanning">
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V9z"/><path d="M17 10h1.5a2.5 2.5 0 0 1 0 5H17"/><line x1="6" y1="2" x2="6" y2="5"/><line x1="10" y1="2" x2="10" y2="5"/><line x1="14" y1="2" x2="14" y2="5"/></svg>
+          </button>
+        </div>
+
         <div class="voorspelling-control">
-          <button class="btn-voorspelling" id="btn-voorspelling" onclick="openVoorspelling()" title="Voorspelling drukte Benedenwachtrij">
+          <button class="btn-voorspelling" id="btn-voorspelling" onclick="openVoorspelling()" title="Voorspelling drukte Servicewachtrij">
             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><polyline points="7 14 11 10 15 14 21 8"/></svg>
           </button>
         </div>
@@ -3037,12 +3267,12 @@
   <div class="weergave-switch" role="group" aria-label="Kies wachtrij">
     <button type="button" class="weergave-knop is-actief" id="weergave-knop-beneden" aria-pressed="true"
       title="Service, reparatie, schoonmaak en reparatie ophalen" onclick="switchWeergave('beneden')">
-      <span class="weergave-knop-titel">🔧 Benedenwachtrij <span class="weergave-knop-telling" id="weergave-telling-beneden">0</span></span>
+      <span class="weergave-knop-titel">🔧 Servicewachtrij <span class="weergave-knop-telling" id="weergave-telling-beneden">0</span></span>
       <span class="weergave-knop-sub" id="weergave-sub-beneden">Geen wachtenden</span>
     </button>
     <button type="button" class="weergave-knop" id="weergave-knop-boven" aria-pressed="false"
       title="Reguliere winkelvloer: verkoop, advies en hulp" onclick="switchWeergave('boven')">
-      <span class="weergave-knop-titel">🛍️ Bovenwachtrij <span class="weergave-knop-telling" id="weergave-telling-boven">0</span></span>
+      <span class="weergave-knop-titel">🛍️ Winkelwachtrij <span class="weergave-knop-telling" id="weergave-telling-boven">0</span></span>
       <span class="weergave-knop-sub" id="weergave-sub-boven">Geen wachtenden</span>
     </button>
   </div>
@@ -3149,6 +3379,20 @@
               </label>
             </div>
             <span class="error-msg">Selecteer een type bezoek</span>
+          </div>
+
+          <!-- NIEUW: Apple Hero — legt uitsluitend vast om WELK Apple-product
+               de klant komt. Vijf vaste knoppen, maximaal één tegelijk
+               geselecteerd, geen subcategorieën/uitklapmenu's/vervolgvragen.
+               Volledig optioneel: nogmaals tikken wist de keuze weer. De
+               knoppen komen uit APPLE_HEROES, zodat label en opgeslagen code
+               nooit uit elkaar kunnen lopen. -->
+          <div class="field full" id="field-apple-hero">
+            <label id="label-apple-hero">Apple Hero
+              <span style="color:var(--muted);font-weight:400">(optioneel)</span>
+            </label>
+            <div class="hero-groep" role="group" aria-labelledby="label-apple-hero" id="apple-hero-groep"></div>
+            <div class="hero-hint">Voor welk Apple-product komt de klant? Tik nogmaals op een gekozen knop om de keuze te wissen.</div>
           </div>
 
           <!-- Reparatienummer (conditioneel) -->
@@ -3356,11 +3600,11 @@
       </div>
     </div>
 
-    <!-- NIEUW: eigen dashboard/rapportknoppen voor de Bovenwachtrij — niet
-         langer alleen bereikbaar via de Benedenwachtrij-modals. -->
+    <!-- NIEUW: eigen dashboard/rapportknoppen voor de Winkelwachtrij — niet
+         langer alleen bereikbaar via de Servicewachtrij-modals. -->
     <div class="report-buttons" style="margin-bottom:14px">
-      <button type="button" class="btn-report" onclick="bovenToonDagoverzicht()" title="Dagoverzicht van de Bovenwachtrij bekijken en exporteren">📊 Dagoverzicht</button>
-      <button type="button" class="btn-report" onclick="bovenToonPeriodeOverzicht()" title="Week-, maand- en all-time rapporten voor de Bovenwachtrij">📊 Rapporten</button>
+      <button type="button" class="btn-report" onclick="bovenToonDagoverzicht()" title="Dagoverzicht van de Winkelwachtrij bekijken en exporteren">📊 Dagoverzicht</button>
+      <button type="button" class="btn-report" onclick="bovenToonPeriodeOverzicht()" title="Week-, maand- en all-time rapporten voor de Winkelwachtrij">📊 Rapporten</button>
     </div>
 
     <!-- Altijd bovenaan, op elk apparaat: het antwoord op "wie kan ik nu
@@ -3399,7 +3643,7 @@
                   <button type="button" class="boven-terug-knop" onclick="bovenTerugNaarCategorie()">← Terug</button>
                   <div class="boven-veld-label">Waarmee kunnen we helpen?</div>
                   <div class="boven-chips" id="boven-support-grid"></div>
-                  <div class="boven-veld-hint" style="display:block;margin-top:8px">Gaat het om een reparatie, schoonmaak of ophalen van een product? Stuur de klant dan naar de <strong>Benedenwachtrij</strong>.</div>
+                  <div class="boven-veld-hint" style="display:block;margin-top:8px">Gaat het om een reparatie, schoonmaak of ophalen van een product? Stuur de klant dan naar de <strong>Servicewachtrij</strong>.</div>
                 </div>
 
                 <div class="boven-stap-paneel" id="boven-stap-intentie" style="display:none">
@@ -3483,7 +3727,7 @@
 
             <button type="submit" class="btn-boven-primair" id="boven-submit">
               <svg aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Toevoegen aan Bovenwachtrij
+              Toevoegen aan Winkelwachtrij
             </button>
             <div class="boven-status-melding" id="boven-status-melding" role="status"></div>
           </form>
@@ -3493,7 +3737,7 @@
       <div class="boven-kolom-lijst">
         <div class="section-title" id="boven-queue-title">
           <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
-          Bovenwachtrij
+          Winkelwachtrij
         </div>
 
         <div class="boven-filterrij" id="boven-filterrij">
@@ -3608,12 +3852,12 @@
   </div>
 </div>
 
-<!-- ── NIEUW: Bovenwachtrij — eigen dagoverzicht (los van de Beneden-modal,
-     rechtstreeks bereikbaar vanaf het Bovenwachtrij-scherm zelf). ── -->
+<!-- ── NIEUW: Winkelwachtrij — eigen dagoverzicht (los van de Beneden-modal,
+     rechtstreeks bereikbaar vanaf het Winkelwachtrij-scherm zelf). ── -->
 <div class="modal-overlay" role="dialog" aria-modal="true" id="boven-dagoverzicht-overlay">
   <div class="modal-card modal-card-breed boven-overzicht-modal">
     <div class="modal-header">
-      <span>📊 Bovenwachtrij — Dagoverzicht</span>
+      <span>📊 Winkelwachtrij — Dagoverzicht</span>
       <button type="button" onclick="sluitModal('boven-dagoverzicht-overlay')" aria-label="Sluiten">✕</button>
     </div>
     <div class="dagoverzicht-datumnav">
@@ -3632,11 +3876,11 @@
   </div>
 </div>
 
-<!-- ── NIEUW: Bovenwachtrij — eigen week-/maand-/all-time-rapporten. ── -->
+<!-- ── NIEUW: Winkelwachtrij — eigen week-/maand-/all-time-rapporten. ── -->
 <div class="modal-overlay" role="dialog" aria-modal="true" id="boven-periode-overzicht-overlay">
   <div class="modal-card modal-card-breed boven-overzicht-modal">
     <div class="modal-header">
-      <span>📊 Bovenwachtrij — Rapporten</span>
+      <span>📊 Winkelwachtrij — Rapporten</span>
       <button type="button" onclick="sluitModal('boven-periode-overzicht-overlay')" aria-label="Sluiten">✕</button>
     </div>
     <div class="periode-keuze-rij">
@@ -3822,7 +4066,7 @@
   <button type="button" onclick="herstelSameDayItem()">Herstellen</button>
 </div>
 
-<!-- ── NIEUW: Bovenwachtrij — klant vertrokken (reden optioneel) ──
+<!-- ── NIEUW: Winkelwachtrij — klant vertrokken (reden optioneel) ──
      Sneltoetsen 1–5 zijn alleen actief zolang deze modal open is. -->
 <div class="modal-overlay" role="dialog" aria-modal="true" id="boven-vertrokken-overlay">
   <div class="modal-card" style="max-width:420px">
@@ -3841,7 +4085,7 @@
   </div>
 </div>
 
-<!-- ── NIEUW: Bovenwachtrij — foutieve aanmelding verwijderen ──
+<!-- ── NIEUW: Winkelwachtrij — foutieve aanmelding verwijderen ──
      Bewust een aparte, onomkeerbare actie mét bevestiging: dit is de enige
      manier om een kaart weg te halen ZONDER dat die in de managementcijfers
      terechtkomt (bijv. dubbel aangemeld). -->
@@ -3864,10 +4108,10 @@
   </div>
 </div>
 
-<!-- ── NIEUW: Bovenwachtrij — handgeschreven notitie schrijven/vervangen ── -->
+<!-- ── NIEUW: Winkelwachtrij — handgeschreven notitie schrijven/vervangen ── -->
 <!-- ── NIEUW: grote, schermvullende schrijfweergave (Apple Pencil) ──
      Eén gedeelde laag voor ALLE handgeschreven notities van de
-     Bovenwachtrij: bij het aanmelden (herkenning + accessoire-detail) én
+     Winkelwachtrij: bij het aanmelden (herkenning + accessoire-detail) én
      bij het bewerken van een bestaande kaart. Daardoor is de schrijf-
      ervaring overal exact hetzelfde. -->
 <div class="boven-schrijf-overlay" id="boven-schrijf-overlay" role="dialog" aria-modal="true" aria-labelledby="boven-schrijf-titel">
@@ -3890,7 +4134,7 @@
   </div>
 </div>
 
-<!-- ── NIEUW: Bovenwachtrij — notitie groot bekijken ── -->
+<!-- ── NIEUW: Winkelwachtrij — notitie groot bekijken ── -->
 <div class="modal-overlay" role="dialog" aria-modal="true" id="boven-notitie-bekijk-overlay">
   <div class="modal-card" style="max-width:640px">
     <div class="modal-header">
@@ -3905,8 +4149,8 @@
 
 
 <!-- ── NIEUW: voorspelling drukte BENEDENwachtrij ──
-     Alles in dit paneel gaat uitsluitend over de Benedenwachtrij (pad
-     'wachtrij'). De Bovenwachtrij komt er bewust niet in voor: die heeft een
+     Alles in dit paneel gaat uitsluitend over de Servicewachtrij (pad
+     'wachtrij'). De Winkelwachtrij komt er bewust niet in voor: die heeft een
      andere doorlooptijd, een andere doelstelling en een ander datamodel, dus
      cijfers door elkaar halen zou hier alleen maar misleiden. -->
 <!-- ── NIEUW: activiteitenlog — leesweergave ──
@@ -3925,10 +4169,51 @@
   </div>
 </div>
 
+<div class="modal-overlay" role="dialog" aria-modal="true" id="pauze-overlay">
+  <div class="modal-card pauze-kaart">
+    <div class="modal-header">
+      <span>☕ Pauzeplanning</span>
+      <button type="button" onclick="sluitModal('pauze-overlay')" aria-label="Sluiten">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <form id="pauze-form" novalidate>
+        <div class="pauze-toevoegrij">
+          <input type="text" id="pauze-naam" maxlength="40" autocomplete="off"
+                 placeholder="Naam verkoopmedewerker" aria-label="Naam verkoopmedewerker" />
+          <input type="time" id="pauze-begin" value="09:00" step="300" aria-label="Begintijd" />
+          <span class="pauze-pijl" aria-hidden="true">→</span>
+          <input type="time" id="pauze-eind" value="17:00" step="300" aria-label="Eindtijd" />
+          <button type="submit" class="btn-pauze-toevoegen" id="pauze-opslaan">Toevoegen</button>
+          <div class="pauze-fout" id="pauze-fout" role="alert"></div>
+        </div>
+      </form>
+      <div class="pauze-hint">Alleen verkoopmedewerkers — de andere functies hebben geen klantcontact.
+        Klik een naam om de tijden te wijzigen.</div>
+
+      <div class="pauze-chips" id="pauze-chips"></div>
+
+      <button type="button" class="btn-pauze-verdeel" id="btn-pauze-verdeel" onclick="pauzeVerdeel()">Verdeel pauzes</button>
+
+      <div class="pauze-tijdlijn">
+        <div class="pauze-as" aria-hidden="true">
+          <span style="left:0%">12:00</span>
+          <span style="left:25%">12:30</span>
+          <span style="left:50%">13:00</span>
+          <span style="left:75%">13:30</span>
+          <span style="left:100%">14:00</span>
+        </div>
+        <div id="pauze-uitkomst"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" role="dialog" aria-modal="true" id="voorspelling-overlay">
   <div class="modal-card">
     <div class="modal-header">
-      <span>📈 Voorspelling drukte Benedenwachtrij</span>
+      <span>📈 Voorspelling drukte Servicewachtrij</span>
       <button type="button" onclick="sluitModal('voorspelling-overlay')" aria-label="Sluiten">✕</button>
     </div>
     <div class="modal-body" id="voorspelling-body">
@@ -3937,7 +4222,7 @@
   </div>
 </div>
 
-<!-- ── NIEUW: Bovenwachtrij — undo-toast ── -->
+<!-- ── NIEUW: Winkelwachtrij — undo-toast ── -->
 <div class="boven-toast" id="boven-toast">
   <span id="boven-toast-tekst">Klant uit wachtrij</span>
   <button type="button" onclick="bovenHerstelLaatst()">Herstellen</button>
@@ -4575,7 +4860,7 @@
     wachttijdDoelstellingMin: 30,
     sameDayRepnrUren: 1,
     sameDayEscalatieUren: 2,
-    // NIEUW: eigen, lagere doelstelling voor de Bovenwachtrij — 30 minuten
+    // NIEUW: eigen, lagere doelstelling voor de Winkelwachtrij — 30 minuten
     // wachten op de winkelvloer is iets heel anders dan 30 minuten wachten
     // op een reparatie-inname.
     bovenWachttijdDoelstellingMin: 10,
@@ -5504,7 +5789,7 @@
       const legeTekst = huidigePeriodeKeuze === 'alltime'
         ? 'Nog geen afgeronde klanten om te tonen — kom hier later op terug.'
         : 'Nog niet genoeg historie voor deze periode — kom hier later op terug.';
-      // Ook zonder benedenwachtrij-historie kan er wél Bovenwachtrij-data zijn.
+      // Ook zonder benedenwachtrij-historie kan er wél Winkelwachtrij-data zijn.
       document.getElementById('periode-overzicht-body').innerHTML =
         '<div class="overzicht-leeg">' + legeTekst + '</div>' + bovenPeriodeBlokHtml(huidigePeriodeKeuze);
       return;
@@ -5705,7 +5990,7 @@
       <div class="pdf-header">
         <img src="Amac_Logo.svg" class="pdf-logo" alt="Amac">
         <div>
-          <div class="pdf-titel">Amac Benedenwachtrij — Periode-rapport</div>
+          <div class="pdf-titel">Amac Servicewachtrij — Periode-rapport</div>
           <div class="pdf-sub">${periodeLabel} · Locatie: Amac</div>
         </div>
       </div>
@@ -5874,7 +6159,7 @@
 
     // Structurele aandachtspunten-engine (titel/cijfers/waarom/actie/
     // prioriteit) vervangt de vroegere losse bullet-lijst hieronder —
-    // dezelfde regelgebaseerde aanpak, maar consistent met de Bovenwachtrij
+    // dezelfde regelgebaseerde aanpak, maar consistent met de Winkelwachtrij
     // en met genoeg context om er direct op te kunnen handelen.
     const [jPrev, mPrev, dPrev] = datumVoorExport.split('-').map(Number);
     const vorigeVolledigeData = berekenDagoverzicht(bovenDatumSleutel(new Date(jPrev, mPrev - 1, dPrev - 1).getTime()));
@@ -5896,7 +6181,7 @@
       <div class="pdf-header">
         <img src="Amac_Logo.svg" class="pdf-logo" alt="Amac">
         <div>
-          <div class="pdf-titel">Amac Benedenwachtrij — Dagoverzicht</div>
+          <div class="pdf-titel">Amac Servicewachtrij — Dagoverzicht</div>
           <div class="pdf-sub">${datumLeesbaar} · Locatie: Amac</div>
         </div>
       </div>
@@ -6463,7 +6748,7 @@
         <img src="Amac_Logo.svg" class="pdf-logo" alt="Amac">
         <div>
           <div class="pdf-titel">${escapeHtml(titel)}</div>
-          <div class="pdf-sub">Amac Benedenwachtrij · Periode: ${escapeHtml(sel.periodeLabel)} · Locatie: Amac</div>
+          <div class="pdf-sub">Amac Servicewachtrij · Periode: ${escapeHtml(sel.periodeLabel)} · Locatie: Amac</div>
         </div>
       </div>
       <div class="pdf-meta">Geëxporteerd op ${gegenereerdOp}</div>
@@ -6497,7 +6782,7 @@
   // NIEUW — Medewerkersrapport als PDF
   //
   // Hergebruikt exact de bestaande exportaanpak van het Dagoverzicht, de
-  // Rapporten-modal en de Bovenwachtrij: BEWUST GEEN externe/betaalde
+  // Rapporten-modal en de Winkelwachtrij: BEWUST GEEN externe/betaalde
   // PDF-bibliotheek, API-key of dienst. De #pdf-rapport-container (één
   // vaste container direct onder <body>) wordt gevuld met dezelfde
   // .pdf-*-opmaakklassen, waarna window.print() de browser-eigen
@@ -7113,6 +7398,117 @@
     document.querySelector(`input[name="adult"][value="${isAdult ? 'ja' : 'nee'}"]`).checked = true;
     clearError('field-adult');
   }
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — Kleurcodering wachtrijblokken: drie klantgroepen
+  //
+  // Eén centrale indeling die op ELKE wachtrijkaart wordt toegepast (boven,
+  // beneden, actief én geschiedenis), zodat de kleur overal hetzelfde
+  // betekent. De kleur is nooit het enige signaal: de band draagt altijd
+  // een icoon én een voluit geschreven label.
+  //
+  // Indeling:
+  //   Winkelwachtrij — iPhone/iPad/Mac/Apple Watch → Apple Heroes,
+  //                   Accessoires → Accessoires, Support → Support.
+  //                   "Afhalen / bestelling" valt bewust in GEEN groep: dat
+  //                   is geen productadvies, accessoire of support, en een
+  //                   kaart zonder band is eerlijker dan een verzonnen groep.
+  //   Servicewachtrij — draagt deze band NIET. Op een service-/reparatie-
+  //                   kaart voegde "Support" of "Apple Heroes" niets toe:
+  //                   de hele wachtrij is service, dus de band stond op elke
+  //                   kaart hetzelfde en verdrong de informatie die er wel
+  //                   toe doet. Om welk product het gaat blijft gewoon
+  //                   zichtbaar als tag (iPhone/iPad/Mac/Apple Watch/Overige).
+  //
+  // De statuskleuren (langst wachtend, over tijd, afgerond, in behandeling)
+  // blijven ongemoeid: die zitten op de rand en de tags van de kaart, deze
+  // band is een apart element met een eigen, doorgerekende kleurenset.
+  // ══════════════════════════════════════════════════════════════════
+  const KLANTGROEPEN = {
+    'apple-heroes': {
+      label: 'Apple Heroes',
+      icoon: '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2.5"/><line x1="10" y1="18.5" x2="14" y2="18.5"/></svg>',
+    },
+    'accessoires': {
+      label: 'Accessoires',
+      icoon: '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="8" x2="12" y2="5"/><rect x="3" y="8" width="18" height="4" rx="1.5"/><rect x="4.5" y="12" width="15" height="8" rx="1.5"/></svg>',
+    },
+    'support': {
+      label: 'Support',
+      icoon: '<svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><line x1="12" y1="3" x2="12" y2="8"/><line x1="12" y1="16" x2="12" y2="21"/><line x1="3" y1="12" x2="8" y2="12"/><line x1="16" y1="12" x2="21" y2="12"/></svg>',
+    },
+  };
+
+  const BOVEN_HERO_CATEGORIEEN = ['iphone', 'ipad', 'mac', 'watch'];
+
+  function bovenKlantGroep(e) {
+    const cat = e.primaryCategory || e.reden || '';
+    if (BOVEN_HERO_CATEGORIEEN.includes(cat)) return 'apple-heroes';
+    if (cat === 'accessoires') return 'accessoires';
+    if (cat === 'support') return 'support';
+    return null; // 'afhalen' en historische categorieën krijgen geen band
+  }
+
+  function klantGroepBandHtml(groep) {
+    const g = KLANTGROEPEN[groep];
+    if (!g) return '';
+    return `<div class="groep-band groep-${groep}">${g.icoon}<span>${g.label}</span></div>`;
+  }
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — Apple Hero (Servicewachtrij)
+  // Legt uitsluitend vast om welk Apple-product de klant komt. Vijf vaste
+  // opties, maximaal één tegelijk, en volledig optioneel — nogmaals tikken
+  // maakt de keuze weer leeg. Bewust GEEN subcategorieën, uitklapmenu's of
+  // vervolgvragen: de keuze mag de aanmeldflow geen stap langer maken.
+  // De knoppen worden uit deze lijst opgebouwd, zodat het zichtbare label
+  // en de opgeslagen code nooit uit elkaar kunnen lopen.
+  // ══════════════════════════════════════════════════════════════════
+  const APPLE_HEROES = [
+    { code: 'iphone',  label: 'iPhone' },
+    { code: 'ipad',    label: 'iPad' },
+    { code: 'mac',     label: 'Mac' },
+    { code: 'watch',   label: 'Apple Watch' },
+    { code: 'overige', label: 'Overige' },
+  ];
+  const APPLE_HERO_LABEL = Object.fromEntries(APPLE_HEROES.map(h => [h.code, h.label]));
+  let selectedAppleHero = null;
+
+  // De knoppen worden ÉÉN keer opgebouwd; het aan/uit zetten werkt daarna
+  // alleen de bestaande knoppen bij. Opnieuw opbouwen bij elke tik zou de
+  // knop onder de vinger vervangen, waardoor de toetsenbordfocus wegvalt.
+  function renderAppleHeroKeuze() {
+    const groep = document.getElementById('apple-hero-groep');
+    if (!groep) return;
+    groep.innerHTML = APPLE_HEROES.map(h =>
+      `<button type="button" class="hero-chip" data-hero="${h.code}" aria-pressed="false">${escapeHtml(h.label)}</button>`
+    ).join('');
+    werkAppleHeroKeuzeBij();
+  }
+
+  function werkAppleHeroKeuzeBij() {
+    document.querySelectorAll('#apple-hero-groep .hero-chip').forEach(knop => {
+      const aan = knop.dataset.hero === selectedAppleHero;
+      knop.classList.toggle('is-gekozen', aan);
+      knop.setAttribute('aria-pressed', String(aan));
+    });
+  }
+
+  function selectAppleHero(code) {
+    // Toggle: dezelfde knop nogmaals aantikken wist de keuze. Dat is de
+    // enige manier om een optionele keuze weer ongedaan te maken zonder
+    // een extra "geen"-knop aan de rij toe te voegen.
+    selectedAppleHero = (selectedAppleHero === code) ? null : code;
+    werkAppleHeroKeuzeBij();
+  }
+
+  // Eén gedelegeerde listener: de knoppen worden bij elke render opnieuw
+  // opgebouwd, en de code gaat via een data-attribuut mee.
+  document.getElementById('apple-hero-groep').addEventListener('click', (ev) => {
+    const knop = ev.target.closest('[data-hero]');
+    if (knop) selectAppleHero(knop.dataset.hero);
+  });
+  renderAppleHeroKeuze();
 
   function showError(fieldId) {
     document.getElementById(fieldId).classList.add('has-error');
@@ -7738,6 +8134,11 @@
       status: 'wachtend',
       // NIEUW: 18+ status, direct opgeslagen en zichtbaar op de kaart
       volwassen: selectedAdult,
+      // NIEUW: Apple Hero — nieuw veld, staat los van alle bestaande velden
+      // en overschrijft er dus geen enkele. Lege string wanneer de
+      // (optionele) keuze is overgeslagen, zodat oudere en nieuwe records
+      // hetzelfde type waarde hebben.
+      appleHero: selectedAppleHero || '',
     };
 
     // ── KRITIEKE FIX: opslaan-bevestiging vóór het legen van het formulier ──
@@ -7813,6 +8214,8 @@
     selectedType = null;
     selectedZoek = null;
     selectedAdult = null;
+    selectedAppleHero = null;
+    werkAppleHeroKeuzeBij();
   }
 
   // ── FIX: kaarten worden niet meer hard verwijderd, maar naar "afgerond"
@@ -8376,6 +8779,14 @@
       return '<span class="tag tag-type-ongepland">🔧 Ongepland — ter reparatie/service</span>';
     }
 
+    // NIEUW: Apple Hero zichtbaar op de kaart, zodat direct te zien is om
+    // welk Apple-product het gaat. Lege waarde (keuze overgeslagen) toont
+    // niets — geen lege of verzonnen tag.
+    function appleHeroTag(e) {
+      const label = APPLE_HERO_LABEL[e.appleHero];
+      return label ? `<span class="tag tag-apple-hero"> ${escapeHtml(label)}</span>` : '';
+    }
+
     function adultTag(e) {
       if (e.volwassen === true)  return '<span class="tag tag-adult-yes">✓ 18+</span>';
       if (e.volwassen === false) return '<span class="tag tag-adult-no">⚠ Onder 18</span>';
@@ -8459,7 +8870,7 @@
                   </button>
                 </div>
               </div>
-              <div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${nietIngenomenTag(e)}${adultTag(e)}${betaaldTag(e)}${backupTag(e)}${afwijkingTag(e)}</div>
+              <div class="tag-row" style="margin-bottom:8px">${typeTag}${appleHeroTag(e)}${repTag}${nietIngenomenTag(e)}${adultTag(e)}${betaaldTag(e)}${backupTag(e)}${afwijkingTag(e)}</div>
               <div class="queue-desc">${escapeHtml(e.probleem)}</div>
               <div class="tag-row">${icareTag}${nlTag}${zoekTag}</div>
             </div>`;
@@ -8529,7 +8940,7 @@
               ${e.type === 'ongepland' ? `<span class="actie-scheiding" aria-hidden="true"></span><button class="btn-niet-ingenomen" onclick="startNietIngenomen('${e.key}')" title="Registreer dat het apparaat niet is ingenomen"><svg aria-hidden="true" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Niet ingenomen</button>` : ''}`}
             </div>
           </div>
-          ${isEditing ? editForm : `<div class="tag-row" style="margin-bottom:8px">${typeTag}${repTag}${nietIngenomenTag(e)}${adultTag(e)}${betaaldTag(e)}${backupTag(e)}${afwijkingTag(e)}</div><div class="queue-desc">${escapeHtml(e.probleem)}</div><div class="tag-row">${icareTag}${nlTag}${zoekTag}</div><div class="behandel-row">${behandelHtml}</div>`}
+          ${isEditing ? editForm : `<div class="tag-row" style="margin-bottom:8px">${typeTag}${appleHeroTag(e)}${repTag}${nietIngenomenTag(e)}${adultTag(e)}${betaaldTag(e)}${backupTag(e)}${afwijkingTag(e)}</div><div class="queue-desc">${escapeHtml(e.probleem)}</div><div class="tag-row">${icareTag}${nlTag}${zoekTag}</div><div class="behandel-row">${behandelHtml}</div>`}
         </div>`;
     }
 
@@ -8819,6 +9230,7 @@
     { code: 'overig',           label: 'Overig' },
   ];
   const BOVEN_SUPPORT_LABEL = Object.fromEntries(BOVEN_SUPPORT_TYPES.map(s => [s.code, s.label]));
+
   const BOVEN_INTENTIES = [
     { code: 'advies',      label: 'Advies' },
     { code: 'kopen',       label: 'Product kopen' },
@@ -9300,7 +9712,7 @@
 
   // ══════════════════════════════════════════════════════════════════
   // Grote schrijfweergave — één gedeelde laag voor élke handgeschreven
-  // notitie van de Bovenwachtrij (aanmelden én bewerken). De notities
+  // notitie van de Winkelwachtrij (aanmelden én bewerken). De notities
   // zelf blijven gewoon PNG-dataURL's in de bestaande velden `notitie` en
   // `accessoryDetailSketch`, dus bestaande records blijven werken.
   // ══════════════════════════════════════════════════════════════════
@@ -9643,7 +10055,8 @@
 
     // Dubbele aanmelding door dubbeltikken/refresh/trage verbinding: dezelfde
     // combinatie binnen 10 seconden wordt geweigerd met een duidelijke melding.
-    const handtekening = [bovenGekozenCategorie, bovenGekozenSubtype, bovenGekozenIntentie, bovenGekozenSupport, herkenning, accessoireDetailTekst].join('|');
+    const handtekening = [bovenGekozenCategorie, bovenGekozenSubtype, bovenGekozenIntentie,
+      bovenGekozenSupport, herkenning, accessoireDetailTekst].join('|');
     if (bovenLaatsteAanmelding && bovenLaatsteAanmelding.sig === handtekening &&
         Date.now() - bovenLaatsteAanmelding.tijd < 10000) {
       bovenMelding('⚠ Deze klant is zojuist al toegevoegd — controleer de wachtrij hiernaast.', 'var(--warning)');
@@ -9695,14 +10108,14 @@
 
     bovenRef.push(entry).then((ref) => {
       bovenLaatsteAanmelding = { sig: handtekening, tijd: Date.now() };
-      logAuditActie('boven-klant-toegevoegd', 'Bovenwachtrij — ' + entry.redenLabel, {
+      logAuditActie('boven-klant-toegevoegd', 'Winkelwachtrij — ' + entry.redenLabel, {
         actorNaam: 'Vloerverdeler', queueRecordId: ref.key, newValue: 'wachtend' });
       bovenResetFormulier();
-      bovenMelding('✓ Toegevoegd aan de Bovenwachtrij', 'var(--success)');
+      bovenMelding('✓ Toegevoegd aan de Winkelwachtrij', 'var(--success)');
       // Focus terug naar boven: de volgende klant staat al binnen 20 seconden klaar.
       document.getElementById('boven-veld-reden').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }).catch((err) => {
-      console.error('[Amac Wachtrij] Bovenwachtrij toevoegen mislukt:', err);
+      console.error('[Amac Wachtrij] Winkelwachtrij toevoegen mislukt:', err);
       bovenMelding('⚠ Toevoegen is NIET gelukt (' + err.message + '). De gegevens staan er nog — probeer opnieuw.', 'var(--danger)');
     }).finally(() => {
       bovenSubmitBezig = false;
@@ -9712,7 +10125,7 @@
   });
 
   // ══════════════════════════════════════════════════════════════════
-  // Weergave van de Bovenwachtrij
+  // Weergave van de Winkelwachtrij
   // ══════════════════════════════════════════════════════════════════
   function bovenZetFilter() { renderBovenwachtrij(); }
   function bovenWisselSortering() {
@@ -9763,7 +10176,7 @@
 
     document.getElementById('boven-queue-title').innerHTML = `
       <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
-      Bovenwachtrij${aantal > 0 ? ' <span style="font-weight:400;color:var(--card);font-size:12px">— ' + aantal + (aantal === 1 ? ' klant' : ' klanten') + '</span>' : ''}`;
+      Winkelwachtrij${aantal > 0 ? ' <span style="font-weight:400;color:var(--card);font-size:12px">— ' + aantal + (aantal === 1 ? ' klant' : ' klanten') + '</span>' : ''}`;
 
     // ── "Volgende klant" — het antwoord op "wie kan ik nu helpen?" ──
     if (langsteKlant) {
@@ -9771,6 +10184,7 @@
       elBovenVolgendeWrap.innerHTML = `
         <div class="boven-volgende">
           <div class="boven-volgende-label">Volgende klant</div>
+          ${klantGroepBandHtml(bovenKlantGroep(langsteKlant))}
           <div class="boven-volgende-hoofd">${escapeHtml(bovenRedenWeergave(langsteKlant))}</div>
           ${langsteKlant.herkenning ? `<div class="boven-volgende-regel">👁️ ${escapeHtml(langsteKlant.herkenning)}</div>` : ''}
           ${loc ? `<div class="boven-volgende-regel">📍 ${escapeHtml(loc)}</div>` : ''}
@@ -9795,7 +10209,7 @@
     if (aantal === 0) {
       elBovenQueueContainer.innerHTML = `
         <div class="boven-leeg">
-          <strong>Geen klanten in de Bovenwachtrij</strong>
+          <strong>Geen klanten in de Winkelwachtrij</strong>
           <span>Voeg links een klant toe zodra je iemand hebt aangesproken.</span>
         </div>`;
       return;
@@ -9840,6 +10254,7 @@
 
     return `
       <div class="boven-item${isLangst ? ' is-langst' : ''}${overtijd ? ' is-overtijd' : ''}">
+        ${klantGroepBandHtml(bovenKlantGroep(e))}
         <div class="boven-item-kop">
           <div class="boven-positie">${e.positie}</div>
           <div class="boven-item-hoofd">
@@ -9952,11 +10367,11 @@
     if (accessoireVeld) wijziging.accessoryDetailNote = accessoireVeld.value.trim().slice(0, 60);
     bovenEditingKey = null;
     bovenRef.child(key).update(wijziging).then(() => {
-      logAuditActie('boven-kaart-bewerkt', 'Bovenwachtrij — kaart bijgewerkt', {
+      logAuditActie('boven-kaart-bewerkt', 'Winkelwachtrij — kaart bijgewerkt', {
         actorNaam: 'Vloerverdeler', queueRecordId: key });
       toonOpslaanToast();
     }).catch((err) => {
-      console.error('[Amac Wachtrij] Bovenwachtrij bewerken mislukt:', err);
+      console.error('[Amac Wachtrij] Winkelwachtrij bewerken mislukt:', err);
       bovenMelding('⚠ Opslaan mislukt: ' + err.message, 'var(--danger)');
     });
     renderBovenwachtrij(true);
@@ -10007,7 +10422,7 @@
     return bovenStatsRef.child(e.key).set(stat)
       .then(() => bovenRef.child(e.key).remove())
       .then(() => {
-        logAuditActie('boven-klant-' + uitkomst, 'Bovenwachtrij — ' + stat.redenLabel +
+        logAuditActie('boven-klant-' + uitkomst, 'Winkelwachtrij — ' + stat.redenLabel +
           (vertrekRedenLabel ? ' (' + vertrekRedenLabel + ')' : ''), {
           actorNaam: 'Vloerverdeler', queueRecordId: e.key, previousValue: 'wachtend', newValue: uitkomst });
         if (!stil) {
@@ -10016,7 +10431,7 @@
         }
       })
       .catch((err) => {
-        console.error('[Amac Wachtrij] Bovenwachtrij afronden mislukt:', err);
+        console.error('[Amac Wachtrij] Winkelwachtrij afronden mislukt:', err);
         bovenMelding('⚠ Afronden mislukt (' + err.message + '). De klant staat nog in de wachtrij.', 'var(--danger)');
       });
   }
@@ -10072,12 +10487,12 @@
     const e = bovenQueue.find(x => x.key === key);
     if (!e) return;
     bovenRef.child(key).remove().then(() => {
-      logAuditActie('boven-kaart-verwijderd', 'Bovenwachtrij — foutieve aanmelding verwijderd', {
+      logAuditActie('boven-kaart-verwijderd', 'Winkelwachtrij — foutieve aanmelding verwijderd', {
         actorNaam: 'Vloerverdeler', queueRecordId: key, previousValue: 'wachtend', newValue: 'verwijderd' });
       bovenLaatstAfgerond = { record: Object.assign({}, e), statKey: null };
       bovenToonUndo('🗑 Aanmelding verwijderd');
     }).catch((err) => {
-      console.error('[Amac Wachtrij] Bovenwachtrij verwijderen mislukt:', err);
+      console.error('[Amac Wachtrij] Winkelwachtrij verwijderen mislukt:', err);
       bovenMelding('⚠ Verwijderen mislukt: ' + err.message, 'var(--danger)');
     });
   }
@@ -10107,10 +10522,10 @@
     bovenRef.push(herstel).then(() => {
       if (buffer.statKey) return bovenStatsRef.child(buffer.statKey).remove();
     }).then(() => {
-      logAuditActie('boven-actie-hersteld', 'Bovenwachtrij — actie ongedaan gemaakt', { actorNaam: 'Vloerverdeler' });
-      bovenMelding('↺ Klant teruggezet in de Bovenwachtrij', 'var(--success)');
+      logAuditActie('boven-actie-hersteld', 'Winkelwachtrij — actie ongedaan gemaakt', { actorNaam: 'Vloerverdeler' });
+      bovenMelding('↺ Klant teruggezet in de Winkelwachtrij', 'var(--success)');
     }).catch((err) => {
-      console.error('[Amac Wachtrij] Bovenwachtrij herstellen mislukt:', err);
+      console.error('[Amac Wachtrij] Winkelwachtrij herstellen mislukt:', err);
       bovenMelding('⚠ Herstellen mislukt: ' + err.message, 'var(--danger)');
     });
   }
@@ -10152,7 +10567,7 @@
   }
 
   // ══════════════════════════════════════════════════════════════════
-  // Managementcijfers Bovenwachtrij
+  // Managementcijfers Winkelwachtrij
   // Leest UITSLUITEND uit 'bovenstatistieken' — dat pad bevat per definitie
   // geen herkenningsomschrijvingen, locaties, hulpvragen of handschrift.
   // ══════════════════════════════════════════════════════════════════
@@ -10163,7 +10578,7 @@
     return s.length % 2 ? s[m] : Math.round((s[m - 1] + s[m]) / 2);
   }
 
-  // Zelfde blokgrenzen als de Benedenwachtrij (WACHTTIJD_BLOKKEN) zodat
+  // Zelfde blokgrenzen als de Servicewachtrij (WACHTTIJD_BLOKKEN) zodat
   // wachttijdverdelingen tussen beide wachtrijen vergelijkbaar ogen voor
   // management. Losse constante omdat WACHTTIJD_BLOKKEN function-scoped is.
   const BOVEN_WACHTTIJD_BLOKKEN = [
@@ -10351,7 +10766,7 @@
     const uren = Object.keys(b.perUur).map(Number).sort((a, b2) => a - b2);
     const maxUur = Math.max(1, ...uren.map(u => b.perUur[u]));
     return `
-      <div class="overzicht-mini-titel">🛍️ Bovenwachtrij — winkelvloer</div>
+      <div class="overzicht-mini-titel">🛍️ Winkelwachtrij — winkelvloer</div>
       <div class="overzicht-stats-grid">
         <div class="overzicht-stat-card">
           <div class="overzicht-stat-value">${b.totaalAangemeld}</div>
@@ -10379,7 +10794,7 @@
         </div>
       </div>
       ${b.perRedenLijst.length > 0 ? `
-        <div class="overzicht-mini-titel">Bovenwachtrij — per reden van bezoek</div>
+        <div class="overzicht-mini-titel">Winkelwachtrij — per reden van bezoek</div>
         <div>${b.perRedenLijst.map(([label, aantal]) => `
           <div class="overzicht-uur-rij">
             <span class="overzicht-uur-label" style="width:auto;flex:1;text-align:left">${escapeHtml(label)}${b.gemWachttijdPerReden[label] !== null ? ' · ' + b.gemWachttijdPerReden[label] + ' min' : ''}</span>
@@ -10387,11 +10802,11 @@
             <span class="overzicht-uur-aantal">${aantal}</span>
           </div>`).join('')}</div>` : ''}
       ${b.vertrekRedenLijst.length > 0 ? `
-        <div class="overzicht-mini-titel">Bovenwachtrij — vertrekmotieven</div>
+        <div class="overzicht-mini-titel">Winkelwachtrij — vertrekmotieven</div>
         <div>${b.vertrekRedenLijst.map(([label, aantal]) =>
           `<div class="overzicht-type-row"><span>${escapeHtml(label)}</span><strong>${aantal}</strong></div>`).join('')}</div>` : ''}
       ${uren.length > 0 ? `
-        <div class="overzicht-mini-titel">Bovenwachtrij — drukte per uur${b.druksteUur !== null ? ` — drukste: ${String(b.druksteUur).padStart(2, '0')}:00 (${b.druksteUurAantal})` : ''}</div>
+        <div class="overzicht-mini-titel">Winkelwachtrij — drukte per uur${b.druksteUur !== null ? ` — drukste: ${String(b.druksteUur).padStart(2, '0')}:00 (${b.druksteUurAantal})` : ''}</div>
         <div>${uren.map(u => `
           <div class="overzicht-uur-rij">
             <span class="overzicht-uur-label">${String(u).padStart(2, '0')}:00</span>
@@ -10406,9 +10821,9 @@
     if (b.totaalAangemeld === 0) return '';
     const maxReden = Math.max(1, ...b.perRedenLijst.map(r => r[1]));
     return `
-      <div class="pdf-sectie-titel">Bovenwachtrij — winkelvloer</div>
+      <div class="pdf-sectie-titel">Winkelwachtrij — winkelvloer</div>
       <p class="pdf-summary">
-        Op de winkelvloer werden <strong>${b.totaalAangemeld}</strong> klanten in de Bovenwachtrij gezet,
+        Op de winkelvloer werden <strong>${b.totaalAangemeld}</strong> klanten in de Winkelwachtrij gezet,
         waarvan <strong>${b.geholpen}</strong> geholpen en <strong>${b.vertrokken}</strong> vertrokken.
         De gemiddelde wachttijd was <strong>${b.gemiddelde !== null ? b.gemiddelde + ' minuten' : 'n.v.t.'}</strong>.
       </p>
@@ -10440,7 +10855,7 @@
     if (b.totaal === 0) return '';
     const maxReden = Math.max(1, ...b.perRedenLijst.map(r => r[1]));
     return `
-      <div class="overzicht-mini-titel">🛍️ Bovenwachtrij — winkelvloer (${b.dagenMetData} ${b.dagenMetData === 1 ? 'dag' : 'dagen'} met data)</div>
+      <div class="overzicht-mini-titel">🛍️ Winkelwachtrij — winkelvloer (${b.dagenMetData} ${b.dagenMetData === 1 ? 'dag' : 'dagen'} met data)</div>
       <div class="overzicht-stats-grid">
         <div class="overzicht-stat-card"><div class="overzicht-stat-value">${b.totaal}</div><div class="overzicht-stat-label">Totaal klanten</div></div>
         <div class="overzicht-stat-card"><div class="overzicht-stat-value">${b.geholpen}</div><div class="overzicht-stat-label">Geholpen</div></div>
@@ -10449,7 +10864,7 @@
         <div class="overzicht-stat-card"><div class="overzicht-stat-value">${b.mediaan !== null ? b.mediaan + ' min' : '—'}</div><div class="overzicht-stat-label">Mediaan wachttijd</div></div>
         <div class="overzicht-stat-card"><div class="overzicht-stat-value">${b.langste !== null ? b.langste + ' min' : '—'}</div><div class="overzicht-stat-label">Hoogste wachttijd</div></div>
       </div>
-      <div class="overzicht-mini-titel">Bovenwachtrij — per reden van bezoek</div>
+      <div class="overzicht-mini-titel">Winkelwachtrij — per reden van bezoek</div>
       <div>${b.perRedenLijst.map(([label, aantal]) => `
         <div class="overzicht-uur-rij">
           <span class="overzicht-uur-label" style="width:auto;flex:1;text-align:left">${escapeHtml(label)}</span>
@@ -10457,11 +10872,11 @@
           <span class="overzicht-uur-aantal">${aantal}</span>
         </div>`).join('')}</div>
       ${b.vertrekRedenLijst.length > 0 ? `
-        <div class="overzicht-mini-titel">Bovenwachtrij — vertrekmotieven</div>
+        <div class="overzicht-mini-titel">Winkelwachtrij — vertrekmotieven</div>
         <div>${b.vertrekRedenLijst.map(([label, aantal]) =>
           `<div class="overzicht-type-row"><span>${escapeHtml(label)}</span><strong>${aantal}</strong></div>`).join('')}</div>` : ''}
       ${b.perDagLijst.length > 1 ? `
-        <div class="overzicht-mini-titel">Bovenwachtrij — per dag</div>
+        <div class="overzicht-mini-titel">Winkelwachtrij — per dag</div>
         <div>${b.perDagLijst.map(([datum, aantal]) => {
           const [jj, mm, dd] = datum.split('-').map(Number);
           const label = new Date(jj, mm - 1, dd).toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric', month: 'short' });
@@ -10475,9 +10890,9 @@
     if (b.totaal === 0) return '';
     const maxReden = Math.max(1, ...b.perRedenLijst.map(r => r[1]));
     return `
-      <div class="pdf-sectie-titel">Bovenwachtrij — winkelvloer</div>
+      <div class="pdf-sectie-titel">Winkelwachtrij — winkelvloer</div>
       <p class="pdf-summary">
-        In deze periode zijn <strong>${b.totaal}</strong> winkelvloerklanten via de Bovenwachtrij geregistreerd
+        In deze periode zijn <strong>${b.totaal}</strong> winkelvloerklanten via de Winkelwachtrij geregistreerd
         (<strong>${b.geholpen}</strong> geholpen, <strong>${b.vertrokken}</strong> vertrokken), verdeeld over
         <strong>${b.dagenMetData}</strong> ${b.dagenMetData === 1 ? 'dag' : 'dagen'}.
       </p>
@@ -10502,8 +10917,8 @@
   }
 
   // ══════════════════════════════════════════════════════════════════
-  // NIEUW — Eigen Bovenwachtrij-dashboards: dagoverzicht + week/maand/
-  // all-time-rapporten, rechtstreeks bereikbaar vanaf het Bovenwachtrij-
+  // NIEUW — Eigen Winkelwachtrij-dashboards: dagoverzicht + week/maand/
+  // all-time-rapporten, rechtstreeks bereikbaar vanaf het Winkelwachtrij-
   // scherm (niet langer alleen als bijlage bij de Beneden-modals).
   // ══════════════════════════════════════════════════════════════════
   let bovenDagoverzichtDatum = null;
@@ -10554,7 +10969,7 @@
 
   function bovenRenderDagoverzicht() {
     // BUGFIX: de datum wordt uit het invoerveld gelezen (zelfde patroon als
-    // renderDagoverzicht van de Benedenwachtrij). Voorheen las deze functie
+    // renderDagoverzicht van de Servicewachtrij). Voorheen las deze functie
     // alleen de variabele, waardoor het rechtstreeks kiezen van een datum in
     // de kalender-widget wél onchange afvuurde maar de OUDE dag bleef tonen.
     bovenDagoverzichtDatum = document.getElementById('boven-dagoverzicht-datum').value || huidigeDatumString();
@@ -10570,7 +10985,7 @@
 
     if (b.totaalAangemeld === 0) {
       document.getElementById('boven-dagoverzicht-body').innerHTML = datumKopHtml +
-        `<div class="overzicht-leeg">Geen Bovenwachtrij-klanten op deze dag.</div>`;
+        `<div class="overzicht-leeg">Geen Winkelwachtrij-klanten op deze dag.</div>`;
       return;
     }
 
@@ -10643,7 +11058,7 @@
 
     if (b.totaal === 0) {
       const legeTekst = modus === 'alltime'
-        ? 'Nog geen afgeronde Bovenwachtrij-klanten om te tonen.'
+        ? 'Nog geen afgeronde Winkelwachtrij-klanten om te tonen.'
         : 'Nog niet genoeg historie voor deze periode.';
       document.getElementById('boven-periode-overzicht-body').innerHTML = `<div class="overzicht-leeg">${legeTekst}</div>`;
       return;
@@ -10745,9 +11160,9 @@
 
     if (b.totaalAangemeld === 0) {
       document.getElementById('pdf-rapport-container').innerHTML = `
-        <div class="pdf-header"><img src="Amac_Logo.svg" class="pdf-logo" alt="Amac"><div><div class="pdf-titel">Amac Bovenwachtrij — Dagrapport</div><div class="pdf-sub">${datumLeesbaar} · Locatie: Amac</div></div></div>
+        <div class="pdf-header"><img src="Amac_Logo.svg" class="pdf-logo" alt="Amac"><div><div class="pdf-titel">Amac Winkelwachtrij — Dagrapport</div><div class="pdf-sub">${datumLeesbaar} · Locatie: Amac</div></div></div>
         <div class="pdf-meta">Gegenereerd op ${gegenereerdOp}</div>
-        <p class="pdf-summary">Er zijn geen Bovenwachtrij-klanten geregistreerd op ${datumLeesbaar}.</p>
+        <p class="pdf-summary">Er zijn geen Winkelwachtrij-klanten geregistreerd op ${datumLeesbaar}.</p>
         <div class="pdf-footer"><strong>Privacy:</strong> dit rapport bevat uitsluitend geaggregeerde bedrijfscijfers.<br>Amac Wachtrij-systeem — gegenereerd op ${gegenereerdOp}.</div>`;
       window.print();
       return;
@@ -10765,13 +11180,13 @@
     document.getElementById('pdf-rapport-container').innerHTML = `
       <div class="pdf-header">
         <img src="Amac_Logo.svg" class="pdf-logo" alt="Amac">
-        <div><div class="pdf-titel">Amac Bovenwachtrij — Dagrapport</div><div class="pdf-sub">${datumLeesbaar} · Locatie: Amac</div></div>
+        <div><div class="pdf-titel">Amac Winkelwachtrij — Dagrapport</div><div class="pdf-sub">${datumLeesbaar} · Locatie: Amac</div></div>
       </div>
       <div class="pdf-meta">Gegenereerd op ${gegenereerdOp}</div>
 
       <div class="pdf-sectie-titel">Samenvatting</div>
       <p class="pdf-summary">
-        Op ${datumLeesbaar} werden <strong>${b.totaalAangemeld}</strong> klanten aangemeld in de Bovenwachtrij,
+        Op ${datumLeesbaar} werden <strong>${b.totaalAangemeld}</strong> klanten aangemeld in de Winkelwachtrij,
         waarvan <strong>${b.geholpen}</strong> geholpen en <strong>${b.vertrokken}</strong> vertrokken
         (${(b.geholpen + b.vertrokken) > 0 ? Math.round(b.vertrokken / (b.geholpen + b.vertrokken) * 100) : 0}% vertrekpercentage).
         De gemiddelde wachttijd was <strong>${b.gemiddelde !== null ? b.gemiddelde + ' minuten' : 'n.v.t.'}</strong>.
@@ -10856,9 +11271,9 @@
 
     if (b.totaal === 0) {
       document.getElementById('pdf-rapport-container').innerHTML = `
-        <div class="pdf-header"><img src="Amac_Logo.svg" class="pdf-logo" alt="Amac"><div><div class="pdf-titel">Amac Bovenwachtrij — ${titelPeriode}</div><div class="pdf-sub">Locatie: Amac</div></div></div>
+        <div class="pdf-header"><img src="Amac_Logo.svg" class="pdf-logo" alt="Amac"><div><div class="pdf-titel">Amac Winkelwachtrij — ${titelPeriode}</div><div class="pdf-sub">Locatie: Amac</div></div></div>
         <div class="pdf-meta">Gegenereerd op ${gegenereerdOp}</div>
-        <p class="pdf-summary">Nog geen afgeronde Bovenwachtrij-klanten in ${periodeLabel} om te rapporteren.</p>
+        <p class="pdf-summary">Nog geen afgeronde Winkelwachtrij-klanten in ${periodeLabel} om te rapporteren.</p>
         <div class="pdf-footer">Amac Wachtrij-systeem — gegenereerd op ${gegenereerdOp}.</div>`;
       window.print();
       return;
@@ -10903,12 +11318,12 @@
       : '<p class="pdf-summary">Nog niet genoeg dagen voor een trendlijn.</p>';
 
     document.getElementById('pdf-rapport-container').innerHTML = `
-      <div class="pdf-header"><img src="Amac_Logo.svg" class="pdf-logo" alt="Amac"><div><div class="pdf-titel">Amac Bovenwachtrij — ${titelPeriode}</div><div class="pdf-sub">${periodeLabel.charAt(0).toUpperCase() + periodeLabel.slice(1)} · Locatie: Amac</div></div></div>
+      <div class="pdf-header"><img src="Amac_Logo.svg" class="pdf-logo" alt="Amac"><div><div class="pdf-titel">Amac Winkelwachtrij — ${titelPeriode}</div><div class="pdf-sub">${periodeLabel.charAt(0).toUpperCase() + periodeLabel.slice(1)} · Locatie: Amac</div></div></div>
       <div class="pdf-meta">Gegenereerd op ${gegenereerdOp}</div>
 
       <div class="pdf-sectie-titel">Executive summary</div>
       <p class="pdf-summary">
-        In ${periodeLabel} (${b.dagenMetData} ${b.dagenMetData === 1 ? 'dag' : 'dagen'} met data) zijn <strong>${b.totaal}</strong> klanten via de Bovenwachtrij geregistreerd,
+        In ${periodeLabel} (${b.dagenMetData} ${b.dagenMetData === 1 ? 'dag' : 'dagen'} met data) zijn <strong>${b.totaal}</strong> klanten via de Winkelwachtrij geregistreerd,
         waarvan <strong>${b.geholpen}</strong> geholpen en <strong>${b.vertrokken}</strong> vertrokken (<strong>${b.vertrekPercentage ?? '—'}%</strong> vertrekpercentage).
         De gemiddelde wachttijd was <strong>${b.gemiddelde !== null ? b.gemiddelde + ' minuten' : 'n.v.t.'}</strong>.
         ${vorige && vorige.totaal > 0 ? `T.o.v. de vorige vergelijkbare periode: <strong>${b.totaal}</strong> vs <strong>${vorige.totaal}</strong> klanten.` : ''}
@@ -10993,7 +11408,7 @@
    kwaliteitscijfers die de app toont met exact dezelfde code gemeten als de
    voorspellingen zelf.
 
-   Alleen de BENEDENwachtrij. De Bovenwachtrij komt hier nergens voor.
+   Alleen de BENEDENwachtrij. De Winkelwachtrij komt hier nergens voor.
 
    Drie harde regels die overal in dit bestand gelden:
      1. Nooit vooruitkijken. Elke feature op moment t gebruikt uitsluitend
@@ -11030,7 +11445,7 @@
     // per weekdag (0 = zondag). Bewust niet "openingstijden van de winkel":
     // op vrijdag is de winkelvloer koopavond tot 21:00, maar de reparatie-
     // inname stopt om 18:00. Over zeven vrijdagen staat er na 17:00 geen
-    // enkele aanmelding, wat dat bevestigt. Wie hier ooit de Bovenwachtrij
+    // enkele aanmelding, wat dat bevestigt. Wie hier ooit de Winkelwachtrij
     // (de winkelvloer) op wil baseren, heeft een andere tabel nodig.
     //
     // De rest is nagerekend tegen de eigen data: over 53 dagen staat er op
@@ -11050,7 +11465,7 @@
     DRUKTE_MIN_TRAIN: 14,     // rolling-origin start na 14 dagen
   };
 
-  // -- Uren van de Benedenwachtrij ----------------------------------------
+  // -- Uren van de Servicewachtrij ----------------------------------------
   // Twee vragen die uit elkaar gehouden moeten worden. "Neemt de balie nu
   // klanten aan?" is iets anders dan "is de dag voorbij?": om 09:00 is de
   // balie ook dicht, maar dan moet de dag nog beginnen en valt er nog niets
@@ -12617,7 +13032,7 @@
   // De rekenkern hierboven weet niets van de app; dit blok is de enige
   // plek waar `queue`, Firebase en het DOM elkaar raken.
   //
-  // Uitsluitend Benedenwachtrij: leest `queue` (pad 'wachtrij') en niets
+  // Uitsluitend Servicewachtrij: leest `queue` (pad 'wachtrij') en niets
   // anders. `bovenQueue` en `bovenStatistieken` worden hier bewust nergens
   // aangeraakt.
   //
@@ -12944,27 +13359,6 @@
         } else {
           const afwijking = terug.totaalWerkelijk - terug.totaalVerwacht;
 
-          // Klopte het niet precies, dan één concrete oorzaak en wat daaraan
-          // gebeurt - beide afgeleid uit het model zelf, niet verzonnen. Bij
-          // een exacte match (afwijking 0) is er niets uit te leggen.
-          let uitleg = '';
-          if (afwijking !== 0) {
-            // De voorspelling kent alleen weekdag en uur uit de eigen historie.
-            // Wat een dag verder bijzonder maakte, weet ze niet - dus is dat
-            // de eerlijke verklaring, samen met het toeval dat er altijd in zit.
-            const variant = (Voorspelling.DRUKTE_VARIANTEN || [])
-              .find(x => x.id === (o.model && o.model.id));
-            const reden = `Het model kijkt alleen naar weekdag en uur in de eigen historie` +
-              `${variant && !variant.half ? ', en weegt recente dagen niet zwaarder' : ''}. ` +
-              `Wat deze dag verder bijzonder maakte, ziet het niet - en de ondergrens ` +
-              `van het toeval lag hier al op ${terug.vloer.toFixed(1)} klant per uur.`;
-            const stap = 'Vandaag telt vanaf vannacht mee in het patroon, en de modelkeuze wordt opnieuw blind getoetst.';
-            uitleg = `<div class="voorspel-dagklaar-uitleg">
-                <div><strong>Mogelijke oorzaak:</strong> ${escapeHtml(reden)}</div>
-                <div><strong>Zo verbetert het:</strong> ${escapeHtml(stap)}</div>
-              </div>`;
-          }
-
           html += `<div class="voorspel-dagklaar ${escapeHtml(terug.oordeel || 'redelijk')}">
               <div class="voorspel-dagklaar-kop">Inname dicht sinds ${sluit} · zo ging het vandaag</div>
               <div class="voorspel-dagklaar-tekst">${escapeHtml(
@@ -12974,7 +13368,6 @@
                   : ` (${afwijking > 0 ? '+' : ''}${afwijking})`} ·
                 gemiddeld ${terug.mae.toFixed(1)} klanten per uur ernaast,
                 ondergrens ${terug.vloer.toFixed(1)}</div>
-              ${uitleg}
             </div>`;
         }
       }
@@ -13225,10 +13618,11 @@
     'sameday-uitgeleverd': 'Same-day uitgeleverd',
     'same-day-hersteld': 'Same-day teruggezet',
     'same-day-verwijderd': 'Same-day verwijderd',
-    'boven-klant-toegevoegd': 'Bovenwachtrij: klant toegevoegd',
-    'boven-kaart-bewerkt': 'Bovenwachtrij: kaart bewerkt',
-    'boven-kaart-verwijderd': 'Bovenwachtrij: kaart verwijderd',
-    'boven-actie-hersteld': 'Bovenwachtrij: actie hersteld',
+    'boven-klant-toegevoegd': 'Winkelwachtrij: klant toegevoegd',
+    'boven-kaart-bewerkt': 'Winkelwachtrij: kaart bewerkt',
+    'boven-kaart-verwijderd': 'Winkelwachtrij: kaart verwijderd',
+    'boven-actie-hersteld': 'Winkelwachtrij: actie hersteld',
+    'chat-bericht': 'Teamchat-bericht',
   };
   function auditActieNaam(code) {
     if (AUDIT_ACTIENAAM[code]) return AUDIT_ACTIENAAM[code];
@@ -13244,17 +13638,73 @@
     laadAuditlog();
   }
 
+  // ── Teamchat in het log ──────────────────────────────────────────────
+  // De chatberichten worden NIET naar 'auditlog' gekopieerd, maar bij het
+  // openen samengevoegd met wat daar staat. Twee redenen, en ze wegen beide
+  // zwaar:
+  //
+  //   GEEN DUBBELEN  Kopieren zou bij elke refresh, herlaadactie of tweede
+  //                  geopend apparaat opnieuw kunnen schrijven. Wat er niet
+  //                  in staat, kan er ook niet dubbel in staan.
+  //   BEWAARTERMIJN  De chat wordt elke ochtend gewist
+  //                  (chatRef.remove() in controleerDagelijksSchema). Het
+  //                  auditlog is append-only en wordt nooit gewist. Een kopie
+  //                  in het log zou berichten dus langer bewaren dan de app
+  //                  ze nu bewaart - precies wat een bewaartermijn hoort te
+  //                  voorkomen.
+  //
+  // Een chatbericht kent geen klant of klantkaart: er is niets om aan te
+  // koppelen, dus blijft dat veld leeg in plaats van dat er een verband
+  // wordt gesuggereerd dat er niet is.
+  const CHAT_LOG_MAX_TEKEN = 120;
+
+  function chatAlsLogregels(data) {
+    return Object.keys(data || {}).map((k) => {
+      const m = data[k] || {};
+      const tekst = String(m.tekst || '').replace(/\s+/g, ' ').trim();
+      const kort = tekst.length > CHAT_LOG_MAX_TEKEN
+        ? tekst.slice(0, CHAT_LOG_MAX_TEKEN - 1).trimEnd() + '…'
+        : tekst;
+      return {
+        key: 'chat-' + k,
+        activity_type: 'chat-bericht',
+        activity_label: kort ? '\u201c' + kort + '\u201d' : '(leeg bericht)',
+        actor_name: String(m.naam || '').trim() || 'Onbekend',
+        actor_toegewezen: !!String(m.naam || '').trim(),
+        queue_record_id: '',
+        previous_value: '',
+        new_value: '',
+        source: 'chat',
+        tijdstip: Number(m.timestamp) || 0,
+      };
+    }).filter(r => r.tijdstip > 0);
+  }
+
   function laadAuditlog() {
     if (auditBezig) return;
     auditBezig = true;
     document.getElementById('auditlog-body').innerHTML =
       '<div class="voorspel-laden">Laden…</div>';
-    firebase.database().ref('auditlog').limitToLast(auditLimiet).once('value')
-      .then((snap) => {
+    Promise.all([
+      firebase.database().ref('auditlog').limitToLast(auditLimiet).once('value'),
+      // Gaat de chat niet mee (bijv. leesrechten), dan blijft de rest van het
+      // log gewoon werken - een ontbrekend onderdeel mag het hele scherm niet
+      // omleggen.
+      firebase.database().ref('chat/berichten').limitToLast(auditLimiet).once('value')
+        .catch((err) => {
+          console.warn('[Amac Wachtrij] Chat niet meegeladen in het activiteitenlog:', err);
+          return null;
+        }),
+    ])
+      .then(([snap, chatSnap]) => {
         const data = snap.val() || {};
-        auditRegels = Object.keys(data).map(k => Object.assign({ key: k }, data[k]))
+        const auditOnly = Object.keys(data).map(k => Object.assign({ key: k }, data[k]));
+        // De limiet slaat op het auditlog zelf; de chat erbij mag "meer
+        // laden" niet ten onrechte laten verdwijnen.
+        auditVolledig = auditOnly.length < auditLimiet;
+        auditRegels = auditOnly
+          .concat(chatAlsLogregels(chatSnap ? chatSnap.val() : null))
           .sort((a, b) => (b.tijdstip || 0) - (a.tijdstip || 0));
-        auditVolledig = auditRegels.length < auditLimiet;
         auditBezig = false;
         renderAuditlog();
       })
@@ -13799,7 +14249,7 @@
               });
             }, (err) => console.warn('[Amac Wachtrij] Statusgeschiedenis laden mislukt:', err));
 
-            // ── NIEUW: Bovenwachtrij — eigen, onafhankelijke listener ──
+            // ── NIEUW: Winkelwachtrij — eigen, onafhankelijke listener ──
             // Volledig los van de benedenwachtrij: een storing of rechtenfout
             // op dit pad kan de service-wachtrij dus niet raken.
             bovenRef.on('value', (snapshot) => {
@@ -13809,9 +14259,9 @@
               renderBovenwachtrij();
               updateWeergaveSwitch();
             }, (err) => {
-              console.error('[Amac Wachtrij] Bovenwachtrij kon niet geladen worden:', err);
+              console.error('[Amac Wachtrij] Winkelwachtrij kon niet geladen worden:', err);
               elBovenQueueContainer.innerHTML =
-                '<div class="boven-leeg"><strong>Bovenwachtrij kon niet geladen worden</strong><span>' +
+                '<div class="boven-leeg"><strong>Winkelwachtrij kon niet geladen worden</strong><span>' +
                 escapeHtml(err.message) + ' — controleer de Firebase-beveiligingsregels voor pad "bovenwachtrij".</span></div>';
             });
 
@@ -13825,7 +14275,7 @@
               bovenStatistiekItems.forEach((r) => {
                 if (r.afgerondOp && r.afgerondOp < grens) bovenStatsRef.child(r.key).remove();
               });
-            }, (err) => console.warn('[Amac Wachtrij] Bovenwachtrij-statistieken laden mislukt:', err));
+            }, (err) => console.warn('[Amac Wachtrij] Winkelwachtrij-statistieken laden mislukt:', err));
           }
         } else {
           elLoginOverlay.style.display = 'flex';
@@ -13855,7 +14305,7 @@
           queue = [];
           queueIndex.clear();   // anders staat alles er bij opnieuw inloggen dubbel in
           sameDayItems = [];
-          // NIEUW: Bovenwachtrij-state volledig wissen bij uitloggen. De
+          // NIEUW: Winkelwachtrij-state volledig wissen bij uitloggen. De
           // undo-buffer bevat tijdelijke klantinformatie en mag na uitloggen
           // per definitie niet blijven bestaan.
           bovenQueue = [];
@@ -13932,6 +14382,459 @@
       btn.innerHTML       = '<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg> Inloggen';
     }
   });
+
+  // ══════════════════════════════════════════════════════════════════
+  // NIEUW — Pauzeplanning: visuele tijdlijn (één werkdag, dit tabblad)
+  //
+  // Bewust volledig losgekoppeld van de rest van de app: geen Firebase, geen
+  // rapportage, geen enkele aanraking met wachtrijdata. Het team staat in een
+  // gewone array in het geheugen en is na een herlaadactie weg. Dat is geen
+  // tekortkoming maar de opzet: een pauzeschema geldt voor vandaag, en een
+  // schema van gisteren dat blijft rondslingeren is erger dan geen schema.
+  //
+  // Alleen verkoopmedewerkers. De andere functies hebben geen klantcontact,
+  // dus hoeft de bezetting daar niet omheen gepland te worden — daarom is de
+  // functiekeuze eruit. Dat maakte meteen de spreiding-over-functies zinloos
+  // (met één functie valt er niets te spreiden), dus die is er ook uit; code
+  // die nooit meer iets kan doen laten staan is erger dan hem weghalen.
+  // ══════════════════════════════════════════════════════════════════
+
+  const PAUZE_SLOTS = [
+    { label: '12:00 – 12:30', van: 12 * 60,      tot: 12 * 60 + 30 },
+    { label: '12:30 – 13:00', van: 12 * 60 + 30, tot: 13 * 60 },
+    { label: '13:00 – 13:30', van: 13 * 60,      tot: 13 * 60 + 30 },
+    { label: '13:30 – 14:00', van: 13 * 60 + 30, tot: 14 * 60 },
+  ];
+
+  let pauzeTeam = [];            // [{ id, naam, begin, eind }] in minuten
+  let pauzeVolgendId = 1;
+  let pauzeBewerktId = null;     // welk teamlid staat er in de invoerregel?
+  let pauzePlanning = null;      // { slots: [[id,...] x4], buiten: [id,...] }
+  let pauzeTerug = new Set();    // wie is er afgevinkt als "terug"
+
+  function pauzeNaarMinuten(waarde) {
+    const m = /^(\d{1,2}):(\d{2})$/.exec(String(waarde || '').trim());
+    if (!m) return null;
+    const u = parseInt(m[1], 10), min = parseInt(m[2], 10);
+    if (u > 23 || min > 59) return null;
+    return u * 60 + min;
+  }
+  function pauzeNaarTijd(minuten) {
+    return String(Math.floor(minuten / 60)).padStart(2, '0') + ':' +
+           String(minuten % 60).padStart(2, '0');
+  }
+
+  // Iemand mag een slot alleen krijgen als hij het HELE slot werkt. Eindigt
+  // de dienst om 13:00, dan valt 13:00-13:30 af; begint hij om 12:30, dan
+  // valt 12:00-12:30 af.
+  function pauzeGeschikteSlots(lid) {
+    const uit = [];
+    PAUZE_SLOTS.forEach((s, i) => {
+      if (lid.begin <= s.van && lid.eind >= s.tot) uit.push(i);
+    });
+    return uit;
+  }
+
+  function pauzeToonFout(tekst) {
+    const el = document.getElementById('pauze-fout');
+    el.textContent = tekst || '';
+    el.classList.toggle('zichtbaar', !!tekst);
+  }
+
+  function openPauzeplanning() {
+    document.getElementById('header-meer-menu').classList.remove('open');
+    document.getElementById('pauze-overlay').classList.add('open');
+    pauzeToonFout('');
+    pauzeRenderTeam();
+    pauzeRenderTijdlijn();
+  }
+
+  // ── Team bijhouden ────────────────────────────────────────────────────
+  function pauzeFormulierLeegmaken() {
+    pauzeBewerktId = null;
+    document.getElementById('pauze-naam').value = '';
+    document.getElementById('pauze-begin').value = '09:00';
+    document.getElementById('pauze-eind').value = '17:00';
+    document.getElementById('pauze-opslaan').textContent = 'Toevoegen';
+    pauzeToonFout('');
+  }
+
+  function pauzeOpslaanLid() {
+    const naam = document.getElementById('pauze-naam').value.trim();
+    const begin = pauzeNaarMinuten(document.getElementById('pauze-begin').value);
+    const eind = pauzeNaarMinuten(document.getElementById('pauze-eind').value);
+
+    if (!naam) { pauzeToonFout('Vul een naam in.'); return; }
+    if (begin === null || eind === null) { pauzeToonFout('Vul een geldige begin- en eindtijd in.'); return; }
+    if (eind <= begin) { pauzeToonFout('De eindtijd moet na de begintijd liggen.'); return; }
+
+    if (pauzeBewerktId !== null) {
+      const lid = pauzeTeam.find(l => l.id === pauzeBewerktId);
+      if (lid) Object.assign(lid, { naam, begin, eind });
+    } else {
+      pauzeTeam.push({ id: pauzeVolgendId++, naam, begin, eind });
+    }
+
+    // Werktijden gewijzigd of iemand erbij: een bestaande verdeling kan
+    // daardoor ongeldig zijn geworden. Liever niets tonen dan iets tonen wat
+    // niet meer klopt.
+    pauzePlanning = null;
+    pauzeTerug.clear();
+    pauzeFormulierLeegmaken();
+    pauzeRenderTeam();
+    pauzeRenderTijdlijn();
+    document.getElementById('pauze-naam').focus();
+  }
+
+  function pauzeBewerkLid(id) {
+    const lid = pauzeTeam.find(l => l.id === id);
+    if (!lid) return;
+    pauzeBewerktId = id;
+    document.getElementById('pauze-naam').value = lid.naam;
+    document.getElementById('pauze-begin').value = pauzeNaarTijd(lid.begin);
+    document.getElementById('pauze-eind').value = pauzeNaarTijd(lid.eind);
+    document.getElementById('pauze-opslaan').textContent = 'Opslaan';
+    pauzeToonFout('');
+    document.getElementById('pauze-naam').focus();
+  }
+
+  function pauzeVerwijderLid(id) {
+    pauzeTeam = pauzeTeam.filter(l => l.id !== id);
+    if (pauzeBewerktId === id) pauzeFormulierLeegmaken();
+    pauzePlanning = null;
+    pauzeTerug.clear();
+    pauzeRenderTeam();
+    pauzeRenderTijdlijn();
+  }
+
+  function pauzeRenderTeam() {
+    const chips = document.getElementById('pauze-chips');
+    document.getElementById('btn-pauze-verdeel').disabled = pauzeTeam.length === 0;
+    if (!pauzeTeam.length) {
+      chips.innerHTML = '<div class="pauze-slot-leeg" style="text-align:left;padding:4px 0">Nog niemand toegevoegd.</div>';
+      return;
+    }
+    chips.innerHTML = pauzeTeam.map(l => {
+      const kan = pauzeGeschikteSlots(l).length > 0;
+      return `<span class="pauze-chip${kan ? '' : ' is-buiten'}"${
+        kan ? '' : ' title="Werkt geen volledig pauzeslot tussen 12:00 en 14:00"'}>
+          <button type="button" class="pauze-chip-knop" onclick="pauzeBewerkLid(${l.id})">
+            <span class="pauze-chip-naam">${escapeHtml(l.naam)}</span>
+            <span class="pauze-chip-uren">${pauzeNaarTijd(l.begin)}–${pauzeNaarTijd(l.eind)}${kan ? '' : ' · geen pauze mogelijk'}</span>
+          </button>
+          <button type="button" class="pauze-chip-weg" onclick="pauzeVerwijderLid(${l.id})"
+                  aria-label="${escapeHtml(l.naam)} verwijderen">✕</button>
+        </span>`;
+    }).join('');
+  }
+
+  // ── De verdeling ──────────────────────────────────────────────────────
+  // Volgorde van belang: eerst geldig, dan zo evenwichtig mogelijk, en pas
+  // als meerdere verdelingen even goed zijn beslist het toeval.
+
+  function pauzeSchud(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  // Past iedereen met hoogstens `cap` personen per slot? Dit is een gewone
+  // augmenting-path-zoektocht: past iemand nergens meer, dan wordt geprobeerd
+  // een al geplaatste collega door te schuiven naar een ander slot waar hij
+  // ook mag staan. Daardoor vindt hij een oplossing die simpel "pak het
+  // leegste slot" zou missen.
+  function pauzeProbeerPlaatsing(leden, cap) {
+    const toewijzing = leden.map(() => -1);
+    const bezetting = PAUZE_SLOTS.map(() => 0);
+
+    function zoek(i, gezien) {
+      for (let k = 0; k < leden[i].slots.length; k++) {
+        const s = leden[i].slots[k];
+        if (gezien[s]) continue;
+        gezien[s] = true;
+        if (bezetting[s] < cap) { toewijzing[i] = s; bezetting[s]++; return true; }
+        for (let j = 0; j < leden.length; j++) {
+          if (toewijzing[j] !== s) continue;
+          toewijzing[j] = -1; bezetting[s]--;
+          if (zoek(j, gezien)) { toewijzing[i] = s; bezetting[s]++; return true; }
+          toewijzing[j] = s; bezetting[s]++;
+        }
+      }
+      return false;
+    }
+
+    for (let i = 0; i < leden.length; i++) {
+      if (!zoek(i, PAUZE_SLOTS.map(() => false))) return null;
+    }
+    return { toewijzing, bezetting };
+  }
+
+  function pauzeVerdeel() {
+    const buiten = [];
+    const beschikbaar = [];
+    pauzeTeam.forEach(l => {
+      const slots = pauzeGeschikteSlots(l);
+      if (slots.length) beschikbaar.push({ id: l.id, slots: pauzeSchud(slots) });
+      else buiten.push(l.id);
+    });
+
+    // Hier zit het toeval: gelijkwaardige oplossingen komen in wisselende
+    // volgorde uit de bus, maar de eisen hieronder gaan voor.
+    pauzeSchud(beschikbaar);
+
+    let plaatsing = null;
+    if (beschikbaar.length) {
+      // Kleinst haalbare maximum per slot: begin bij het theoretische
+      // minimum en loop op tot het past.
+      const ondergrens = Math.ceil(beschikbaar.length / PAUZE_SLOTS.length);
+      for (let cap = ondergrens; cap <= beschikbaar.length; cap++) {
+        plaatsing = pauzeProbeerPlaatsing(beschikbaar, cap);
+        if (plaatsing) break;
+      }
+    }
+
+    const toewijzing = plaatsing ? plaatsing.toewijzing : [];
+    const bezetting = plaatsing ? plaatsing.bezetting : PAUZE_SLOTS.map(() => 0);
+
+    // Het maximum staat nu vast op het laagst haalbare; nu het minimum
+    // omhoog. Iemand uit een voller slot verhuizen naar een leger slot waar
+    // hij ook mag staan, zolang dat het verschil echt kleiner maakt.
+    if (plaatsing) {
+      for (let ronde = 0; ronde < 200; ronde++) {
+        let verbeterd = false;
+        for (let i = 0; i < beschikbaar.length && !verbeterd; i++) {
+          const van = toewijzing[i];
+          for (let k = 0; k < beschikbaar[i].slots.length; k++) {
+            const naar = beschikbaar[i].slots[k];
+            if (naar !== van && bezetting[naar] + 1 < bezetting[van]) {
+              toewijzing[i] = naar; bezetting[van]--; bezetting[naar]++;
+              verbeterd = true; break;
+            }
+          }
+        }
+        if (!verbeterd) break;
+      }
+    }
+
+    const slots = PAUZE_SLOTS.map(() => []);
+    toewijzing.forEach((s, i) => { if (s >= 0) slots[s].push(beschikbaar[i].id); });
+
+    pauzeTerug.clear();
+    pauzePlanning = { slots, buiten, beschikbaar: beschikbaar.length };
+    pauzeRenderTijdlijn();
+  }
+
+  // ── Handmatig verplaatsen ─────────────────────────────────────────────
+  // Een verdeling is een voorstel, geen wet: de vloer weet dingen die dit
+  // schema niet weet. Verplaatsen mag daarom altijd — behalve naar een slot
+  // waarin iemand volgens zijn eigen werktijden niet kan, want dat is geen
+  // voorkeur maar een fout.
+  function pauzeVerplaats(id, naarSlot) {
+    if (!pauzePlanning) return false;
+    const lid = pauzeTeam.find(l => l.id === id);
+    if (!lid || pauzeGeschikteSlots(lid).indexOf(naarSlot) === -1) return false;
+    let veranderd = false;
+    pauzePlanning.slots.forEach((ids, i) => {
+      const pos = ids.indexOf(id);
+      if (pos === -1) return;
+      if (i === naarSlot) return;          // stond er al
+      ids.splice(pos, 1);
+      veranderd = true;
+    });
+    if (!veranderd) return false;
+    pauzePlanning.slots[naarSlot].push(id);
+    // Vanaf hier is dit niet meer de berekende verdeling. Dat moet blijken,
+    // want anders zou de app een scheve verdeling die de gebruiker zelf heeft
+    // gemaakt gaan uitleggen als "te weinig medewerkers" — en dat klopt dan
+    // niet meer.
+    pauzePlanning.handmatig = true;
+    pauzeRenderTijdlijn();
+    return true;
+  }
+
+  // Slepen met Pointer Events, niet met de HTML5-drag-API: die laatste doet
+  // op een aanraakscherm helemaal niets, en dit scherm staat op de balie-iPad.
+  // Zo werkt hetzelfde gebaar met muis, vinger en Pencil.
+  let pauzeSleep = null;
+
+  function pauzeSleepStart(ev, id) {
+    if (ev.button !== undefined && ev.button !== 0) return;      // alleen linksklik
+    if (ev.target.closest('.pauze-terug')) return;               // vinkje is geen greep
+    const lid = pauzeTeam.find(l => l.id === id);
+    if (!lid || !pauzePlanning) return;
+    const kaart = ev.currentTarget;
+    pauzeSleep = {
+      id, kaart, beeld: null, doelSlot: null,
+      startX: ev.clientX, startY: ev.clientY, actief: false,
+      mag: pauzeGeschikteSlots(lid),
+      naam: lid.naam, uren: pauzeNaarTijd(lid.begin) + '–' + pauzeNaarTijd(lid.eind),
+    };
+    try { kaart.setPointerCapture(ev.pointerId); } catch (err) { /* oudere browsers */ }
+  }
+
+  function pauzeSleepBeweeg(ev) {
+    if (!pauzeSleep) return;
+    const dx = ev.clientX - pauzeSleep.startX, dy = ev.clientY - pauzeSleep.startY;
+    // Pas na een paar pixels wordt het een sleep. Zonder die drempel wordt
+    // elke tik op een kaartje al een mislukte verplaatsing.
+    if (!pauzeSleep.actief) {
+      if (dx * dx + dy * dy < 36) return;
+      pauzeSleep.actief = true;
+      ev.preventDefault();
+      pauzeSleep.kaart.classList.add('is-opgepakt');
+      const beeld = document.createElement('div');
+      beeld.className = 'pauze-sleepbeeld';
+      beeld.innerHTML = escapeHtml(pauzeSleep.naam) + '<small>' + escapeHtml(pauzeSleep.uren) + '</small>';
+      document.body.appendChild(beeld);
+      pauzeSleep.beeld = beeld;
+      // Meteen laten zien wáár hij heen mag en waar niet.
+      document.querySelectorAll('#pauze-uitkomst .pauze-slot').forEach((el, i) => {
+        el.classList.add(pauzeSleep.mag.indexOf(i) === -1 ? 'is-geblokkeerd' : 'is-doelwit');
+      });
+    }
+    ev.preventDefault();
+    pauzeSleep.beeld.style.left = ev.clientX + 'px';
+    pauzeSleep.beeld.style.top = ev.clientY + 'px';
+
+    // Welk slot ligt er onder de aanwijzer? elementFromPoint werkt met muis
+    // én vinger, en het sleepbeeld heeft pointer-events:none, dus dat zit
+    // er niet zelf voor.
+    const onder = document.elementFromPoint(ev.clientX, ev.clientY);
+    const slot = onder ? onder.closest('#pauze-uitkomst .pauze-slot') : null;
+    const index = slot ? parseInt(slot.dataset.slot, 10) : -1;
+    const geldig = index >= 0 && pauzeSleep.mag.indexOf(index) !== -1;
+    if (pauzeSleep.doelSlot !== (geldig ? index : null)) {
+      document.querySelectorAll('#pauze-uitkomst .pauze-slot').forEach(el => el.classList.remove('is-onder-muis'));
+      pauzeSleep.doelSlot = geldig ? index : null;
+      if (geldig) slot.classList.add('is-onder-muis');
+    }
+  }
+
+  function pauzeSleepStop(ev) {
+    if (!pauzeSleep) return;
+    const s = pauzeSleep;
+    pauzeSleep = null;
+    if (ev && s.kaart) { try { s.kaart.releasePointerCapture(ev.pointerId); } catch (err) { /* niet nodig */ } }
+    if (s.beeld) s.beeld.remove();
+    document.querySelectorAll('#pauze-uitkomst .pauze-slot').forEach(el => {
+      el.classList.remove('is-doelwit', 'is-onder-muis', 'is-geblokkeerd');
+    });
+    if (s.kaart) s.kaart.classList.remove('is-opgepakt');
+    if (s.actief && s.doelSlot !== null) pauzeVerplaats(s.id, s.doelSlot);
+  }
+
+  // ── Weergave ──────────────────────────────────────────────────────────
+  function pauzeZetTerug(id, aan) {
+    if (aan) pauzeTerug.add(id); else pauzeTerug.delete(id);
+    const rij = document.getElementById('pauze-persoon-' + id);
+    if (rij) rij.classList.toggle('is-terug', aan);
+  }
+
+  function pauzeRenderTijdlijn() {
+    const doel = document.getElementById('pauze-uitkomst');
+    if (!pauzePlanning) {
+      doel.innerHTML = '<div class="pauze-slot-leeg">' + (pauzeTeam.length
+        ? 'Nog niet verdeeld — klik op “Verdeel pauzes”.'
+        : 'Voeg eerst verkoopmedewerkers toe.') + '</div>';
+      return;
+    }
+
+    const aantallen = pauzePlanning.slots.map(s => s.length);
+    const laagste = Math.min.apply(null, aantallen);
+    const hoogste = Math.max.apply(null, aantallen);
+    const n = pauzePlanning.beschikbaar;
+    const nodig = PAUZE_SLOTS.length * 2;
+
+    // Waarom het niet 2-3 per slot is geworden. Twee oorzaken kunnen tegelijk
+    // spelen - te weinig mensen en te krappe werktijden - en dan horen ze er
+    // ook allebei te staan, met de echte getallen erbij.
+    const beperkt = pauzePlanning.slots.reduce((s, ids) => s.concat(ids), [])
+      .map(id => pauzeTeam.find(x => x.id === id))
+      .filter(l => l && pauzeGeschikteSlots(l).length < PAUZE_SLOTS.length).length;
+
+    let melding = '';
+    if (n === 0) {
+      melding = `<div class="pauze-melding is-let-op">Niemand werkt een volledig pauzeslot, dus er valt niets te verdelen.</div>`;
+    } else if (pauzePlanning.handmatig) {
+      // Zelf verschoven: dan hoort de app niet uit te leggen waarom het
+      // scheef staat. Dat weet de gebruiker zelf het beste.
+      melding = `<div class="pauze-melding is-info">Handmatig aangepast. Klik op “Verdeel pauzes” voor een nieuwe evenwichtige verdeling.</div>`;
+    } else if (laagste < 2 || hoogste - laagste > 1) {
+      const redenen = [];
+      if (n < nodig) redenen.push(`voor 2 per slot zijn er ${nodig} nodig en er zijn er ${n} beschikbaar`);
+      if (beperkt > 0 && hoogste - laagste > 1) {
+        redenen.push(`${beperkt === 1 ? 'één medewerker past' : beperkt + ' medewerkers passen'} door de werktijden maar in een deel van de slots`);
+      }
+      melding = `<div class="pauze-melding is-let-op">Niet genoeg medewerkers beschikbaar voor een gelijke verdeling${
+        redenen.length ? ' — ' + redenen.join(', en ') : ''}. Dit is de best mogelijke evenwichtige verdeling.</div>`;
+    } else if (hoogste > 3) {
+      melding = `<div class="pauze-melding is-info">Meer dan 3 per slot: met ${n} beschikbare medewerkers passen er niet minder in vier slots.</div>`;
+    }
+
+    const sporen = PAUZE_SLOTS.map((slot, i) => {
+      const ids = pauzePlanning.slots[i];
+      const kaarten = ids.length
+        ? ids.map(id => {
+            const l = pauzeTeam.find(x => x.id === id);
+            if (!l) return '';
+            const terug = pauzeTerug.has(id);
+            return `<div class="pauze-persoon${terug ? ' is-terug' : ''}" id="pauze-persoon-${id}"
+                     onpointerdown="pauzeSleepStart(event, ${id})"
+                     onpointermove="pauzeSleepBeweeg(event)"
+                     onpointerup="pauzeSleepStop(event)"
+                     onpointercancel="pauzeSleepStop(event)"
+                     title="Sleep naar een ander pauzeslot">
+                <svg class="pauze-greep" aria-hidden="true" width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="2.5" cy="2.5" r="1.5"/><circle cx="7.5" cy="2.5" r="1.5"/><circle cx="2.5" cy="7" r="1.5"/><circle cx="7.5" cy="7" r="1.5"/><circle cx="2.5" cy="11.5" r="1.5"/><circle cx="7.5" cy="11.5" r="1.5"/></svg>
+                <span class="pauze-persoon-tekst">
+                  <span class="pauze-persoon-naam">${escapeHtml(l.naam)}</span>
+                  <span class="pauze-persoon-meta">${pauzeNaarTijd(l.begin)}–${pauzeNaarTijd(l.eind)}</span>
+                </span>
+                <label class="pauze-terug">
+                  <input type="checkbox" ${terug ? 'checked' : ''}
+                         onchange="pauzeZetTerug(${id}, this.checked)"
+                         aria-label="${escapeHtml(l.naam)} is terug van pauze" />
+                  Terug
+                </label>
+              </div>`;
+          }).join('')
+        : '<div class="pauze-slot-leeg">Leeg</div>';
+      return `<div class="pauze-slot" data-slot="${i}">
+          <div class="pauze-slot-kop">
+            <span>${slot.label}</span>
+            <span class="pauze-slot-aantal">${ids.length}</span>
+          </div>
+          ${kaarten}
+        </div>`;
+    }).join('');
+
+    let buitenHtml = '';
+    if (pauzePlanning.buiten.length) {
+      const regels = pauzePlanning.buiten.map(id => {
+        const l = pauzeTeam.find(x => x.id === id);
+        return l ? `<strong>${escapeHtml(l.naam)}</strong> (${pauzeNaarTijd(l.begin)}–${pauzeNaarTijd(l.eind)})` : '';
+      }).filter(Boolean).join(', ');
+      buitenHtml = `<div class="pauze-buiten">Geen pauzeslot mogelijk door de werktijden: ${regels}.
+        De pauzes lopen van 12:00 tot 14:00 en iemand moet een heel slot werken om het te krijgen.</div>`;
+    }
+
+    doel.innerHTML = melding + '<div class="pauze-sporen">' + sporen + '</div>' + buitenHtml;
+  }
+
+  document.getElementById('pauze-form').addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    pauzeOpslaanLid();
+  });
+  // Vangnet: laat de muisknop los buiten een kaartje, dan hoort de sleep ook
+  // te eindigen in plaats van te blijven hangen.
+  window.addEventListener('pointerup', function (ev) { if (pauzeSleep) pauzeSleepStop(ev); });
+  // Escape tijdens het slepen breekt alleen de sleep af. In de capture-fase,
+  // want de modal-afhandeling luistert ook op Escape en zou het venster
+  // sluiten; die kijkt naar defaultPrevented en laat het dan met rust.
+  window.addEventListener('keydown', function (ev) {
+    if (ev.key === 'Escape' && pauzeSleep) { ev.preventDefault(); pauzeSleepStop(null); }
+  }, true);
 
   // ── Uitloggen ──
   function uitloggen() {
