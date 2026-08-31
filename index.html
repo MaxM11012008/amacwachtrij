@@ -2860,19 +2860,11 @@
       .boven-kolom-lijst { flex: 1; min-width: 0; }
     }
     /* ══════════════════════════════════════════════════════════════════
-       NIEUW — Pauzeplanning: visuele tijdlijn
-       Staat volledig los van de wachtrijen: geen Firebase, geen rapportage,
-       geen koppeling met klantdata. De planning leeft alleen in het geheugen
-       van dit tabblad en is na een herlaadactie weg — dat is de bedoeling,
-       het gaat over één werkdag.
-
-       Alleen verkoopmedewerkers: de andere functies hebben geen klantcontact
-       en hoeven dus niet om de bezetting heen gepland te worden. Daarom staat
-       er geen functiekeuze meer in het formulier.
+       NIEUW — Pauzeplanning
+       Eén werkdag, gedeeld over alle apparaten via het bestaande
+       dagstatistieken-pad. Geen nieuw Firebase-pad, dus ook geen nieuwe
+       beveiligingsregel nodig.
        ══════════════════════════════════════════════════════════════════ */
-    /* De tijdlijn heeft vier kolommen naast elkaar; in de standaardbreedte
-       van een modal (620px) viel de laatste kolom half buiten beeld. */
-    .modal-card.pauze-kaart { max-width: 900px; }
     .header-meer-menu .pauze-control { display: flex; align-items: center; gap: 8px; }
     .header-meer-menu .pauze-control::after {
       content: 'Pauzeplanning'; font-size: 12px; font-weight: 600;
@@ -2886,69 +2878,100 @@
     }
     .header-meer-menu .btn-pauze:hover { background: var(--primary-light); color: var(--primary); }
 
-    /* ── Toevoegen: één regel, geen formulier-blok ── */
-    .pauze-toevoegrij { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-    .pauze-toevoegrij input[type="text"] { flex: 1 1 150px; min-width: 0; }
-    .pauze-toevoegrij input[type="time"] { flex: 0 0 auto; width: 104px; }
-    .pauze-pijl { color: var(--muted); font-size: 12px; flex-shrink: 0; }
+    /* De tijdlijn heeft vier kolommen naast elkaar; in de standaardbreedte
+       van een modal (620px) viel de laatste kolom half buiten beeld. */
+    .modal-card.pauze-kaart { max-width: 900px; }
+
+    .pauze-sectiekop {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 10px; flex-wrap: wrap; margin-bottom: 8px;
+    }
+    .pauze-sectiekop h3 {
+      font-size: 12px; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.03em;
+    }
+    .pauze-sectiekop-meta { font-size: 11px; color: var(--muted); }
+    .pauze-blok + .pauze-blok { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+    /* ── Toevoegen ── */
+    .pauze-toevoegrij { display: grid; gap: 8px; grid-template-columns: 1fr; }
+    @media (min-width: 640px) {
+      .pauze-toevoegrij {
+        grid-template-columns: minmax(0,1.3fr) minmax(0,1fr) 104px 104px auto;
+        align-items: end;
+      }
+    }
+    .pauze-veld { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .pauze-veld label { font-size: 11px; font-weight: 600; color: var(--muted); }
     .btn-pauze-toevoegen {
-      min-height: 38px; padding: 8px 16px; border-radius: var(--radius);
+      min-height: 44px; padding: 10px 18px; border-radius: var(--radius);
       border: none; background: var(--primary); color: #fff;
       font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer;
-      white-space: nowrap; flex-shrink: 0;
+      white-space: nowrap;
     }
     .btn-pauze-toevoegen:hover { background: var(--primary-hover); }
     .pauze-fout {
-      width: 100%; font-size: 12px; color: var(--danger);
-      background: var(--danger-light); border-radius: 6px; padding: 7px 10px;
+      grid-column: 1 / -1; font-size: 12px; color: var(--danger);
+      background: var(--danger-light); border-radius: 6px; padding: 8px 11px;
       display: none;
     }
     .pauze-fout.zichtbaar { display: block; }
-    .pauze-hint { font-size: 11px; color: var(--muted); margin-top: 6px; line-height: 1.45; }
+    .pauze-hint { font-size: 11px; color: var(--muted); margin-top: 7px; line-height: 1.45; }
 
-    /* ── Team als chips: compacter en sneller te scannen dan een lijst met
-         knoppen. Klik de chip om te bewerken, het kruisje om te verwijderen. ── */
-    .pauze-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-    .pauze-chip {
-      display: inline-flex; align-items: center; gap: 7px;
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 999px; padding: 5px 6px 5px 12px;
-      font-size: 12px; min-height: 34px;
+    /* ── Teamlijst ── */
+    .pauze-teamlijst { display: flex; flex-direction: column; gap: 5px; }
+    .pauze-teamrij {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      background: var(--bg); border: 1px solid transparent;
+      border-radius: 8px; padding: 8px 10px; min-height: 44px;
     }
-    .pauze-chip-knop {
-      background: none; border: none; padding: 0; font: inherit; color: var(--text);
-      cursor: pointer; display: inline-flex; align-items: baseline; gap: 6px;
+    .pauze-teamrij.is-buiten { border-style: dashed; border-color: var(--border); opacity: 0.72; }
+    .pauze-teamnaam {
+      font-size: 13px; font-weight: 700; min-width: 0;
+      overflow-wrap: anywhere; flex: 1 1 140px;
     }
-    .pauze-chip-knop:hover { color: var(--primary); }
-    .pauze-chip-naam { font-weight: 700; }
-    .pauze-chip-uren { color: var(--muted); font-size: 11px; }
-    .pauze-chip.is-buiten { opacity: 0.6; border-style: dashed; }
-    .pauze-chip-weg {
-      background: none; border: none; cursor: pointer; color: var(--muted);
-      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center; font-size: 14px;
-      line-height: 1; padding: 0;
+    .pauze-teamfunctie {
+      font-size: 11px; font-weight: 600; color: var(--primary);
+      background: var(--primary-light); border-radius: 999px; padding: 2px 8px;
+      white-space: nowrap; flex-shrink: 0;
     }
-    .pauze-chip-weg:hover { background: var(--danger-light); color: var(--danger); }
+    .pauze-teamuren {
+      font-size: 11px; color: var(--muted); white-space: nowrap;
+      font-variant-numeric: tabular-nums; flex-shrink: 0;
+    }
+    .pauze-teamwaarschuwing { font-size: 11px; color: var(--warning); flex-basis: 100%; }
+    .pauze-teamacties { display: flex; gap: 4px; margin-left: auto; flex-shrink: 0; }
+    .btn-pauze-mini {
+      min-height: 36px; min-width: 36px; padding: 6px 10px; border-radius: 7px;
+      border: 1px solid var(--border); background: var(--card);
+      font-size: 12px; font-weight: 600; font-family: inherit; cursor: pointer;
+      color: var(--text);
+    }
+    .btn-pauze-mini:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-pauze-mini.is-verwijder:hover { border-color: var(--danger); color: var(--danger); }
 
+    .pauze-knoprij { display: flex; gap: 8px; flex-wrap: wrap; }
     .btn-pauze-verdeel {
-      width: 100%; min-height: 46px; padding: 12px 18px; margin-top: 14px;
+      flex: 1 1 220px; min-height: 48px; padding: 12px 18px;
       border-radius: var(--radius); border: none;
       background: var(--primary); color: #fff;
       font-size: 14px; font-weight: 800; font-family: inherit; cursor: pointer;
     }
     .btn-pauze-verdeel:hover:not(:disabled) { background: var(--primary-hover); }
     .btn-pauze-verdeel:disabled { opacity: 0.45; cursor: not-allowed; }
-
-    /* ── De tijdlijn ──
-       Vier blokken naast elkaar met een doorlopende as eronder, zodat in één
-       oogopslag te zien is dat het één aaneengesloten venster van 12:00 tot
-       14:00 is en niet vier losse hokjes. Onder 720px klapt hij naar één
-       kolom: vier kolommen op een telefoon maakt de namen onleesbaar. */
-    .pauze-tijdlijn { margin-top: 6px; }
-    .pauze-as {
-      display: none; position: relative; height: 20px; margin: 0 0 6px;
+    .btn-pauze-tweede {
+      min-height: 48px; padding: 12px 18px; border-radius: var(--radius);
+      border: 1px solid var(--border); background: var(--card); color: var(--text);
+      font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer;
     }
+    .btn-pauze-tweede:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+    .btn-pauze-tweede:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    /* ── De vier slots ──
+       Vanaf 720px naast elkaar met een doorlopende as erboven, zodat te zien
+       is dat het één venster van 12:00 tot 14:00 is. Daaronder in één kolom:
+       vier kolommen op een telefoon maakt de namen onleesbaar. */
+    .pauze-as { display: none; position: relative; height: 20px; margin-bottom: 6px; }
     .pauze-as::before {
       content: ''; position: absolute; left: 0; right: 0; top: 9px;
       height: 2px; background: var(--border);
@@ -2956,55 +2979,74 @@
     .pauze-as span {
       position: absolute; top: 0; transform: translateX(-50%);
       font-size: 10px; font-weight: 700; color: var(--muted);
-      background: var(--card); padding: 0 4px;
+      background: var(--card); padding: 0 4px; font-variant-numeric: tabular-nums;
     }
     .pauze-sporen { display: grid; gap: 10px; grid-template-columns: 1fr; }
-    @media (min-width: 720px) {
+    @media (min-width: 560px) {
+      .pauze-sporen { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (min-width: 900px) {
       .pauze-as { display: block; }
-      .pauze-sporen { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+      .pauze-sporen { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
     }
 
     .pauze-slot {
       border: 1.5px solid var(--border); border-radius: 10px;
-      background: var(--card); padding: 9px 10px 10px;
-      display: flex; flex-direction: column; gap: 6px;
-      transition: border-color 0.12s, background 0.12s, box-shadow 0.12s;
-      min-height: 96px;
+      background: var(--bg); padding: 0 0 10px;
+      display: flex; flex-direction: column;
+      transition: border-color 0.12s, box-shadow 0.12s;
+      min-height: 104px;
     }
     .pauze-slot-kop {
       display: flex; align-items: baseline; justify-content: space-between; gap: 6px;
-      font-size: 12.5px; font-weight: 800;
+      padding: 9px 11px 8px; border-bottom: 1px solid var(--border);
+      margin-bottom: 8px; background: var(--card);
+      border-radius: 8px 8px 0 0;
     }
-    .pauze-slot-aantal { font-size: 10.5px; font-weight: 700; color: var(--muted); }
+    .pauze-slot-tijd { font-size: 13px; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .pauze-slot-aantal { font-size: 10.5px; font-weight: 700; color: var(--muted); white-space: nowrap; }
+    .pauze-slot-lijst { display: flex; flex-direction: column; gap: 6px; padding: 0 8px; }
     .pauze-slot-leeg {
       font-size: 11.5px; color: var(--muted); font-style: italic;
-      padding: 8px 0; text-align: center;
+      padding: 10px 8px; text-align: center;
     }
-    /* Sleepstatus: alleen de slots waar deze persoon volgens zijn werktijden
-       IN MAG, lichten op. De rest wordt zichtbaar uitgeschakeld — dat scheelt
-       een mislukte poging en de vraag waarom het niet lukte. */
+    /* Bezetting: hoeveel mensen staan er tijdens dit slot nog op de vloer? */
+    .pauze-slot-dekking {
+      font-size: 10.5px; color: var(--muted); padding: 8px 11px 0;
+      border-top: 1px solid var(--border); margin-top: 8px;
+    }
+    .pauze-slot-dekking.is-krap { color: var(--warning); font-weight: 700; }
+
     .pauze-slot.is-doelwit { border-color: var(--primary); border-style: dashed; }
     .pauze-slot.is-onder-muis {
       border-color: var(--primary); border-style: solid;
-      background: var(--primary-light);
-      box-shadow: 0 0 0 3px rgba(26,61,124,0.12);
+      box-shadow: 0 0 0 3px rgba(26,61,124,0.14);
     }
     .pauze-slot.is-geblokkeerd { opacity: 0.4; }
 
     .pauze-persoon {
       display: flex; align-items: center; gap: 8px;
-      background: var(--bg); border: 1px solid var(--border);
-      border-radius: 8px; padding: 7px 9px;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 9px; min-height: 44px;
       cursor: grab; touch-action: none; -webkit-user-select: none; user-select: none;
       -webkit-tap-highlight-color: transparent;
     }
     .pauze-persoon:active { cursor: grabbing; }
     .pauze-persoon-tekst { min-width: 0; flex: 1; }
-    .pauze-persoon-naam { font-size: 12.5px; font-weight: 700; display: block; }
-    .pauze-persoon-meta { font-size: 10.5px; color: var(--muted); display: block; }
+    .pauze-persoon-naam {
+      font-size: 12.5px; font-weight: 700; display: block; overflow-wrap: anywhere;
+    }
+    .pauze-persoon-meta {
+      font-size: 10.5px; color: var(--muted); display: block;
+      font-variant-numeric: tabular-nums;
+    }
+    /* break-word en niet anywhere: een lange functienaam breekt pas af als hij
+       echt niet past (vier smalle kolommen), en blijft heel zodra er ruimte
+       is. Met anywhere zou hij ook in een brede kolom middenin breken. */
+    .pauze-persoon-meta span { display: block; overflow-wrap: break-word; }
+    .pauze-persoon-meta .pauze-persoon-uren { opacity: 0.9; }
     .pauze-greep { color: var(--border); flex-shrink: 0; }
     .pauze-persoon.is-opgepakt { opacity: 0.35; }
-    /* Het meebewegende kaartje onder de vinger/muis. */
     .pauze-sleepbeeld {
       position: fixed; z-index: 1500; pointer-events: none;
       background: var(--card); border: 1.5px solid var(--primary);
@@ -3015,29 +3057,46 @@
     }
     .pauze-sleepbeeld small { display: block; font-size: 10.5px; font-weight: 600; color: var(--muted); }
 
-    /* "Terug" is puur een afvinkstatus voor de vloer — hij verandert niets
-       aan de planning en wordt nergens bewaard. */
+    /* "Terug" is een afvinkstatus voor de vloer: hij verandert niets aan de
+       planning zelf. Aangevinkt dempt de naam, zodat in één oogopslag te zien
+       is wie er nog weg is. */
     .pauze-terug {
       display: flex; align-items: center; gap: 5px; flex-shrink: 0;
       font-size: 10.5px; font-weight: 700; color: var(--muted); cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
+      -webkit-tap-highlight-color: transparent; padding: 4px 2px;
     }
-    .pauze-terug input { width: 17px; height: 17px; accent-color: var(--success); cursor: pointer; }
+    .pauze-terug input { width: 18px; height: 18px; accent-color: var(--success); cursor: pointer; }
     .pauze-persoon.is-terug { background: var(--success-light); border-color: #bfe6cd; }
     .pauze-persoon.is-terug .pauze-persoon-naam { text-decoration: line-through; color: var(--muted); }
+    .pauze-persoon.is-terug .pauze-persoon-meta { opacity: 0.75; }
     .pauze-persoon.is-terug .pauze-terug { color: var(--success); }
 
     .pauze-melding {
       font-size: 12px; line-height: 1.5; border-radius: 8px;
-      padding: 9px 12px; margin-bottom: 10px;
+      padding: 10px 12px; margin-bottom: 10px;
     }
     .pauze-melding.is-let-op { background: var(--warning-light); color: var(--warning); }
     .pauze-melding.is-info   { background: var(--primary-light); color: var(--primary); }
     .pauze-buiten {
       margin-top: 10px; font-size: 11.5px; color: var(--muted);
-      background: var(--bg); border-radius: 8px; padding: 9px 12px; line-height: 1.5;
+      background: var(--bg); border-radius: 8px; padding: 10px 12px; line-height: 1.55;
     }
     .pauze-buiten strong { color: var(--text); }
+
+    /* Lege staat: vriendelijk en met de eerstvolgende stap erin. */
+    .pauze-leeg {
+      text-align: center; padding: 26px 18px; color: var(--muted);
+      background: var(--bg); border-radius: 10px;
+    }
+    .pauze-leeg-titel { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .pauze-leeg-tekst { font-size: 12px; line-height: 1.55; }
+
+    /* Synchronisatiestatus: alleen zichtbaar als er iets te melden valt. */
+    .pauze-sync {
+      font-size: 11px; color: var(--muted); margin-top: 10px;
+      display: flex; align-items: center; gap: 6px; line-height: 1.45;
+    }
+    .pauze-sync.is-fout { color: var(--warning); }
 
     /* ══════════════════════════════════════════════════════════════════
        Aanraakbediening en bewegingsgevoeligheid
@@ -4169,33 +4228,69 @@
   </div>
 </div>
 
-<div class="modal-overlay" role="dialog" aria-modal="true" id="pauze-overlay">
+<div class="modal-overlay" role="dialog" aria-modal="true" id="pauze-overlay" aria-labelledby="pauze-titel">
   <div class="modal-card pauze-kaart">
     <div class="modal-header">
-      <span>☕ Pauzeplanning</span>
+      <span id="pauze-titel">☕ Pauzeplanning</span>
       <button type="button" onclick="sluitModal('pauze-overlay')" aria-label="Sluiten">✕</button>
     </div>
     <div class="modal-body">
 
-      <form id="pauze-form" novalidate>
-        <div class="pauze-toevoegrij">
-          <input type="text" id="pauze-naam" maxlength="40" autocomplete="off"
-                 placeholder="Naam verkoopmedewerker" aria-label="Naam verkoopmedewerker" />
-          <input type="time" id="pauze-begin" value="09:00" step="300" aria-label="Begintijd" />
-          <span class="pauze-pijl" aria-hidden="true">→</span>
-          <input type="time" id="pauze-eind" value="17:00" step="300" aria-label="Eindtijd" />
-          <button type="submit" class="btn-pauze-toevoegen" id="pauze-opslaan">Toevoegen</button>
-          <div class="pauze-fout" id="pauze-fout" role="alert"></div>
+      <div class="pauze-blok">
+        <div class="pauze-sectiekop">
+          <h3>Teamlid toevoegen</h3>
         </div>
-      </form>
-      <div class="pauze-hint">Alleen verkoopmedewerkers — de andere functies hebben geen klantcontact.
-        Klik een naam om de tijden te wijzigen.</div>
+        <form id="pauze-form" novalidate>
+          <div class="pauze-toevoegrij">
+            <div class="pauze-veld">
+              <label for="pauze-naam">Naam</label>
+              <input type="text" id="pauze-naam" maxlength="40" autocomplete="off" placeholder="Naam" />
+            </div>
+            <div class="pauze-veld">
+              <label for="pauze-functie">Functie</label>
+              <select id="pauze-functie">
+                <option value="Verkoopmedewerker">Verkoopmedewerker</option>
+                <option value="Balie">Balie</option>
+                <option value="Technician">Technician</option>
+                <option value="Logistiek">Logistiek</option>
+              </select>
+            </div>
+            <div class="pauze-veld">
+              <label for="pauze-begin">Van</label>
+              <input type="time" id="pauze-begin" value="09:00" step="300" />
+            </div>
+            <div class="pauze-veld">
+              <label for="pauze-eind">Tot</label>
+              <input type="time" id="pauze-eind" value="17:00" step="300" />
+            </div>
+            <button type="submit" class="btn-pauze-toevoegen" id="pauze-opslaan">Toevoegen</button>
+            <div class="pauze-fout" id="pauze-fout" role="alert"></div>
+          </div>
+        </form>
+        <div class="pauze-hint">Klik op een naam om de gegevens te wijzigen. De planning geldt voor vandaag en is op elk apparaat hetzelfde.</div>
+      </div>
 
-      <div class="pauze-chips" id="pauze-chips"></div>
+      <div class="pauze-blok">
+        <div class="pauze-sectiekop">
+          <h3>Team</h3>
+          <span class="pauze-sectiekop-meta" id="pauze-team-meta"></span>
+        </div>
+        <div class="pauze-teamlijst" id="pauze-teamlijst"></div>
+      </div>
 
-      <button type="button" class="btn-pauze-verdeel" id="btn-pauze-verdeel" onclick="pauzeVerdeel()">Verdeel pauzes</button>
+      <div class="pauze-blok">
+        <div class="pauze-knoprij">
+          <button type="button" class="btn-pauze-verdeel" id="btn-pauze-verdeel" onclick="pauzeVerdeel()">Verdeel pauzes</button>
+          <button type="button" class="btn-pauze-tweede" id="btn-pauze-wis" onclick="pauzeWisPlanning()">Planning wissen</button>
+        </div>
+        <div class="pauze-sync" id="pauze-sync" style="display:none"></div>
+      </div>
 
-      <div class="pauze-tijdlijn">
+      <div class="pauze-blok">
+        <div class="pauze-sectiekop">
+          <h3>Pauzeslots</h3>
+          <span class="pauze-sectiekop-meta">12:00 – 14:00</span>
+        </div>
         <div class="pauze-as" aria-hidden="true">
           <span style="left:0%">12:00</span>
           <span style="left:25%">12:30</span>
@@ -14214,6 +14309,11 @@
             // halen. berekenDagoverzicht() leest hier synchroon uit.
             firebase.database().ref('dagstatistieken').on('value', (snap) => {
               dagStatistieken = snap.val() || {};
+              // De pauzeplanning hangt onder dit pad. Deze ene regel is de
+              // hele cross-device-koppeling: past een collega het schema op
+              // een ander apparaat aan, dan komt het hier binnen via de
+              // listener die er toch al lag.
+              if (typeof pauzeVerversVanBuiten === 'function') pauzeVerversVanBuiten();
             }, (err) => console.warn('[Amac Wachtrij] Dagstatistieken laden mislukt:', err));
 
             // Dagelijkse zelfcontrole: één keer kort na inloggen proberen, daarna
@@ -14384,19 +14484,21 @@
   });
 
   // ══════════════════════════════════════════════════════════════════
-  // NIEUW — Pauzeplanning: visuele tijdlijn (één werkdag, dit tabblad)
+  // NIEUW — Pauzeplanning
   //
-  // Bewust volledig losgekoppeld van de rest van de app: geen Firebase, geen
-  // rapportage, geen enkele aanraking met wachtrijdata. Het team staat in een
-  // gewone array in het geheugen en is na een herlaadactie weg. Dat is geen
-  // tekortkoming maar de opzet: een pauzeschema geldt voor vandaag, en een
-  // schema van gisteren dat blijft rondslingeren is erger dan geen schema.
+  // OPSLAG. De planning staat in `dagstatistieken/<datum>/pauzeplanning`.
+  // Dat is bewust geen nieuw Firebase-pad: `dagstatistieken` wordt al
+  // beschreven (backlog bij sluiting, voorspelling, evaluatie) én er ligt al
+  // een live listener op die `dagStatistieken` bijhoudt. Daardoor is de
+  // planning zonder één extra abonnement of beveiligingsregel op elk
+  // apparaat hetzelfde, overleeft hij een herlaadactie, en zien twee
+  // tabbladen elkaars wijzigingen. De datum in het pad zorgt dat het schema
+  // van gisteren vanzelf uit beeld is.
   //
-  // Alleen verkoopmedewerkers. De andere functies hebben geen klantcontact,
-  // dus hoeft de bezetting daar niet omheen gepland te worden — daarom is de
-  // functiekeuze eruit. Dat maakte meteen de spreiding-over-functies zinloos
-  // (met één functie valt er niets te spreiden), dus die is er ook uit; code
-  // die nooit meer iets kan doen laten staan is erger dan hem weghalen.
+  // Lukt schrijven niet (bijvoorbeeld door leesrechten), dan blijft de
+  // planning gewoon werken in dit tabblad en staat er één regel bij waarom
+  // hij niet gedeeld wordt. Beter een planning die alleen hier klopt dan
+  // helemaal geen planning.
   // ══════════════════════════════════════════════════════════════════
 
   const PAUZE_SLOTS = [
@@ -14405,12 +14507,20 @@
     { label: '13:00 – 13:30', van: 13 * 60,      tot: 13 * 60 + 30 },
     { label: '13:30 – 14:00', van: 13 * 60 + 30, tot: 14 * 60 },
   ];
+  const PAUZE_FUNCTIES = ['Verkoopmedewerker', 'Balie', 'Technician', 'Logistiek'];
 
-  let pauzeTeam = [];            // [{ id, naam, begin, eind }] in minuten
-  let pauzeVolgendId = 1;
-  let pauzeBewerktId = null;     // welk teamlid staat er in de invoerregel?
-  let pauzePlanning = null;      // { slots: [[id,...] x4], buiten: [id,...] }
-  let pauzeTerug = new Set();    // wie is er afgevinkt als "terug"
+  let pauzeTeam = [];            // [{ id, naam, functie, begin, eind }] in minuten
+  let pauzeSlots = null;         // [[id,...] x4] of null = nog niet verdeeld
+  let pauzeTerug = {};           // { id: true }
+  let pauzeBewerktId = null;
+  let pauzeHandmatig = false;    // is er met de hand versleept sinds het verdelen?
+  let pauzeSyncFout = '';
+  // Wat er als laatste is geschreven of gelezen. Onze eigen schrijfactie komt
+  // via de listener weer binnen; die echo herkennen we aan de inhoud in
+  // plaats van aan een tijdvenster. Een tijdvenster zou een échte wijziging
+  // van een ander apparaat kunnen opslokken als die net binnen de venstertijd
+  // valt - en dat is precies het geval dat moet werken.
+  let pauzeLaatsteInhoud = '';
 
   function pauzeNaarMinuten(waarde) {
     const m = /^(\d{1,2}):(\d{2})$/.exec(String(waarde || '').trim());
@@ -14434,7 +14544,138 @@
     });
     return uit;
   }
+  // Werkt iemand tijdens dit slot (al is het maar deels)? Dat bepaalt de
+  // bezetting op de vloer, en die is iets anders dan pauze kunnen krijgen.
+  function pauzeAanwezig(lid, slot) {
+    return lid.begin < slot.tot && lid.eind > slot.van;
+  }
 
+  // ── Gedeelde opslag ──────────────────────────────────────────────────
+  function pauzePad() { return 'dagstatistieken/' + huidigeDatumString() + '/pauzeplanning'; }
+
+  function pauzeAlsOpslag() {
+    return {
+      team: pauzeTeam.map(l => ({ id: l.id, naam: l.naam, functie: l.functie, begin: l.begin, eind: l.eind })),
+      slots: pauzeSlots ? pauzeSlots.map(ids => ids.slice()) : null,
+      terug: Object.keys(pauzeTerug).length ? pauzeTerug : null,
+      handmatig: pauzeHandmatig,
+      bijgewerktOp: Date.now(),
+    };
+  }
+
+  function pauzeBewaar() {
+    // Firebase slikt geen lege arrays als "aanwezig"; die verdwijnen bij het
+    // lezen. Daarom wordt slots als vier komma-strings bewaard, en niet als
+    // een array van arrays.
+    const d = pauzeAlsOpslag();
+    const plat = {
+      team: d.team.length ? d.team : null,
+      slots: d.slots ? d.slots.map(ids => ids.join(',')).join('|') : null,
+      terug: d.terug,
+      handmatig: d.handmatig,
+      bijgewerktOp: d.bijgewerktOp,
+    };
+    pauzeLaatsteInhoud = pauzeVergelijkbaar(plat);
+    firebase.database().ref(pauzePad()).set(plat)
+      .then(() => { pauzeSyncFout = ''; })
+      .catch((err) => {
+        pauzeSyncFout = err.message || 'onbekende fout';
+        console.warn('[Amac Wachtrij] Pauzeplanning delen mislukt:', err);
+        pauzeToonSync();
+      })
+      ;
+    // Vangnet voor dit tabblad: overleeft een herlaadactie ook als Firebase
+    // weigert.
+    try { sessionStorage.setItem('amacPauze-' + huidigeDatumString(), JSON.stringify(d)); }
+    catch (err) { /* privémodus */ }
+  }
+
+  function pauzeNeemOver(rauw) {
+    if (!rauw) return false;
+    const team = Array.isArray(rauw.team) ? rauw.team : [];
+    pauzeTeam = team.filter(l => l && l.naam).map(l => ({
+      id: Number(l.id), naam: String(l.naam), functie: String(l.functie || PAUZE_FUNCTIES[0]),
+      begin: Number(l.begin), eind: Number(l.eind),
+    })).filter(l => Number.isFinite(l.id) && Number.isFinite(l.begin) && Number.isFinite(l.eind));
+    const bekend = new Set(pauzeTeam.map(l => l.id));
+    if (typeof rauw.slots === 'string' && rauw.slots) {
+      pauzeSlots = rauw.slots.split('|').map(s => s ? s.split(',').map(Number).filter(id => bekend.has(id)) : []);
+      while (pauzeSlots.length < PAUZE_SLOTS.length) pauzeSlots.push([]);
+      pauzeSlots = pauzeSlots.slice(0, PAUZE_SLOTS.length);
+    } else if (Array.isArray(rauw.slots)) {
+      pauzeSlots = rauw.slots.map(ids => (ids || []).map(Number).filter(id => bekend.has(id)));
+    } else {
+      pauzeSlots = null;
+    }
+    pauzeTerug = {};
+    Object.keys(rauw.terug || {}).forEach(k => { if (bekend.has(Number(k))) pauzeTerug[k] = true; });
+    pauzeHandmatig = !!rauw.handmatig;
+    return true;
+  }
+
+  // Wordt aangeroepen zodra de dagstatistieken binnenkomen of veranderen —
+  // dus ook als een ander apparaat de planning aanpast.
+  // De tijdstempel telt niet mee in de vergelijking: die verandert bij elke
+  // schrijfactie, ook als er inhoudelijk niets anders is.
+  function pauzeVergelijkbaar(o) {
+    if (!o) return '';
+    return JSON.stringify({ team: o.team || null, slots: o.slots || null,
+                            terug: o.terug || null, handmatig: !!o.handmatig });
+  }
+
+  function pauzeVerversVanBuiten() {
+    const dag = (typeof dagStatistieken === 'object' && dagStatistieken)
+      ? dagStatistieken[huidigeDatumString()] : null;
+    const rauw = dag && dag.pauzeplanning;
+    if (!rauw) return;
+    const kern = pauzeVergelijkbaar(rauw);
+    if (kern === pauzeLaatsteInhoud) return;     // onze eigen echo, of niets nieuws
+    // Staat er iemand halverwege een invoer? Dan de wijziging even laten
+    // wachten in plaats van het formulier onder zijn handen vandaan te
+    // halen. Alleen de cursor in een leeg naamveld is géén reden om te
+    // wachten - daar staat hij na élke toevoeging, en dan zou een update van
+    // een ander apparaat nooit meer binnenkomen.
+    const naamveld = document.getElementById('pauze-naam');
+    if (pauzeBewerktId !== null || (naamveld && naamveld.value.trim())) {
+      return;                          // kern nog niet vastgelegd: komt straks weer langs
+    }
+    pauzeLaatsteInhoud = kern;
+    pauzeNeemOver(rauw);
+    if (document.getElementById('pauze-overlay').classList.contains('open')) {
+      pauzeRenderTeam();
+      pauzeRenderTijdlijn();
+    }
+  }
+
+  function pauzeLaadUitSessie() {
+    try {
+      const sleutel = 'amacPauze-' + huidigeDatumString();
+      // Blijft een tabblad over middernacht heen openstaan, dan hoopt zich
+      // per dag een sleutel op. Klein, maar zinloos: een planning van
+      // gisteren komt nooit meer terug.
+      Object.keys(sessionStorage).forEach(k => {
+        if (k.indexOf('amacPauze-') === 0 && k !== sleutel) sessionStorage.removeItem(k);
+      });
+      const rauw = sessionStorage.getItem(sleutel);
+      if (rauw) pauzeNeemOver(JSON.parse(rauw));
+    } catch (err) { /* niets aan te doen, dan begint hij leeg */ }
+  }
+
+  function pauzeVolgendId() {
+    return pauzeTeam.reduce((m, l) => Math.max(m, l.id), 0) + 1;
+  }
+
+  function pauzeToonSync() {
+    const el = document.getElementById('pauze-sync');
+    if (!el) return;
+    if (!pauzeSyncFout) { el.style.display = 'none'; return; }
+    el.style.display = 'flex';
+    el.className = 'pauze-sync is-fout';
+    el.textContent = '⚠ Deze planning wordt niet met andere apparaten gedeeld (' +
+      pauzeSyncFout + '). Op dit apparaat werkt hij gewoon.';
+  }
+
+  // ── Team bijhouden ────────────────────────────────────────────────────
   function pauzeToonFout(tekst) {
     const el = document.getElementById('pauze-fout');
     el.textContent = tekst || '';
@@ -14442,17 +14683,27 @@
   }
 
   function openPauzeplanning() {
+    // De pauzeknop zit in het ⋯-menu, en dat menu gaat hier dicht. Daarmee
+    // verdwijnt ook de knop, en had de modal-afhandeling bij het sluiten
+    // niets zichtbaars om de focus naar terug te zetten - die bleef dan op
+    // <body> hangen. De ⋯-knop is wél altijd zichtbaar en is de plek waar de
+    // gebruiker vandaan kwam; daar gaat de focus dus heen vóórdat de modal
+    // opent, zodat de bestaande focusterugkeer hem terugvindt.
     document.getElementById('header-meer-menu').classList.remove('open');
+    const meerKnop = document.getElementById('btn-header-meer');
+    if (meerKnop && meerKnop.getClientRects().length) meerKnop.focus();
     document.getElementById('pauze-overlay').classList.add('open');
     pauzeToonFout('');
+    pauzeVerversVanBuiten();
     pauzeRenderTeam();
     pauzeRenderTijdlijn();
+    pauzeToonSync();
   }
 
-  // ── Team bijhouden ────────────────────────────────────────────────────
   function pauzeFormulierLeegmaken() {
     pauzeBewerktId = null;
     document.getElementById('pauze-naam').value = '';
+    document.getElementById('pauze-functie').value = PAUZE_FUNCTIES[0];
     document.getElementById('pauze-begin').value = '09:00';
     document.getElementById('pauze-eind').value = '17:00';
     document.getElementById('pauze-opslaan').textContent = 'Toevoegen';
@@ -14460,27 +14711,35 @@
   }
 
   function pauzeOpslaanLid() {
-    const naam = document.getElementById('pauze-naam').value.trim();
+    const naam = document.getElementById('pauze-naam').value.trim().slice(0, 40);
+    const functie = document.getElementById('pauze-functie').value;
     const begin = pauzeNaarMinuten(document.getElementById('pauze-begin').value);
     const eind = pauzeNaarMinuten(document.getElementById('pauze-eind').value);
 
     if (!naam) { pauzeToonFout('Vul een naam in.'); return; }
+    if (PAUZE_FUNCTIES.indexOf(functie) === -1) { pauzeToonFout('Kies een functie.'); return; }
     if (begin === null || eind === null) { pauzeToonFout('Vul een geldige begin- en eindtijd in.'); return; }
     if (eind <= begin) { pauzeToonFout('De eindtijd moet na de begintijd liggen.'); return; }
+    // Dezelfde naam twee keer is bijna altijd een vergissing - en levert een
+    // planning op waarin iemand dubbel pauze heeft.
+    const dubbel = pauzeTeam.some(l => l.id !== pauzeBewerktId &&
+      l.naam.toLowerCase() === naam.toLowerCase());
+    if (dubbel) { pauzeToonFout(naam + ' staat al in het team. Klik op die naam om de gegevens te wijzigen.'); return; }
 
     if (pauzeBewerktId !== null) {
       const lid = pauzeTeam.find(l => l.id === pauzeBewerktId);
-      if (lid) Object.assign(lid, { naam, begin, eind });
+      if (lid) Object.assign(lid, { naam, functie, begin, eind });
     } else {
-      pauzeTeam.push({ id: pauzeVolgendId++, naam, begin, eind });
+      pauzeTeam.push({ id: pauzeVolgendId(), naam, functie, begin, eind });
     }
 
-    // Werktijden gewijzigd of iemand erbij: een bestaande verdeling kan
-    // daardoor ongeldig zijn geworden. Liever niets tonen dan iets tonen wat
-    // niet meer klopt.
-    pauzePlanning = null;
-    pauzeTerug.clear();
+    // Een wijziging gooit de planning NIET weg. Wie nog op een geldig moment
+    // staat blijft staan; alleen wie er door de nieuwe uren naast valt wordt
+    // opnieuw ingedeeld. Zo verschuift het aanpassen van één eindtijd niet
+    // het halve rooster.
+    pauzeRepareerPlanning();
     pauzeFormulierLeegmaken();
+    pauzeBewaar();
     pauzeRenderTeam();
     pauzeRenderTijdlijn();
     document.getElementById('pauze-naam').focus();
@@ -14491,6 +14750,7 @@
     if (!lid) return;
     pauzeBewerktId = id;
     document.getElementById('pauze-naam').value = lid.naam;
+    document.getElementById('pauze-functie').value = lid.functie;
     document.getElementById('pauze-begin').value = pauzeNaarTijd(lid.begin);
     document.getElementById('pauze-eind').value = pauzeNaarTijd(lid.eind);
     document.getElementById('pauze-opslaan').textContent = 'Opslaan';
@@ -14500,37 +14760,89 @@
 
   function pauzeVerwijderLid(id) {
     pauzeTeam = pauzeTeam.filter(l => l.id !== id);
+    delete pauzeTerug[id];
     if (pauzeBewerktId === id) pauzeFormulierLeegmaken();
-    pauzePlanning = null;
-    pauzeTerug.clear();
+    if (pauzeSlots) pauzeSlots = pauzeSlots.map(ids => ids.filter(x => x !== id));
+    pauzeRepareerPlanning();
+    pauzeBewaar();
     pauzeRenderTeam();
     pauzeRenderTijdlijn();
   }
 
+  function pauzeWisPlanning() {
+    pauzeSlots = null;
+    pauzeTerug = {};
+    pauzeHandmatig = false;
+    pauzeBewaar();
+    pauzeRenderTijdlijn();
+  }
+
   function pauzeRenderTeam() {
-    const chips = document.getElementById('pauze-chips');
-    document.getElementById('btn-pauze-verdeel').disabled = pauzeTeam.length === 0;
+    const lijst = document.getElementById('pauze-teamlijst');
+    const meta = document.getElementById('pauze-team-meta');
+    const kan = pauzeTeam.filter(l => pauzeGeschikteSlots(l).length).length;
+    meta.textContent = pauzeTeam.length
+      ? pauzeTeam.length + (pauzeTeam.length === 1 ? ' persoon' : ' personen') +
+        (kan < pauzeTeam.length ? ' · ' + (pauzeTeam.length - kan) + ' zonder pauzemoment' : '')
+      : '';
+    document.getElementById('btn-pauze-verdeel').disabled = kan === 0;
+    document.getElementById('btn-pauze-wis').disabled = !pauzeSlots;
+
     if (!pauzeTeam.length) {
-      chips.innerHTML = '<div class="pauze-slot-leeg" style="text-align:left;padding:4px 0">Nog niemand toegevoegd.</div>';
+      lijst.innerHTML = `<div class="pauze-leeg">
+          <div class="pauze-leeg-titel">Nog geen team ingevoerd</div>
+          <div class="pauze-leeg-tekst">Voeg hierboven de collega's van vandaag toe met hun werktijden.
+            Daarna verdeelt één klik de pauzes.</div>
+        </div>`;
       return;
     }
-    chips.innerHTML = pauzeTeam.map(l => {
-      const kan = pauzeGeschikteSlots(l).length > 0;
-      return `<span class="pauze-chip${kan ? '' : ' is-buiten'}"${
-        kan ? '' : ' title="Werkt geen volledig pauzeslot tussen 12:00 en 14:00"'}>
-          <button type="button" class="pauze-chip-knop" onclick="pauzeBewerkLid(${l.id})">
-            <span class="pauze-chip-naam">${escapeHtml(l.naam)}</span>
-            <span class="pauze-chip-uren">${pauzeNaarTijd(l.begin)}–${pauzeNaarTijd(l.eind)}${kan ? '' : ' · geen pauze mogelijk'}</span>
-          </button>
-          <button type="button" class="pauze-chip-weg" onclick="pauzeVerwijderLid(${l.id})"
-                  aria-label="${escapeHtml(l.naam)} verwijderen">✕</button>
-        </span>`;
+    lijst.innerHTML = pauzeTeam.map(l => {
+      const mag = pauzeGeschikteSlots(l).length > 0;
+      return `<div class="pauze-teamrij${mag ? '' : ' is-buiten'}">
+          <span class="pauze-teamnaam">${escapeHtml(l.naam)}</span>
+          <span class="pauze-teamfunctie">${escapeHtml(l.functie)}</span>
+          <span class="pauze-teamuren">${pauzeNaarTijd(l.begin)}–${pauzeNaarTijd(l.eind)}</span>
+          <span class="pauze-teamacties">
+            <button type="button" class="btn-pauze-mini" onclick="pauzeBewerkLid(${l.id})"
+                    aria-label="${escapeHtml(l.naam)} bewerken">Bewerken</button>
+            <button type="button" class="btn-pauze-mini is-verwijder" onclick="pauzeVerwijderLid(${l.id})"
+                    aria-label="${escapeHtml(l.naam)} verwijderen">Verwijderen</button>
+          </span>
+          ${mag ? '' : '<span class="pauze-teamwaarschuwing">Werkt geen volledig pauzeslot tussen 12:00 en 14:00.</span>'}
+        </div>`;
     }).join('');
   }
 
-  // ── De verdeling ──────────────────────────────────────────────────────
-  // Volgorde van belang: eerst geldig, dan zo evenwichtig mogelijk, en pas
-  // als meerdere verdelingen even goed zijn beslist het toeval.
+  // ══════════════════════════════════════════════════════════════════
+  // De verdeling
+  //
+  // Niet "geldig en dan willekeurig", maar een kostenmodel. Elke verdeling
+  // die alle regels respecteert krijgt een cijfer; het laagste cijfer wint,
+  // en alleen tussen even goede verdelingen beslist het toeval. Daardoor
+  // geeft "Verdeel pauzes" telkens een ándere maar niet een slechtere
+  // planning.
+  //
+  // Wat er meeweegt, in volgorde van gewicht:
+  //
+  //   VLOER LEEG      Een slot waarin niemand meer op de vloer staat is geen
+  //                   planning maar een probleem. Zwaarste term.
+  //   AANTAL          2 tot 3 per slot, gemeten als afwijking van het
+  //                   gemiddelde.
+  //   BEZETTING       Niet alleen hoevéél mensen pauze hebben, maar welk
+  //                   aandeel van wie er op dat moment werkt. Vier mensen op
+  //                   de vloer om 12:00 en tien om 13:30 is niet hetzelfde
+  //                   slot, ook al staan er twee pauzes in.
+  //   FUNCTIES        Liever niet alle technicians tegelijk weg.
+  //   MOMENT          Een pauze hoort niet plat tegen het begin of einde van
+  //                   een dienst aan. Gemeten als afstand tot het midden van
+  //                   de dienst.
+  //   VERPLAATSEN     Alleen bij bijwerken: wie al ergens stond blijft daar
+  //                   liefst staan. Eén eindtijd aanpassen hoort niet het
+  //                   halve rooster te verschuiven.
+  // ══════════════════════════════════════════════════════════════════
+
+  const PAUZE_W_LEEG = 100, PAUZE_W_AANTAL = 10, PAUZE_W_BEZETTING = 8,
+        PAUZE_W_FUNCTIE = 3, PAUZE_W_MOMENT = 2, PAUZE_W_VERPLAATS = 6;
 
   function pauzeSchud(arr) {
     for (let i = arr.length - 1; i > 0; i--) {
@@ -14540,15 +14852,73 @@
     return arr;
   }
 
-  // Past iedereen met hoogstens `cap` personen per slot? Dit is een gewone
-  // augmenting-path-zoektocht: past iemand nergens meer, dan wordt geprobeerd
-  // een al geplaatste collega door te schuiven naar een ander slot waar hij
-  // ook mag staan. Daardoor vindt hij een oplossing die simpel "pak het
-  // leegste slot" zou missen.
+  // Hoeveel van het team werkt er tijdens elk slot? Dat is de noemer waar de
+  // bezettingsterm mee rekent.
+  function pauzeAanwezigPerSlot() {
+    return PAUZE_SLOTS.map(s => pauzeTeam.filter(l => pauzeAanwezig(l, s)).length);
+  }
+
+  // Hoe ongunstig valt dit slot binnen de dienst van deze persoon? 0 = precies
+  // in het midden, 1 = helemaal tegen de rand aan.
+  function pauzeMomentKosten(lid, slotIndex) {
+    const s = PAUZE_SLOTS[slotIndex];
+    const midden = (lid.begin + lid.eind) / 2;
+    const helft = Math.max(1, (lid.eind - lid.begin) / 2);
+    const afstand = Math.min(1, Math.abs((s.van + s.tot) / 2 - midden) / helft);
+    // Extra opslag als het slot binnen een half uur van het begin of het
+    // einde van de dienst valt: dat voelt niet als pauze maar als later
+    // beginnen of eerder weg.
+    const randbij = (s.van - lid.begin < 30 || lid.eind - s.tot < 30) ? 0.6 : 0;
+    return afstand + randbij;
+  }
+
+  function pauzeKosten(beschikbaar, toewijzing, vorige) {
+    const n = beschikbaar.length;
+    const aantal = PAUZE_SLOTS.map(() => 0);
+    const perFunctie = PAUZE_SLOTS.map(() => ({}));
+    let moment = 0, verplaatst = 0;
+
+    for (let i = 0; i < n; i++) {
+      const s = toewijzing[i];
+      if (s < 0) continue;
+      aantal[s]++;
+      const f = beschikbaar[i].lid.functie;
+      perFunctie[s][f] = (perFunctie[s][f] || 0) + 1;
+      moment += pauzeMomentKosten(beschikbaar[i].lid, s);
+      if (vorige && vorige[beschikbaar[i].id] !== undefined && vorige[beschikbaar[i].id] !== s) verplaatst++;
+    }
+
+    const aanwezig = pauzeAanwezigPerSlot();
+    let leeg = 0, aandelen = [];
+    for (let s = 0; s < PAUZE_SLOTS.length; s++) {
+      const dekking = aanwezig[s] - aantal[s];
+      if (aanwezig[s] > 0 && dekking < 1) leeg += (1 - dekking);
+      aandelen.push(aanwezig[s] > 0 ? aantal[s] / aanwezig[s] : 0);
+    }
+    const gemAandeel = aandelen.reduce((a, b) => a + b, 0) / PAUZE_SLOTS.length;
+    const bezetting = aandelen.reduce((som, a) => som + (a - gemAandeel) * (a - gemAandeel), 0);
+
+    const doel = n / PAUZE_SLOTS.length;
+    const aantalKosten = aantal.reduce((som, a) => som + (a - doel) * (a - doel), 0);
+
+    let functie = 0;
+    perFunctie.forEach(t => Object.keys(t).forEach(f => { const c = t[f]; functie += c * (c - 1) / 2; }));
+
+    return PAUZE_W_LEEG * leeg
+         + PAUZE_W_AANTAL * aantalKosten
+         + PAUZE_W_BEZETTING * bezetting * PAUZE_SLOTS.length
+         + PAUZE_W_FUNCTIE * functie
+         + PAUZE_W_MOMENT * moment
+         + PAUZE_W_VERPLAATS * verplaatst;
+  }
+
+  // Iedereen plaatsen met hoogstens `cap` per slot. Augmenting path: past
+  // iemand nergens meer, dan wordt een al geplaatste collega doorgeschoven
+  // naar een ander slot waar híj ook mag staan. Een simpele "pak het leegste
+  // slot" loopt vast zodra iemand maar in één slot kan.
   function pauzeProbeerPlaatsing(leden, cap) {
     const toewijzing = leden.map(() => -1);
     const bezetting = PAUZE_SLOTS.map(() => 0);
-
     function zoek(i, gezien) {
       for (let k = 0; k < leden[i].slots.length; k++) {
         const s = leden[i].slots[k];
@@ -14564,112 +14934,155 @@
       }
       return false;
     }
-
     for (let i = 0; i < leden.length; i++) {
       if (!zoek(i, PAUZE_SLOTS.map(() => false))) return null;
     }
-    return { toewijzing, bezetting };
+    return toewijzing;
+  }
+
+  // Vanaf een geldige startverdeling omlaag klimmen: elke verplaatsing en
+  // elke ruil die het cijfer verlaagt wordt aangenomen, tot het niet meer
+  // beter wordt.
+  function pauzeVerbeter(beschikbaar, toewijzing, vorige) {
+    let kosten = pauzeKosten(beschikbaar, toewijzing, vorige);
+    for (let ronde = 0; ronde < 120; ronde++) {
+      let beter = false;
+      for (let i = 0; i < beschikbaar.length && !beter; i++) {
+        const oud = toewijzing[i];
+        for (const naar of beschikbaar[i].slots) {
+          if (naar === oud) continue;
+          toewijzing[i] = naar;
+          const k = pauzeKosten(beschikbaar, toewijzing, vorige);
+          if (k < kosten - 1e-9) { kosten = k; beter = true; break; }
+          toewijzing[i] = oud;
+        }
+      }
+      if (!beter) {
+        for (let a = 0; a < beschikbaar.length && !beter; a++) {
+          for (let b = a + 1; b < beschikbaar.length; b++) {
+            const sa = toewijzing[a], sb = toewijzing[b];
+            if (sa === sb) continue;
+            if (beschikbaar[a].slots.indexOf(sb) === -1) continue;
+            if (beschikbaar[b].slots.indexOf(sa) === -1) continue;
+            toewijzing[a] = sb; toewijzing[b] = sa;
+            const k = pauzeKosten(beschikbaar, toewijzing, vorige);
+            if (k < kosten - 1e-9) { kosten = k; beter = true; break; }
+            toewijzing[a] = sa; toewijzing[b] = sb;
+          }
+        }
+      }
+      if (!beter) break;
+    }
+    return kosten;
+  }
+
+  function pauzeBeschikbaar() {
+    const uit = [];
+    pauzeTeam.forEach(l => {
+      const slots = pauzeGeschikteSlots(l);
+      if (slots.length) uit.push({ id: l.id, lid: l, slots: slots });
+    });
+    return uit;
+  }
+
+  // `vorige` = { id: slotIndex } van de bestaande planning, of null.
+  // Meerdere startpunten: het kostenlandschap heeft kuilen, en één afdaling
+  // eindigt niet altijd in de diepste. Twaalf pogingen is ruim genoeg voor
+  // een team van deze omvang en kost geen merkbare tijd.
+  function pauzeBerekenVerdeling(vorige) {
+    const beschikbaar = pauzeBeschikbaar();
+    if (!beschikbaar.length) return { slots: PAUZE_SLOTS.map(() => []), beschikbaar: 0 };
+
+    let besteToewijzing = null, besteKosten = Infinity;
+    for (let poging = 0; poging < 12; poging++) {
+      const kandidaten = beschikbaar.slice();
+      pauzeSchud(kandidaten);
+      kandidaten.forEach(k => { k.slots = pauzeSchud(k.slots.slice()); });
+      let start = null;
+      for (let cap = Math.ceil(kandidaten.length / PAUZE_SLOTS.length); cap <= kandidaten.length; cap++) {
+        start = pauzeProbeerPlaatsing(kandidaten, cap);
+        if (start) break;
+      }
+      if (!start) continue;
+      const kosten = pauzeVerbeter(kandidaten, start, vorige);
+      if (kosten < besteKosten - 1e-9) {
+        besteKosten = kosten;
+        besteToewijzing = kandidaten.map((k, i) => ({ id: k.id, slot: start[i] }));
+      }
+    }
+    const slots = PAUZE_SLOTS.map(() => []);
+    (besteToewijzing || []).forEach(t => { if (t.slot >= 0) slots[t.slot].push(t.id); });
+    return { slots, beschikbaar: beschikbaar.length, kosten: besteKosten };
   }
 
   function pauzeVerdeel() {
-    const buiten = [];
-    const beschikbaar = [];
-    pauzeTeam.forEach(l => {
-      const slots = pauzeGeschikteSlots(l);
-      if (slots.length) beschikbaar.push({ id: l.id, slots: pauzeSchud(slots) });
-      else buiten.push(l.id);
-    });
-
-    // Hier zit het toeval: gelijkwaardige oplossingen komen in wisselende
-    // volgorde uit de bus, maar de eisen hieronder gaan voor.
-    pauzeSchud(beschikbaar);
-
-    let plaatsing = null;
-    if (beschikbaar.length) {
-      // Kleinst haalbare maximum per slot: begin bij het theoretische
-      // minimum en loop op tot het past.
-      const ondergrens = Math.ceil(beschikbaar.length / PAUZE_SLOTS.length);
-      for (let cap = ondergrens; cap <= beschikbaar.length; cap++) {
-        plaatsing = pauzeProbeerPlaatsing(beschikbaar, cap);
-        if (plaatsing) break;
-      }
-    }
-
-    const toewijzing = plaatsing ? plaatsing.toewijzing : [];
-    const bezetting = plaatsing ? plaatsing.bezetting : PAUZE_SLOTS.map(() => 0);
-
-    // Het maximum staat nu vast op het laagst haalbare; nu het minimum
-    // omhoog. Iemand uit een voller slot verhuizen naar een leger slot waar
-    // hij ook mag staan, zolang dat het verschil echt kleiner maakt.
-    if (plaatsing) {
-      for (let ronde = 0; ronde < 200; ronde++) {
-        let verbeterd = false;
-        for (let i = 0; i < beschikbaar.length && !verbeterd; i++) {
-          const van = toewijzing[i];
-          for (let k = 0; k < beschikbaar[i].slots.length; k++) {
-            const naar = beschikbaar[i].slots[k];
-            if (naar !== van && bezetting[naar] + 1 < bezetting[van]) {
-              toewijzing[i] = naar; bezetting[van]--; bezetting[naar]++;
-              verbeterd = true; break;
-            }
-          }
-        }
-        if (!verbeterd) break;
-      }
-    }
-
-    const slots = PAUZE_SLOTS.map(() => []);
-    toewijzing.forEach((s, i) => { if (s >= 0) slots[s].push(beschikbaar[i].id); });
-
-    pauzeTerug.clear();
-    pauzePlanning = { slots, buiten, beschikbaar: beschikbaar.length };
+    const r = pauzeBerekenVerdeling(null);
+    pauzeSlots = r.slots;
+    pauzeTerug = {};
+    pauzeHandmatig = false;
+    pauzeBewaar();
+    pauzeRenderTeam();
     pauzeRenderTijdlijn();
+  }
+
+  // Na een wijziging in het team: houd vast wat nog klopt, plaats alleen wat
+  // los is komen te staan. Zonder dit zou het aanpassen van één eindtijd de
+  // hele planning door elkaar gooien.
+  function pauzeRepareerPlanning() {
+    if (!pauzeSlots) return;
+    const vorige = {};
+    pauzeSlots.forEach((ids, s) => ids.forEach(id => { vorige[id] = s; }));
+    // Wie door gewijzigde uren niet meer op zijn plek mag staan, raakt hem kwijt.
+    pauzeTeam.forEach(l => {
+      if (vorige[l.id] !== undefined && pauzeGeschikteSlots(l).indexOf(vorige[l.id]) === -1) {
+        delete vorige[l.id];
+      }
+    });
+    const r = pauzeBerekenVerdeling(vorige);
+    pauzeSlots = r.slots;
+    const geldig = new Set(pauzeTeam.map(l => l.id));
+    Object.keys(pauzeTerug).forEach(k => { if (!geldig.has(Number(k))) delete pauzeTerug[k]; });
   }
 
   // ── Handmatig verplaatsen ─────────────────────────────────────────────
   // Een verdeling is een voorstel, geen wet: de vloer weet dingen die dit
-  // schema niet weet. Verplaatsen mag daarom altijd — behalve naar een slot
-  // waarin iemand volgens zijn eigen werktijden niet kan, want dat is geen
-  // voorkeur maar een fout.
+  // schema niet weet. Verplaatsen mag altijd — behalve naar een slot waarin
+  // iemand volgens zijn werktijden niet kan; dat is geen voorkeur maar een
+  // fout.
   function pauzeVerplaats(id, naarSlot) {
-    if (!pauzePlanning) return false;
+    if (!pauzeSlots) return false;
     const lid = pauzeTeam.find(l => l.id === id);
     if (!lid || pauzeGeschikteSlots(lid).indexOf(naarSlot) === -1) return false;
     let veranderd = false;
-    pauzePlanning.slots.forEach((ids, i) => {
+    pauzeSlots.forEach((ids, i) => {
       const pos = ids.indexOf(id);
-      if (pos === -1) return;
-      if (i === naarSlot) return;          // stond er al
+      if (pos === -1 || i === naarSlot) return;
       ids.splice(pos, 1);
       veranderd = true;
     });
     if (!veranderd) return false;
-    pauzePlanning.slots[naarSlot].push(id);
-    // Vanaf hier is dit niet meer de berekende verdeling. Dat moet blijken,
-    // want anders zou de app een scheve verdeling die de gebruiker zelf heeft
-    // gemaakt gaan uitleggen als "te weinig medewerkers" — en dat klopt dan
-    // niet meer.
-    pauzePlanning.handmatig = true;
+    pauzeSlots[naarSlot].push(id);
+    pauzeHandmatig = true;
+    pauzeBewaar();
     pauzeRenderTijdlijn();
     return true;
   }
 
   // Slepen met Pointer Events, niet met de HTML5-drag-API: die laatste doet
   // op een aanraakscherm helemaal niets, en dit scherm staat op de balie-iPad.
-  // Zo werkt hetzelfde gebaar met muis, vinger en Pencil.
   let pauzeSleep = null;
 
   function pauzeSleepStart(ev, id) {
-    if (ev.button !== undefined && ev.button !== 0) return;      // alleen linksklik
-    if (ev.target.closest('.pauze-terug')) return;               // vinkje is geen greep
+    if (ev.button !== undefined && ev.button !== 0) return;
+    if (ev.target.closest('.pauze-terug')) return;      // het vinkje is geen greep
     const lid = pauzeTeam.find(l => l.id === id);
-    if (!lid || !pauzePlanning) return;
+    if (!lid || !pauzeSlots) return;
     const kaart = ev.currentTarget;
     pauzeSleep = {
       id, kaart, beeld: null, doelSlot: null,
       startX: ev.clientX, startY: ev.clientY, actief: false,
       mag: pauzeGeschikteSlots(lid),
-      naam: lid.naam, uren: pauzeNaarTijd(lid.begin) + '–' + pauzeNaarTijd(lid.eind),
+      naam: lid.naam, meta: lid.functie + ' · ' + pauzeNaarTijd(lid.begin) + '–' + pauzeNaarTijd(lid.eind),
     };
     try { kaart.setPointerCapture(ev.pointerId); } catch (err) { /* oudere browsers */ }
   }
@@ -14677,19 +15090,16 @@
   function pauzeSleepBeweeg(ev) {
     if (!pauzeSleep) return;
     const dx = ev.clientX - pauzeSleep.startX, dy = ev.clientY - pauzeSleep.startY;
-    // Pas na een paar pixels wordt het een sleep. Zonder die drempel wordt
-    // elke tik op een kaartje al een mislukte verplaatsing.
     if (!pauzeSleep.actief) {
-      if (dx * dx + dy * dy < 36) return;
+      if (dx * dx + dy * dy < 36) return;   // drempel: een tik is geen sleep
       pauzeSleep.actief = true;
       ev.preventDefault();
       pauzeSleep.kaart.classList.add('is-opgepakt');
       const beeld = document.createElement('div');
       beeld.className = 'pauze-sleepbeeld';
-      beeld.innerHTML = escapeHtml(pauzeSleep.naam) + '<small>' + escapeHtml(pauzeSleep.uren) + '</small>';
+      beeld.innerHTML = escapeHtml(pauzeSleep.naam) + '<small>' + escapeHtml(pauzeSleep.meta) + '</small>';
       document.body.appendChild(beeld);
       pauzeSleep.beeld = beeld;
-      // Meteen laten zien wáár hij heen mag en waar niet.
       document.querySelectorAll('#pauze-uitkomst .pauze-slot').forEach((el, i) => {
         el.classList.add(pauzeSleep.mag.indexOf(i) === -1 ? 'is-geblokkeerd' : 'is-doelwit');
       });
@@ -14697,10 +15107,6 @@
     ev.preventDefault();
     pauzeSleep.beeld.style.left = ev.clientX + 'px';
     pauzeSleep.beeld.style.top = ev.clientY + 'px';
-
-    // Welk slot ligt er onder de aanwijzer? elementFromPoint werkt met muis
-    // én vinger, en het sleepbeeld heeft pointer-events:none, dus dat zit
-    // er niet zelf voor.
     const onder = document.elementFromPoint(ev.clientX, ev.clientY);
     const slot = onder ? onder.closest('#pauze-uitkomst .pauze-slot') : null;
     const index = slot ? parseInt(slot.dataset.slot, 10) : -1;
@@ -14727,59 +15133,65 @@
 
   // ── Weergave ──────────────────────────────────────────────────────────
   function pauzeZetTerug(id, aan) {
-    if (aan) pauzeTerug.add(id); else pauzeTerug.delete(id);
+    if (aan) pauzeTerug[id] = true; else delete pauzeTerug[id];
     const rij = document.getElementById('pauze-persoon-' + id);
     if (rij) rij.classList.toggle('is-terug', aan);
+    pauzeBewaar();
   }
 
   function pauzeRenderTijdlijn() {
     const doel = document.getElementById('pauze-uitkomst');
-    if (!pauzePlanning) {
-      doel.innerHTML = '<div class="pauze-slot-leeg">' + (pauzeTeam.length
-        ? 'Nog niet verdeeld — klik op “Verdeel pauzes”.'
-        : 'Voeg eerst verkoopmedewerkers toe.') + '</div>';
+    document.getElementById('btn-pauze-wis').disabled = !pauzeSlots;
+    document.getElementById('btn-pauze-verdeel').textContent =
+      pauzeSlots ? 'Opnieuw verdelen' : 'Verdeel pauzes';
+
+    if (!pauzeSlots) {
+      doel.innerHTML = `<div class="pauze-leeg">
+          <div class="pauze-leeg-titel">${pauzeTeam.length ? 'Nog niets verdeeld' : 'Nog niets te verdelen'}</div>
+          <div class="pauze-leeg-tekst">${pauzeTeam.length
+            ? 'Klik op “Verdeel pauzes” — iedereen die een volledig slot werkt krijgt één pauze toegewezen.'
+            : 'Voeg eerst teamleden toe met hun werktijden.'}</div>
+        </div>`;
       return;
     }
 
-    const aantallen = pauzePlanning.slots.map(s => s.length);
+    const aanwezig = pauzeAanwezigPerSlot();
+    const aantallen = pauzeSlots.map(s => s.length);
     const laagste = Math.min.apply(null, aantallen);
     const hoogste = Math.max.apply(null, aantallen);
-    const n = pauzePlanning.beschikbaar;
+    const beschikbaar = pauzeBeschikbaar().length;
+    const buiten = pauzeTeam.filter(l => !pauzeGeschikteSlots(l).length);
     const nodig = PAUZE_SLOTS.length * 2;
-
-    // Waarom het niet 2-3 per slot is geworden. Twee oorzaken kunnen tegelijk
-    // spelen - te weinig mensen en te krappe werktijden - en dan horen ze er
-    // ook allebei te staan, met de echte getallen erbij.
-    const beperkt = pauzePlanning.slots.reduce((s, ids) => s.concat(ids), [])
-      .map(id => pauzeTeam.find(x => x.id === id))
-      .filter(l => l && pauzeGeschikteSlots(l).length < PAUZE_SLOTS.length).length;
+    const beperkt = pauzeTeam.filter(l => {
+      const n = pauzeGeschikteSlots(l).length;
+      return n > 0 && n < PAUZE_SLOTS.length;
+    }).length;
 
     let melding = '';
-    if (n === 0) {
+    if (beschikbaar === 0) {
       melding = `<div class="pauze-melding is-let-op">Niemand werkt een volledig pauzeslot, dus er valt niets te verdelen.</div>`;
-    } else if (pauzePlanning.handmatig) {
-      // Zelf verschoven: dan hoort de app niet uit te leggen waarom het
-      // scheef staat. Dat weet de gebruiker zelf het beste.
-      melding = `<div class="pauze-melding is-info">Handmatig aangepast. Klik op “Verdeel pauzes” voor een nieuwe evenwichtige verdeling.</div>`;
+    } else if (pauzeHandmatig) {
+      melding = `<div class="pauze-melding is-info">Handmatig aangepast. Klik op “Opnieuw verdelen” voor een nieuwe evenwichtige verdeling.</div>`;
     } else if (laagste < 2 || hoogste - laagste > 1) {
       const redenen = [];
-      if (n < nodig) redenen.push(`voor 2 per slot zijn er ${nodig} nodig en er zijn er ${n} beschikbaar`);
+      if (beschikbaar < nodig) redenen.push(`voor 2 per slot zijn er ${nodig} nodig en er zijn er ${beschikbaar} beschikbaar`);
       if (beperkt > 0 && hoogste - laagste > 1) {
         redenen.push(`${beperkt === 1 ? 'één medewerker past' : beperkt + ' medewerkers passen'} door de werktijden maar in een deel van de slots`);
       }
-      melding = `<div class="pauze-melding is-let-op">Niet genoeg medewerkers beschikbaar voor een gelijke verdeling${
-        redenen.length ? ' — ' + redenen.join(', en ') : ''}. Dit is de best mogelijke evenwichtige verdeling.</div>`;
+      melding = `<div class="pauze-melding is-let-op">Niet genoeg medewerkers beschikbaar voor een volledig gelijke verdeling${
+        redenen.length ? ' — ' + redenen.join(', en ') : ''}. Dit is de best mogelijke verdeling op basis van de ingevoerde uren.</div>`;
     } else if (hoogste > 3) {
-      melding = `<div class="pauze-melding is-info">Meer dan 3 per slot: met ${n} beschikbare medewerkers passen er niet minder in vier slots.</div>`;
+      melding = `<div class="pauze-melding is-info">Meer dan 3 per slot: met ${beschikbaar} beschikbare medewerkers passen er niet minder in vier slots.</div>`;
     }
 
     const sporen = PAUZE_SLOTS.map((slot, i) => {
-      const ids = pauzePlanning.slots[i];
+      const ids = pauzeSlots[i];
+      const dekking = aanwezig[i] - ids.length;
       const kaarten = ids.length
         ? ids.map(id => {
             const l = pauzeTeam.find(x => x.id === id);
             if (!l) return '';
-            const terug = pauzeTerug.has(id);
+            const terug = !!pauzeTerug[id];
             return `<div class="pauze-persoon${terug ? ' is-terug' : ''}" id="pauze-persoon-${id}"
                      onpointerdown="pauzeSleepStart(event, ${id})"
                      onpointermove="pauzeSleepBeweeg(event)"
@@ -14789,7 +15201,7 @@
                 <svg class="pauze-greep" aria-hidden="true" width="10" height="14" viewBox="0 0 10 14" fill="currentColor"><circle cx="2.5" cy="2.5" r="1.5"/><circle cx="7.5" cy="2.5" r="1.5"/><circle cx="2.5" cy="7" r="1.5"/><circle cx="7.5" cy="7" r="1.5"/><circle cx="2.5" cy="11.5" r="1.5"/><circle cx="7.5" cy="11.5" r="1.5"/></svg>
                 <span class="pauze-persoon-tekst">
                   <span class="pauze-persoon-naam">${escapeHtml(l.naam)}</span>
-                  <span class="pauze-persoon-meta">${pauzeNaarTijd(l.begin)}–${pauzeNaarTijd(l.eind)}</span>
+                  <span class="pauze-persoon-meta"><span>${escapeHtml(l.functie)}</span><span class="pauze-persoon-uren">${pauzeNaarTijd(l.begin)}–${pauzeNaarTijd(l.eind)}</span></span>
                 </span>
                 <label class="pauze-terug">
                   <input type="checkbox" ${terug ? 'checked' : ''}
@@ -14799,22 +15211,23 @@
                 </label>
               </div>`;
           }).join('')
-        : '<div class="pauze-slot-leeg">Leeg</div>';
-      return `<div class="pauze-slot" data-slot="${i}">
+        : '<div class="pauze-slot-leeg">Niemand ingedeeld</div>';
+      return `<div class="pauze-slot" data-slot="${i}" role="group" aria-label="Pauzeslot ${slot.label}">
           <div class="pauze-slot-kop">
-            <span>${slot.label}</span>
-            <span class="pauze-slot-aantal">${ids.length}</span>
+            <span class="pauze-slot-tijd">${slot.label}</span>
+            <span class="pauze-slot-aantal">${ids.length}${ids.length === 1 ? ' persoon' : ' personen'}</span>
           </div>
-          ${kaarten}
+          <div class="pauze-slot-lijst">${kaarten}</div>
+          <div class="pauze-slot-dekking${aanwezig[i] > 0 && dekking < 1 ? ' is-krap' : ''}">${
+            aanwezig[i] === 0 ? 'Niemand aan het werk'
+              : dekking + ' van de ' + aanwezig[i] + ' op de vloer'}</div>
         </div>`;
     }).join('');
 
     let buitenHtml = '';
-    if (pauzePlanning.buiten.length) {
-      const regels = pauzePlanning.buiten.map(id => {
-        const l = pauzeTeam.find(x => x.id === id);
-        return l ? `<strong>${escapeHtml(l.naam)}</strong> (${pauzeNaarTijd(l.begin)}–${pauzeNaarTijd(l.eind)})` : '';
-      }).filter(Boolean).join(', ');
+    if (buiten.length) {
+      const regels = buiten.map(l =>
+        `<strong>${escapeHtml(l.naam)}</strong> (${escapeHtml(l.functie)}, ${pauzeNaarTijd(l.begin)}–${pauzeNaarTijd(l.eind)})`).join(', ');
       buitenHtml = `<div class="pauze-buiten">Geen pauzeslot mogelijk door de werktijden: ${regels}.
         De pauzes lopen van 12:00 tot 14:00 en iemand moet een heel slot werken om het te krijgen.</div>`;
     }
@@ -14826,15 +15239,14 @@
     ev.preventDefault();
     pauzeOpslaanLid();
   });
-  // Vangnet: laat de muisknop los buiten een kaartje, dan hoort de sleep ook
-  // te eindigen in plaats van te blijven hangen.
   window.addEventListener('pointerup', function (ev) { if (pauzeSleep) pauzeSleepStop(ev); });
-  // Escape tijdens het slepen breekt alleen de sleep af. In de capture-fase,
-  // want de modal-afhandeling luistert ook op Escape en zou het venster
-  // sluiten; die kijkt naar defaultPrevented en laat het dan met rust.
   window.addEventListener('keydown', function (ev) {
     if (ev.key === 'Escape' && pauzeSleep) { ev.preventDefault(); pauzeSleepStop(null); }
   }, true);
+
+  // Bij het opstarten: eerst wat dit tabblad nog wist, daarna overschrijft de
+  // gedeelde bron dat zodra die binnen is.
+  pauzeLaadUitSessie();
 
   // ── Uitloggen ──
   function uitloggen() {
